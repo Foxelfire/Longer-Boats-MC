@@ -3,20 +3,24 @@
 	"id": "tutorialmod",
 	"version": "${version}",
 	"name": "Tutorial Mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "This is Foxel's first fabric mod, and their first real Java project outside of CodeHS. They're following a YT tutorial by Kaupenjoe which is why it's called TutorialMod.",
 	"authors": [
-		"Me!"
+		"Foxelfire",
+		"Kaupenjoe"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/tutorialmod/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"net.foxelfire.tutorialmod.TutorialMod"
+		],
+		"client": [
+			"net.foxelfire.tutorialmod.TutorialModClient"
 		],
 		"fabric-datagen": [
 			"net.foxelfire.tutorialmod.TutorialModDataGenerator"
