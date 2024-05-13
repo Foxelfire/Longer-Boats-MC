@@ -1,0 +1,16 @@
+{
+    "type":"minecraft:crafting_shapeless",
+    "category":"misc",
+    "ingredients":[
+        {
+            "item":"tutorialmod:light_shard"
+        },
+        {
+            "item":"minecraft:raw_gold"
+        }
+    ],
+    "result":{
+        "item": "tutorialmod:pyrite",
+        "count": 8
+    }
+}
