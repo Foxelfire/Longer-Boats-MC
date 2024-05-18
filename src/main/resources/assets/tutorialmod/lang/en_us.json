@@ -2,5 +2,9 @@
     "item.tutorialmod.pyrite": "Fools' Gold",
     "item.tutorialmod.pyrite_ingot":"Pyrite Ingot",
     "item.tutorialmod.light_shard": "Luminous Shard",
-    "block.tutorialmod.light_crystal_block": "Luminous Crystal Block"
+    "block.tutorialmod.light_crystal_block": "Luminous Crystal Block",
+    "item.tutorialmod.coal_detector":"Coal Ore Detector",
+    "item.tutorialmod.iron_detector": "Iron Ore Detector",
+    "item.tutorialmod.copper_detector": "Copper Ore Detector",
+    "item.tutorialmod.gold_detector": "Gold Ore Detector"
 }
