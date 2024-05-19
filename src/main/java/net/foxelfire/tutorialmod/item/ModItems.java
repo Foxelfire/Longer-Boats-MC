@@ -29,6 +29,9 @@ public class ModItems {
     private static void itemGroupToAddToNaturalTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
     }
+    private static void itemGroupToAddToBuildingTab(FabricItemGroupEntries entries){
+        entries.add(ModBlocks.LIGHT_LANTERN_BLOCK);
+    }
     private static void itemGroupToaddToToolsTab(FabricItemGroupEntries entries){
         entries.add(COAL_DETECTOR);
         entries.add(COPPER_DETECTOR);
@@ -42,6 +45,7 @@ public class ModItems {
         TutorialMod.LOGGER.info("Registering Mod Items for: " + TutorialMod.MOD_ID);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::itemGroupToAddToIngredientTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(ModItems::itemGroupToAddToNaturalTab);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(ModItems::itemGroupToAddToBuildingTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(ModItems::itemGroupToaddToToolsTab);
     }
 }
