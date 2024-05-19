@@ -20,7 +20,24 @@ public class ModItems {
     public static final Item COPPER_DETECTOR = registerItem("copper_detector", new CopperDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item IRON_DETECTOR = registerItem("iron_detector", new IronDetectorItem(new FabricItemSettings().maxDamage(64)));
     public static final Item GOLD_DETECTOR = registerItem("gold_detector", new GoldDetectorItem(new FabricItemSettings().maxDamage(64)));
-    
+
+    public static final Item KONPEITO = registerItem("konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.KONPEITO).maxCount(16)));
+    public static final Item BLACK_KONPEITO = registerItem("black_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.BLACK_KONPEITO).maxCount(16)));
+    public static final Item BLUE_KONPEITO = registerItem("blue_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.BLUE_KONPEITO).maxCount(16)));
+    public static final Item BROWN_KONPEITO = registerItem("brown_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.BROWN_KONPEITO).maxCount(16)));
+    public static final Item CYAN_KONPEITO = registerItem("cyan_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.CYAN_KONPEITO).maxCount(16)));
+    public static final Item GRAY_KONPEITO = registerItem("gray_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.GRAY_KONPEITO).maxCount(16)));
+    public static final Item GREEN_KONPEITO = registerItem("green_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.GREEN_KONPEITO).maxCount(16)));
+    public static final Item LIGHT_BLUE_KONPEITO = registerItem("light_blue_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.LIGHT_BLUE_KONPEITO).maxCount(16)));
+    public static final Item LIGHT_GRAY_KONPEITO = registerItem("light_gray_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.LIGHT_GRAY_KONPEITO).maxCount(16)));
+    public static final Item LIME_KONPEITO = registerItem("lime_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.LIME_KONPEITO).maxCount(16)));
+    public static final Item MAGENTA_KONPEITO = registerItem("magenta_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.MAGENTA_KONPEITO).maxCount(16)));
+    public static final Item ORANGE_KONPEITO = registerItem("orange_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.ORANGE_KONPEITO).maxCount(16)));
+    public static final Item PINK_KONPEITO = registerItem("pink_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.PINK_KONPEITO).maxCount(16)));
+    public static final Item PURPLE_KONPEITO = registerItem("purple_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.PURPLE_KONPEITO).maxCount(16)));
+    public static final Item RED_KONPEITO = registerItem("red_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.RED_KONPEITO).maxCount(16)));
+    public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
+
     private static void itemGroupToAddToIngredientTab(FabricItemGroupEntries entries){ // Put all registered entries to add to the game in here!
         entries.add(PYRITE);
         entries.add(LIGHT_SHARD);
@@ -29,10 +46,29 @@ public class ModItems {
     private static void itemGroupToAddToNaturalTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
     }
+    private static void itemGroupToAddToFoodTab(FabricItemGroupEntries entries){
+        entries.add(KONPEITO);
+        entries.add(BLACK_KONPEITO);
+        entries.add(BLUE_KONPEITO);
+        entries.add(BROWN_KONPEITO);
+        entries.add(CYAN_KONPEITO);
+        entries.add(GREEN_KONPEITO);
+        entries.add(GRAY_KONPEITO);
+        entries.add(LIGHT_BLUE_KONPEITO);
+        entries.add(LIGHT_GRAY_KONPEITO);
+        entries.add(LIME_KONPEITO);
+        entries.add(MAGENTA_KONPEITO);
+        entries.add(ORANGE_KONPEITO);
+        entries.add(PINK_KONPEITO);
+        entries.add(PURPLE_KONPEITO);
+        entries.add(RED_KONPEITO);
+        entries.add(YELLOW_KONPEITO);
+    }
     private static void itemGroupToAddToBuildingTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_LANTERN_BLOCK);
+        entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
     }
-    private static void itemGroupToaddToToolsTab(FabricItemGroupEntries entries){
+    private static void itemGroupToAddToToolsTab(FabricItemGroupEntries entries){
         entries.add(COAL_DETECTOR);
         entries.add(COPPER_DETECTOR);
         entries.add(IRON_DETECTOR);
@@ -46,6 +82,7 @@ public class ModItems {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::itemGroupToAddToIngredientTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(ModItems::itemGroupToAddToNaturalTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(ModItems::itemGroupToAddToBuildingTab);
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(ModItems::itemGroupToaddToToolsTab);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(ModItems::itemGroupToAddToToolsTab);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(ModItems::itemGroupToAddToFoodTab);
     }
 }
