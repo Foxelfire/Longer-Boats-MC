@@ -8,7 +8,7 @@ public class ModFoodComponents {
     public static final FoodComponent KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 200), 1f).build();
     public static final FoodComponent BLACK_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 200), 1f).build();
     public static final FoodComponent BLUE_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 200), 1f).build();
-    public static final FoodComponent BROWN_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.SATURATION, 20), 1f).build();
+    public static final FoodComponent BROWN_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.SATURATION, 6), 1f).build();
     public static final FoodComponent CYAN_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.DOLPHINS_GRACE, 200), 1f).build();
     public static final FoodComponent GRAY_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 200, 1), 1f).build();
     public static final FoodComponent GREEN_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.LUCK, 2000), 1f).build();
