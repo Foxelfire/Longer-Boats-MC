@@ -1,6 +1,7 @@
 {
     "item.tutorialmod.pyrite": "Fools' Gold",
     "item.tutorialmod.pyrite_ingot":"Pyrite Ingot",
+    "item.tutorialmod.fire_stalk": "Firestalk",
     "item.tutorialmod.light_shard": "Luminous Shard",
     "block.tutorialmod.light_crystal_block": "Luminous Crystal Block",
     "block.tutorialmod.light_lantern_block": "Luminous Lantern",

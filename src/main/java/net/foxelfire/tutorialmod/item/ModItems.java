@@ -20,6 +20,7 @@ public class ModItems {
     public static final Item COPPER_DETECTOR = registerItem("copper_detector", new CopperDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item IRON_DETECTOR = registerItem("iron_detector", new IronDetectorItem(new FabricItemSettings().maxDamage(64)));
     public static final Item GOLD_DETECTOR = registerItem("gold_detector", new GoldDetectorItem(new FabricItemSettings().maxDamage(64)));
+    public static final Item FIRE_STALK = registerItem("fire_stalk", new Item(new FabricItemSettings()));
 
     public static final Item KONPEITO = registerItem("konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.KONPEITO).maxCount(16)));
     public static final Item BLACK_KONPEITO = registerItem("black_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.BLACK_KONPEITO).maxCount(16)));
@@ -37,6 +38,7 @@ public class ModItems {
     public static final Item PURPLE_KONPEITO = registerItem("purple_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.PURPLE_KONPEITO).maxCount(16)));
     public static final Item RED_KONPEITO = registerItem("red_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.RED_KONPEITO).maxCount(16)));
     public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
+
     // TODO add dye recipes for the different colours
     private static void itemGroupToAddToIngredientTab(FabricItemGroupEntries entries){ // Put all registered entries to add to the game in here!
         entries.add(PYRITE);
@@ -45,6 +47,7 @@ public class ModItems {
     }
     private static void itemGroupToAddToNaturalTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
+        entries.add(FIRE_STALK);
     }
     private static void itemGroupToAddToFoodTab(FabricItemGroupEntries entries){
         entries.add(KONPEITO);
