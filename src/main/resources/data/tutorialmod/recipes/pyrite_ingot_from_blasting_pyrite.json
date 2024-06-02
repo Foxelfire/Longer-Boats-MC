@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 75,
+  "experience": 0.5,
+  "group": "Recipes",
+  "ingredient": {
+    "item": "tutorialmod:pyrite"
+  },
+  "result": "tutorialmod:pyrite_ingot"
+}

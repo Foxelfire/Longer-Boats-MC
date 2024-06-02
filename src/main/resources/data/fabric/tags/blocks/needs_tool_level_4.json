@@ -1,6 +1,6 @@
 {
-    "replace":"false",
-    "values":[
-        
-    ]
+  "replace": false,
+  "values": [
+    "tutorialmod:light_lantern_block"
+  ]
 }

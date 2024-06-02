@@ -1,6 +1,6 @@
 {
-    "parent":"block/cube_all",
-    "textures": {
-        "all":"tutorialmod:block/light_lantern_block"
-    }
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "tutorialmod:block/light_lantern_block"
+  }
 }
