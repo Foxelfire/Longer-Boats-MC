@@ -19,6 +19,7 @@ public class ModModelProvider extends FabricModelProvider{
         // generates blockstates (apparently, don't trust me on this) and both the block model and item model json files for literally every block.
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.LIGHT_LANTERN_BLOCK);
+        blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.PYRITE_BLOCK);
     }
 
     @Override

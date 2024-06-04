@@ -13,11 +13,28 @@ import net.minecraft.util.Identifier;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.StairsBlock;
 
 public class ModBlocks {
     public static final Block LIGHT_CRYSTAL_BLOCK = registerBlock("light_crystal_block", new Block(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.TERRACOTTA_WHITE).luminance(state -> 7)));
-    // if you need an ore or other item or xp-dropping block, go to 8:45 in https://www.youtube.com/watch?v=6plE7wdRCwc&list=PLKGarocXCE1EO43Dlf5JGh7Yk-kRAXUEJ&index=5
     public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block PYRITE_BLOCK = registerBlock("pyrite_block", new Block(FabricBlockSettings.copyOf(Blocks.COPPER_BLOCK).mapColor(MapColor.YELLOW).velocityMultiplier(1.05f).strength(2.5f,6.0f)));
+    // if you need an ore or other item or xp-dropping block, go to 8:45 in https://www.youtube.com/watch?v=6plE7wdRCwc&list=PLKGarocXCE1EO43Dlf5JGh7Yk-kRAXUEJ&index=5
+    //public static final Block PYRITE_STAIRS = registerBlock("pyrite_stairs", new StairsBlock(ModBlocks.,FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK)));
+    /* 
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    */
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);

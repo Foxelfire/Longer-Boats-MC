@@ -33,7 +33,6 @@ public class ModRecipeProvider extends FabricRecipeProvider{
     Items.ORANGE_DYE, Items.PINK_DYE, Items.PURPLE_DYE, Items.RED_DYE, Items.YELLOW_DYE, Items.WHITE_DYE);
 
     private static final List<ItemConvertible> SMELT_TO_PYRITE_INGOT = List.of(ModItems.PYRITE); // bc offerSmelting needs a list apparently
-
     
 
     public ModRecipeProvider(FabricDataOutput output) {
@@ -46,6 +45,7 @@ public class ModRecipeProvider extends FabricRecipeProvider{
         offerBlasting(exporter, SMELT_TO_PYRITE_INGOT, RecipeCategory.MISC, ModItems.PYRITE_INGOT, 0.5f, 75, getName());
         offerDyeableFoodRecipes(exporter, DYES, DYEABLE_KONPEITO, getName());
         offer2x2CompactingRecipe(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.LIGHT_CRYSTAL_BLOCK, ModItems.LIGHT_SHARD);
+        offerReversibleCompactingRecipes(exporter, RecipeCategory.BUILDING_BLOCKS, ModItems.PYRITE_INGOT, RecipeCategory.DECORATIONS, ModBlocks.PYRITE_BLOCK);
 
         ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.KONPEITO, 4)
         .pattern("*.*") // foxel using builder indenting? no wayyyyy... only so that it more resembles the structure of the resulting json file so we can edit it easier

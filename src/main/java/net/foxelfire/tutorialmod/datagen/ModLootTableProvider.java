@@ -25,6 +25,7 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider{
     public void generate() {
         addDrop(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         addDrop(ModBlocks.LIGHT_LANTERN_BLOCK, lightLanternDrops(ModBlocks.LIGHT_LANTERN_BLOCK));
+        addDrop(ModBlocks.PYRITE_BLOCK);
         
     }
       @SuppressWarnings({ "rawtypes", "unchecked" }) // ik this works bc mc does it
