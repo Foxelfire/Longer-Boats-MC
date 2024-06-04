@@ -19,10 +19,23 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider{
 
     @Override
     protected void configure(WrapperLookup arg) {
-        getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE).add(ModBlocks.LIGHT_CRYSTAL_BLOCK).add(ModBlocks.LIGHT_LANTERN_BLOCK).add(ModBlocks.PYRITE_BLOCK);
-        getOrCreateTagBuilder(BlockTags.NEEDS_IRON_TOOL).add(ModBlocks.PYRITE_BLOCK);
+        getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE)
+        .add(ModBlocks.LIGHT_CRYSTAL_BLOCK)
+        .add(ModBlocks.LIGHT_LANTERN_BLOCK)
+        .add(ModBlocks.PYRITE_BLOCK);
+        getOrCreateTagBuilder(BlockTags.NEEDS_IRON_TOOL)
+        .add(ModBlocks.PYRITE_BLOCK)
+        .add(ModBlocks.PYRITE_DOOR)
+        .add(ModBlocks.PYRITE_PRESSURE_PLATE)
+        .add(ModBlocks.PYRITE_SLAB)
+        .add(ModBlocks.PYRITE_STAIRS)
+        .add(ModBlocks.PYRITE_TRAPDOOR)
+        .add(ModBlocks.PYRITE_WALL)
+        .add(ModBlocks.PYRITE_BUTTON);
         getOrCreateTagBuilder(BlockTags.NEEDS_DIAMOND_TOOL).add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         getOrCreateTagBuilder(TagKey.of(RegistryKeys.BLOCK, new Identifier("fabric", "needs_tool_level_4"))).add(ModBlocks.LIGHT_LANTERN_BLOCK);
+        getOrCreateTagBuilder(BlockTags.WALLS).add(ModBlocks.PYRITE_WALL);
+        
     }
 
 }

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "tutorialmod:block/pyrite_slab"
+    },
+    "type=double": {
+      "model": "tutorialmod:block/pyrite_block"
+    },
+    "type=top": {
+      "model": "tutorialmod:block/pyrite_slab_top"
+    }
+  }
+}

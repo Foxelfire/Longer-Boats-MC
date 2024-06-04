@@ -26,6 +26,13 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider{
         addDrop(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         addDrop(ModBlocks.LIGHT_LANTERN_BLOCK, lightLanternDrops(ModBlocks.LIGHT_LANTERN_BLOCK));
         addDrop(ModBlocks.PYRITE_BLOCK);
+        addDrop(ModBlocks.PYRITE_DOOR, doorDrops(ModBlocks.PYRITE_DOOR));
+        addDrop(ModBlocks.PYRITE_STAIRS);
+        addDrop(ModBlocks.PYRITE_SLAB, slabDrops(ModBlocks.PYRITE_SLAB));
+        addDrop(ModBlocks.PYRITE_PRESSURE_PLATE);
+        addDrop(ModBlocks.PYRITE_BUTTON);
+        addDrop(ModBlocks.PYRITE_WALL);
+        addDrop(ModBlocks.PYRITE_TRAPDOOR);
         
     }
       @SuppressWarnings({ "rawtypes", "unchecked" }) // ik this works bc mc does it

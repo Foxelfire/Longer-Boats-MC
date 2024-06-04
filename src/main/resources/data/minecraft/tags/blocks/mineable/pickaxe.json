@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "tutorialmod:light_crystal_block",
-    "tutorialmod:light_lantern_block"
+    "tutorialmod:light_lantern_block",
+    "tutorialmod:pyrite_block"
   ]
 }

@@ -46,6 +46,22 @@ public class ModRecipeProvider extends FabricRecipeProvider{
         offerDyeableFoodRecipes(exporter, DYES, DYEABLE_KONPEITO, getName());
         offer2x2CompactingRecipe(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.LIGHT_CRYSTAL_BLOCK, ModItems.LIGHT_SHARD);
         offerReversibleCompactingRecipes(exporter, RecipeCategory.BUILDING_BLOCKS, ModItems.PYRITE_INGOT, RecipeCategory.DECORATIONS, ModBlocks.PYRITE_BLOCK);
+        offerSlabRecipe(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.PYRITE_SLAB, ModBlocks.PYRITE_BLOCK);
+        offerPressurePlateRecipe(exporter, ModBlocks.PYRITE_PRESSURE_PLATE, ModItems.PYRITE_INGOT);
+        offerWallRecipe(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.PYRITE_WALL, ModBlocks.PYRITE_BLOCK);
+        offerShapelessRecipe(exporter, ModBlocks.PYRITE_BUTTON, ModItems.PYRITE_INGOT, null, 1);
+        
+        createStairsRecipe(ModBlocks.PYRITE_STAIRS, Ingredient.ofItems(ModItems.PYRITE_INGOT))
+        .criterion(hasItem(ModBlocks.PYRITE_BLOCK), conditionsFromItem(ModBlocks.PYRITE_BLOCK))
+        .offerTo(exporter, new Identifier(getRecipeName(ModBlocks.PYRITE_STAIRS)));
+
+        createDoorRecipe(ModBlocks.PYRITE_DOOR, Ingredient.ofItems(ModItems.PYRITE_INGOT))
+        .criterion(hasItem(ModBlocks.PYRITE_BLOCK), conditionsFromItem(ModBlocks.PYRITE_BLOCK))
+        .offerTo(exporter, new Identifier(getRecipeName(ModBlocks.PYRITE_DOOR)));
+
+        createTrapdoorRecipe(ModBlocks.PYRITE_TRAPDOOR, Ingredient.ofItems(ModItems.PYRITE_INGOT))
+        .criterion(hasItem(ModBlocks.PYRITE_BLOCK), conditionsFromItem(ModBlocks.PYRITE_BLOCK))
+        .offerTo(exporter, new Identifier(getRecipeName(ModBlocks.PYRITE_TRAPDOOR)));
 
         ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.KONPEITO, 4)
         .pattern("*.*") // foxel using builder indenting? no wayyyyy... only so that it more resembles the structure of the resulting json file so we can edit it easier
