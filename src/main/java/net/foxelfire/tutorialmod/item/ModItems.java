@@ -69,6 +69,14 @@ public class ModItems {
     private static void itemGroupToAddToBuildingTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_LANTERN_BLOCK);
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
+        entries.add(ModBlocks.PYRITE_BLOCK);
+        entries.add(ModBlocks.PYRITE_BUTTON);
+        entries.add(ModBlocks.PYRITE_PRESSURE_PLATE);
+        entries.add(ModBlocks.PYRITE_SLAB);
+        entries.add(ModBlocks.PYRITE_STAIRS);
+        entries.add(ModBlocks.PYRITE_DOOR);
+        entries.add(ModBlocks.PYRITE_TRAPDOOR);
+        entries.add(ModBlocks.PYRITE_WALL);
     }
     private static void itemGroupToAddToToolsTab(FabricItemGroupEntries entries){
         entries.add(COAL_DETECTOR);
