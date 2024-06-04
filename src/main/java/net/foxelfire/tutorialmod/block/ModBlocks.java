@@ -35,8 +35,8 @@ public class ModBlocks {
     // if you need a fence or fence gate, go to 3:39 here: https://www.youtube.com/watch?v=TgDh216TelA&list=PLKGarocXCE1EO43Dlf5JGh7Yk-kRAXUEJ&index=13... also fences and fence gates need tags in datagen, BlockTags.FENCES and FENCE_GATES respectively
     // and if you need an ore or other item or xp-dropping block, go to 8:45 in https://www.youtube.com/watch?v=6plE7wdRCwc&list=PLKGarocXCE1EO43Dlf5JGh7Yk-kRAXUEJ&index=5
 
-    public static final Block PYRITE_DOOR = registerBlock("pyrite_door", new DoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK), BlockSetType.GOLD));
-    public static final Block PYRITE_TRAPDOOR = registerBlock("pyrite_trapdoor", new TrapdoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK), BlockSetType.GOLD));
+    public static final Block PYRITE_DOOR = registerBlock("pyrite_door", new DoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
+    public static final Block PYRITE_TRAPDOOR = registerBlock("pyrite_trapdoor", new TrapdoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);
