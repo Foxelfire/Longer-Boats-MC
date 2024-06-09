@@ -1,5 +1,10 @@
 {
     "item.tutorialmod.pyrite": "Fools' Gold",
+    "item.tutorialmod.pyrite_sword":"Pyrite Sword",
+    "item.tutorialmod.pyrite_pickaxe":"Pyrite Pickaxe",
+    "item.tutorialmod.pyrite_axe":"Pyrite Axe",
+    "item.tutorialmod.pyrite_shovel":"Pyrite Shovel",
+    "item.tutorialmod.pyrite_hoe":"Pyrite Hoe",
     "item.tutorialmod.pyrite_ingot":"Pyrite Ingot",
     "item.tutorialmod.fire_stalk": "Firestalk",
     "item.tutorialmod.light_shard": "Luminous Shard",

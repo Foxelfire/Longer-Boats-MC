@@ -6,8 +6,13 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.custom.*;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -16,6 +21,13 @@ public class ModItems {
     public static final Item PYRITE = registerItem("pyrite", new Item(new FabricItemSettings())); // Registers the item (could you tell?)
     public static final Item LIGHT_SHARD = registerItem("light_shard", new Item(new FabricItemSettings()));
     public static final Item PYRITE_INGOT = registerItem("pyrite_ingot", new Item(new FabricItemSettings()));
+    // why are pyrite tools' attack speeds negative??? well,  each tool has an invisible default of 4 attack speed and then whatever you put into the constructor is applied to that base of 4
+    public static final Item PYRITE_AXE = registerItem("pyrite_axe", new AxeItem(ModToolMaterial.PYRITE, 6.0f, -2.0f, new FabricItemSettings()));
+    public static final Item PYRITE_PICKAXE = registerItem("pyrite_pickaxe", new PickaxeItem(ModToolMaterial.PYRITE, 1, -1.6f, new FabricItemSettings()));
+    public static final Item PYRITE_SHOVEL = registerItem("pyrite_shovel", new ShovelItem(ModToolMaterial.PYRITE, 1.5f, -2.0f, new FabricItemSettings()));
+    public static final Item PYRITE_SWORD = registerItem("pyrite_sword", new SwordItem(ModToolMaterial.PYRITE, 3, -0.8f, new FabricItemSettings()));
+    public static final Item PYRITE_HOE = registerItem("pyrite_hoe", new HoeItem(ModToolMaterial.PYRITE, 0, 0.0f, new FabricItemSettings()));
+
     public static final Item COAL_DETECTOR = registerItem("coal_detector", new CoalDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item COPPER_DETECTOR = registerItem("copper_detector", new CopperDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item IRON_DETECTOR = registerItem("iron_detector", new IronDetectorItem(new FabricItemSettings().maxDamage(64)));
@@ -39,7 +51,7 @@ public class ModItems {
     public static final Item RED_KONPEITO = registerItem("red_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.RED_KONPEITO).maxCount(16)));
     public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
 
-    public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxDamage(256)));
+    public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
 
     private static void itemGroupToAddToIngredientTab(FabricItemGroupEntries entries){ // Put all registered entries to add to the game in here!
         entries.add(PYRITE);
@@ -86,6 +98,11 @@ public class ModItems {
         entries.add(IRON_DETECTOR);
         entries.add(GOLD_DETECTOR);
         entries.add(LUMINOUS_WAND);
+        entries.add(PYRITE_SWORD);
+        entries.add(PYRITE_PICKAXE);
+        entries.add(PYRITE_AXE);
+        entries.add(PYRITE_SHOVEL);
+        entries.add(PYRITE_HOE);
     }
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, new Identifier(TutorialMod.MOD_ID, name), item);
