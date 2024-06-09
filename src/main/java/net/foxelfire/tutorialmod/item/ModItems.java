@@ -22,10 +22,10 @@ public class ModItems {
     public static final Item LIGHT_SHARD = registerItem("light_shard", new Item(new FabricItemSettings()));
     public static final Item PYRITE_INGOT = registerItem("pyrite_ingot", new Item(new FabricItemSettings()));
     // why are pyrite tools' attack speeds negative??? well,  each tool has an invisible default of 4 attack speed and then whatever you put into the constructor is applied to that base of 4
-    public static final Item PYRITE_AXE = registerItem("pyrite_axe", new AxeItem(ModToolMaterial.PYRITE, 6.0f, -2.0f, new FabricItemSettings()));
+    public static final Item PYRITE_AXE = registerItem("pyrite_axe", new AxeItem(ModToolMaterial.PYRITE, 5.0f, -1.2f, new FabricItemSettings()));
     public static final Item PYRITE_PICKAXE = registerItem("pyrite_pickaxe", new PickaxeItem(ModToolMaterial.PYRITE, 1, -1.6f, new FabricItemSettings()));
     public static final Item PYRITE_SHOVEL = registerItem("pyrite_shovel", new ShovelItem(ModToolMaterial.PYRITE, 1.5f, -2.0f, new FabricItemSettings()));
-    public static final Item PYRITE_SWORD = registerItem("pyrite_sword", new SwordItem(ModToolMaterial.PYRITE, 3, -0.8f, new FabricItemSettings()));
+    public static final Item PYRITE_SWORD = registerItem("pyrite_sword", new SwordItem(ModToolMaterial.PYRITE, 2, -0.2f, new FabricItemSettings()));
     public static final Item PYRITE_HOE = registerItem("pyrite_hoe", new HoeItem(ModToolMaterial.PYRITE, 0, 0.0f, new FabricItemSettings()));
 
     public static final Item COAL_DETECTOR = registerItem("coal_detector", new CoalDetectorItem(new FabricItemSettings().maxDamage(128)));
