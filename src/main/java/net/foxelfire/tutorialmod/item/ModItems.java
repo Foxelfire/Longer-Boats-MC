@@ -39,6 +39,8 @@ public class ModItems {
     public static final Item RED_KONPEITO = registerItem("red_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.RED_KONPEITO).maxCount(16)));
     public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
 
+    public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxDamage(256)));
+
     private static void itemGroupToAddToIngredientTab(FabricItemGroupEntries entries){ // Put all registered entries to add to the game in here!
         entries.add(PYRITE);
         entries.add(LIGHT_SHARD);
@@ -83,6 +85,7 @@ public class ModItems {
         entries.add(COPPER_DETECTOR);
         entries.add(IRON_DETECTOR);
         entries.add(GOLD_DETECTOR);
+        entries.add(LUMINOUS_WAND);
     }
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, new Identifier(TutorialMod.MOD_ID, name), item);
