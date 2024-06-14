@@ -6,13 +6,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.custom.*;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.HoeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.PickaxeItem;
-import net.minecraft.item.ShovelItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -27,6 +21,11 @@ public class ModItems {
     public static final Item PYRITE_SHOVEL = registerItem("pyrite_shovel", new ShovelItem(ModToolMaterial.PYRITE, 1.5f, -2.0f, new FabricItemSettings()));
     public static final Item PYRITE_SWORD = registerItem("pyrite_sword", new SwordItem(ModToolMaterial.PYRITE, 2, -0.2f, new FabricItemSettings()));
     public static final Item PYRITE_HOE = registerItem("pyrite_hoe", new HoeItem(ModToolMaterial.PYRITE, 0, 0.0f, new FabricItemSettings()));
+
+    public static final Item PYRITE_HELMET = registerItem("pyrite_helmet", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.HELMET, new FabricItemSettings()));
+    public static final Item PYRITE_CHESTPLATE = registerItem("pyrite_chestplate", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
+    public static final Item PYRITE_LEGGINGS = registerItem("pyrite_leggings", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
+    public static final Item PYRITE_BOOTS = registerItem("pyrite_boots", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.BOOTS, new FabricItemSettings()));
 
     public static final Item COAL_DETECTOR = registerItem("coal_detector", new CoalDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item COPPER_DETECTOR = registerItem("copper_detector", new CopperDetectorItem(new FabricItemSettings().maxDamage(128)));
@@ -104,6 +103,14 @@ public class ModItems {
         entries.add(PYRITE_SHOVEL);
         entries.add(PYRITE_HOE);
     }
+    private static void itemGroupToAddToCombatTab(FabricItemGroupEntries entries){
+        entries.add(PYRITE_SWORD);
+        entries.add(PYRITE_AXE);
+        entries.add(PYRITE_BOOTS);
+        entries.add(PYRITE_CHESTPLATE);
+        entries.add(PYRITE_HELMET);
+        entries.add(PYRITE_LEGGINGS);
+    }
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, new Identifier(TutorialMod.MOD_ID, name), item);
     }
@@ -114,5 +121,6 @@ public class ModItems {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(ModItems::itemGroupToAddToBuildingTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(ModItems::itemGroupToAddToToolsTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(ModItems::itemGroupToAddToFoodTab);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(ModItems::itemGroupToAddToCombatTab);
     }
 }
