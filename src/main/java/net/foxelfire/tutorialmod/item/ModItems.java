@@ -22,7 +22,7 @@ public class ModItems {
     public static final Item PYRITE_SWORD = registerItem("pyrite_sword", new SwordItem(ModToolMaterial.PYRITE, 2, -0.2f, new FabricItemSettings()));
     public static final Item PYRITE_HOE = registerItem("pyrite_hoe", new HoeItem(ModToolMaterial.PYRITE, 0, 0.0f, new FabricItemSettings()));
 
-    public static final Item PYRITE_HELMET = registerItem("pyrite_helmet", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.HELMET, new FabricItemSettings()));
+    public static final Item PYRITE_HELMET = registerItem("pyrite_helmet", new ModArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.HELMET, new FabricItemSettings()));
     public static final Item PYRITE_CHESTPLATE = registerItem("pyrite_chestplate", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
     public static final Item PYRITE_LEGGINGS = registerItem("pyrite_leggings", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
     public static final Item PYRITE_BOOTS = registerItem("pyrite_boots", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.BOOTS, new FabricItemSettings()));
