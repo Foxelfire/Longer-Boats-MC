@@ -74,46 +74,55 @@ public class ModRecipeProvider extends FabricRecipeProvider{
         .criterion(hasItem(ModItems.LIGHT_SHARD), conditionsFromItem(ModItems.LIGHT_SHARD))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.KONPEITO)));
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_PICKAXE, 1)
-        .pattern("PPP")
-        .pattern(" / ")
-        .pattern(" / ")
-        .input('/', Items.STICK)
-        .input('P', ModItems.PYRITE_INGOT)
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_PICKAXE, 1).pattern("PPP").pattern(" / ").pattern(" / ")
+        .input('/', Items.STICK).input('P', ModItems.PYRITE_INGOT)
         .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_PICKAXE)));
-        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_AXE, 1)
-        .pattern("PP")
-        .pattern("/P")
-        .pattern("/ ")
-        .input('/', Items.STICK)
-        .input('P', ModItems.PYRITE_INGOT)
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_AXE, 1).pattern("PP").pattern("/P").pattern("/ ")
+        .input('/', Items.STICK).input('P', ModItems.PYRITE_INGOT)
         .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_AXE)));
-        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_SWORD, 1)
-        .pattern("P")
-        .pattern("P")
-        .pattern("/")
-        .input('/', Items.STICK)
-        .input('P', ModItems.PYRITE_INGOT)
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_SWORD, 1).pattern("P").pattern("P").pattern("/")
+        .input('/', Items.STICK).input('P', ModItems.PYRITE_INGOT)
         .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_SWORD)));
-        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_SHOVEL, 1)
-        .pattern("P")
-        .pattern("/")
-        .pattern("/")
-        .input('/', Items.STICK)
-        .input('P', ModItems.PYRITE_INGOT)
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_SHOVEL, 1).pattern("P").pattern("/").pattern("/")
+        .input('/', Items.STICK).input('P', ModItems.PYRITE_INGOT)
         .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_SHOVEL)));
-        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_HOE, 1)
-        .pattern("PP")
-        .pattern("/ ") 
-        .pattern("/ ")
-        .input('/', Items.STICK)
-        .input('P', ModItems.PYRITE_INGOT)
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.PYRITE_HOE, 1).pattern("PP").pattern("/ ") .pattern("/ ")
+        .input('/', Items.STICK).input('P', ModItems.PYRITE_INGOT)
         .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_HOE)));
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.COMBAT, ModItems.PYRITE_HELMET, 1)
+        .pattern("PPP").pattern("P P")
+        .input('P', ModItems.PYRITE_INGOT)
+        .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
+        .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_HELMET)));
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.COMBAT, ModItems.PYRITE_CHESTPLATE, 1)
+        .pattern("P P").pattern("PPP").pattern("PPP")
+        .input('P', ModItems.PYRITE_INGOT)
+        .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
+        .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_CHESTPLATE)));
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.COMBAT, ModItems.PYRITE_LEGGINGS, 1)
+        .pattern("PPP").pattern("P P").pattern("P P")
+        .input('P', ModItems.PYRITE_INGOT)
+        .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
+        .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_LEGGINGS)));
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.COMBAT, ModItems.PYRITE_BOOTS, 1)
+        .pattern("P P").pattern("P P")
+        .input('P', ModItems.PYRITE_INGOT)
+        .criterion(hasItem(ModItems.PYRITE_INGOT), conditionsFromItem(ModItems.PYRITE_INGOT))
+        .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_BOOTS)));
     }
     // this recipe is stolen from minecraft's RecipeProvider, it's just the dyeable recipes one but with the RecipeCategory of FOOD instead of BUILDING_BLOCKS
     private static void offerDyeableFoodRecipes(Consumer<RecipeJsonProvider> exporter, List<Item> dyes, List<Item> dyeables, String group) {

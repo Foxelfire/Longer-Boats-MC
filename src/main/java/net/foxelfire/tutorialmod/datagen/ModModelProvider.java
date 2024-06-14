@@ -7,6 +7,7 @@ import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.data.client.Models;
+import net.minecraft.item.ArmorItem;
 
 public class ModModelProvider extends FabricModelProvider{
 
@@ -43,6 +44,11 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.PYRITE_SWORD, Models.HANDHELD);
         itemModelGenerator.register(ModItems.PYRITE_HOE, Models.HANDHELD);
         itemModelGenerator.register(ModItems.PYRITE_SHOVEL, Models.HANDHELD);
+
+        itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_HELMET); // wacky casting - I don't think we need its name so its fine
+        itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_CHESTPLATE);
+        itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_LEGGINGS);
+        itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_BOOTS);
 
         itemModelGenerator.register(ModItems.COPPER_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.COAL_DETECTOR, Models.GENERATED);

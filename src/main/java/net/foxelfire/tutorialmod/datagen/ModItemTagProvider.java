@@ -4,9 +4,11 @@ import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModTags;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
+import net.minecraft.registry.tag.ItemTags;
 
 public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
 
@@ -23,6 +25,11 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         .add(Items.BEETROOT_SEEDS)
         .add(Items.TORCHFLOWER_SEEDS)
         .add(Items.NETHER_WART);
+        getOrCreateTagBuilder(ItemTags.TRIMMABLE_ARMOR)
+        .add(ModItems.PYRITE_LEGGINGS)
+        .add(ModItems.PYRITE_BOOTS)
+        .add(ModItems.PYRITE_HELMET)
+        .add(ModItems.PYRITE_CHESTPLATE);
     }
 
 }
