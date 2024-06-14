@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": {
+      "item": "tutorialmod:pyrite_ingot"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "P P"
+  ],
+  "result": {
+    "item": "tutorialmod:pyrite_helmet"
+  },
+  "show_notification": true
+}
