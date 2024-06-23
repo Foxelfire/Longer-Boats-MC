@@ -21,4 +21,5 @@ public class ModFoodComponents {
     public static final FoodComponent PURPLE_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.HASTE, 200, 1), 1f).build();
     public static final FoodComponent RED_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.STRENGTH, 200, 1), 1f).build();
     public static final FoodComponent YELLOW_KONPEITO = new FoodComponent.Builder().hunger(1).snack().saturationModifier(.1f).statusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 200, 2), 1f).build();
+    public static final FoodComponent DEWFRUIT = new FoodComponent.Builder().hunger(5).saturationModifier(1.0f).build();
 }

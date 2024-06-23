@@ -24,6 +24,7 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         .add(Items.PUMPKIN_SEEDS)
         .add(Items.BEETROOT_SEEDS)
         .add(Items.TORCHFLOWER_SEEDS)
+        .add(ModItems.DEWFRUIT_SEEDS)
         .add(Items.NETHER_WART);
         getOrCreateTagBuilder(ItemTags.TRIMMABLE_ARMOR)
         .add(ModItems.PYRITE_LEGGINGS)

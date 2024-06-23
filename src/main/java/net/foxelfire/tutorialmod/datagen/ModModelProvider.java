@@ -3,6 +3,7 @@ package net.foxelfire.tutorialmod.datagen;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.foxelfire.tutorialmod.block.ModBlocks;
+import net.foxelfire.tutorialmod.block.custom.DewfruitCropBlock;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
@@ -29,6 +30,7 @@ public class ModModelProvider extends FabricModelProvider{
         pyritePool.stairs(ModBlocks.PYRITE_STAIRS);
         blockStateModelGenerator.registerDoor(ModBlocks.PYRITE_DOOR);
         blockStateModelGenerator.registerTrapdoor(ModBlocks.PYRITE_TRAPDOOR);
+        blockStateModelGenerator.registerCrop(ModBlocks.DEWFRUIT_CROP, DewfruitCropBlock.AGE, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
     }
 
     @Override
@@ -38,6 +40,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.PYRITE, Models.GENERATED);
         itemModelGenerator.register(ModItems.PYRITE_INGOT, Models.GENERATED);
         itemModelGenerator.register(ModItems.FIRE_STALK, Models.GENERATED);
+        itemModelGenerator.register(ModItems.DEWFRUIT, Models.GENERATED);
 
         itemModelGenerator.register(ModItems.PYRITE_AXE, Models.HANDHELD);
         itemModelGenerator.register(ModItems.PYRITE_PICKAXE, Models.HANDHELD);

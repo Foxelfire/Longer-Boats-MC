@@ -3,6 +3,7 @@ package net.foxelfire.tutorialmod.block;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.foxelfire.tutorialmod.TutorialMod;
+import net.foxelfire.tutorialmod.block.custom.DewfruitCropBlock;
 import net.foxelfire.tutorialmod.block.custom.SoundBlock;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -37,6 +38,8 @@ public class ModBlocks {
 
     public static final Block PYRITE_DOOR = registerBlock("pyrite_door", new DoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
     public static final Block PYRITE_TRAPDOOR = registerBlock("pyrite_trapdoor", new TrapdoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
+
+    public static final Block DEWFRUIT_CROP = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "dewfruit_crop"), new DewfruitCropBlock(FabricBlockSettings.copyOf(Blocks.BEETROOTS)));
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);

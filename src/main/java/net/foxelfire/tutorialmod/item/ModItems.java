@@ -52,6 +52,9 @@ public class ModItems {
 
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
 
+    public static final Item DEWFRUIT_SEEDS = registerItem("dewfruit_seeds", new AliasedBlockItem(ModBlocks.DEWFRUIT_CROP, new FabricItemSettings()));
+    public static final Item DEWFRUIT = registerItem("dewfruit", new Item(new FabricItemSettings().food(ModFoodComponents.DEWFRUIT)));
+
     private static void itemGroupToAddToIngredientTab(FabricItemGroupEntries entries){ // Put all registered entries to add to the game in here!
         entries.add(PYRITE);
         entries.add(LIGHT_SHARD);
@@ -60,6 +63,7 @@ public class ModItems {
     private static void itemGroupToAddToNaturalTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         entries.add(FIRE_STALK);
+        entries.add(DEWFRUIT_SEEDS);
     }
     private static void itemGroupToAddToFoodTab(FabricItemGroupEntries entries){
         entries.add(KONPEITO);
@@ -78,6 +82,7 @@ public class ModItems {
         entries.add(PURPLE_KONPEITO);
         entries.add(RED_KONPEITO);
         entries.add(YELLOW_KONPEITO);
+        entries.add(DEWFRUIT);
     }
     private static void itemGroupToAddToBuildingTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_LANTERN_BLOCK);
