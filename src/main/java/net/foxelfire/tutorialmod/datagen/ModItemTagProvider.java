@@ -31,6 +31,9 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         .add(ModItems.PYRITE_BOOTS)
         .add(ModItems.PYRITE_HELMET)
         .add(ModItems.PYRITE_CHESTPLATE);
+        getOrCreateTagBuilder(ItemTags.SNIFFER_FOOD)
+        .add(ModItems.DEWFRUIT_SEEDS)
+        .add(ModItems.DEWFRUIT);
     }
 
 }
