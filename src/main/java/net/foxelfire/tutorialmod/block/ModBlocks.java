@@ -16,6 +16,8 @@ import net.minecraft.block.BlockSetType;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ButtonBlock;
 import net.minecraft.block.DoorBlock;
+import net.minecraft.block.FlowerBlock;
+import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.MapColor;
 import net.minecraft.block.PressurePlateBlock;
 import net.minecraft.block.SlabBlock;
@@ -23,6 +25,7 @@ import net.minecraft.block.StairsBlock;
 import net.minecraft.block.TrapdoorBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.PressurePlateBlock.ActivationRule;
+import net.minecraft.entity.effect.StatusEffects;
 
 public class ModBlocks {
     public static final Block LIGHT_CRYSTAL_BLOCK = registerBlock("light_crystal_block", new Block(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.TERRACOTTA_WHITE).luminance(state -> 7)));
@@ -40,6 +43,8 @@ public class ModBlocks {
     public static final Block PYRITE_TRAPDOOR = registerBlock("pyrite_trapdoor", new TrapdoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
 
     public static final Block DEWFRUIT_CROP = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "dewfruit_crop"), new DewfruitCropBlock(FabricBlockSettings.copyOf(Blocks.BEETROOTS)));
+    public static final Block CLOVER_FLOWER = registerBlock("clover_flower", new FlowerBlock(StatusEffects.LUCK, 25, FabricBlockSettings.copyOf(Blocks.ALLIUM).nonOpaque().noCollision()));
+    public static final Block POTTED_CLOVER = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "potted_clover_flower"), new FlowerPotBlock(CLOVER_FLOWER, FabricBlockSettings.copyOf(Blocks.POTTED_ALLIUM).nonOpaque()));
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);

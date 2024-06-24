@@ -31,6 +31,7 @@ public class ModModelProvider extends FabricModelProvider{
         blockStateModelGenerator.registerDoor(ModBlocks.PYRITE_DOOR);
         blockStateModelGenerator.registerTrapdoor(ModBlocks.PYRITE_TRAPDOOR);
         blockStateModelGenerator.registerCrop(ModBlocks.DEWFRUIT_CROP, DewfruitCropBlock.AGE, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+        blockStateModelGenerator.registerFlowerPotPlant(ModBlocks.CLOVER_FLOWER, ModBlocks.POTTED_CLOVER, BlockStateModelGenerator.TintType.NOT_TINTED);
     }
 
     @Override

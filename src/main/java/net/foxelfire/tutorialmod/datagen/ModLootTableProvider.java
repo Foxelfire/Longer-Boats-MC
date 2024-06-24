@@ -41,6 +41,8 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider{
         addDrop(ModBlocks.PYRITE_WALL);
         addDrop(ModBlocks.PYRITE_TRAPDOOR);
         addDrop(ModBlocks.DEWFRUIT_CROP, cropDrops(ModBlocks.DEWFRUIT_CROP, ModItems.DEWFRUIT, ModItems.DEWFRUIT_SEEDS, dewfruitPredicateBuilder));
+        addDrop(ModBlocks.CLOVER_FLOWER);
+        addPottedPlantDrops(ModBlocks.POTTED_CLOVER);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" }) // ik this works bc mc does it
