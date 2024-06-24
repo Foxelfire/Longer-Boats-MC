@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModTags;
 import net.minecraft.item.Items;
@@ -34,6 +35,9 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         getOrCreateTagBuilder(ItemTags.SNIFFER_FOOD)
         .add(ModItems.DEWFRUIT_SEEDS)
         .add(ModItems.DEWFRUIT);
+        // Blocks w/ flower-related BlockTags don't have their item forms automatically added to the corresponding ItemTag, 
+        // even tho they're still ItemConvertibles which makes doing that easy??? average lazy mojang - fine, i'll do it myself
+        getOrCreateTagBuilder(ItemTags.SMALL_FLOWERS).add(ModBlocks.CLOVER_FLOWER.asItem());
     }
 
 }
