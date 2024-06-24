@@ -36,6 +36,7 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider{
         getOrCreateTagBuilder(TagKey.of(RegistryKeys.BLOCK, new Identifier("fabric", "needs_tool_level_4"))).add(ModBlocks.LIGHT_LANTERN_BLOCK);
         getOrCreateTagBuilder(BlockTags.WALLS).add(ModBlocks.PYRITE_WALL);
         getOrCreateTagBuilder(BlockTags.CROPS).add(ModBlocks.DEWFRUIT_CROP);
+        getOrCreateTagBuilder(BlockTags.SMALL_FLOWERS).add(ModBlocks.CLOVER_FLOWER);
         
     }
 
