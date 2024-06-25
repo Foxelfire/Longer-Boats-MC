@@ -19,6 +19,7 @@ import net.minecraft.block.DoorBlock;
 import net.minecraft.block.FlowerBlock;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.PlantBlock;
 import net.minecraft.block.PressurePlateBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
@@ -44,6 +45,7 @@ public class ModBlocks {
 
     public static final Block DEWFRUIT_CROP = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "dewfruit_crop"), new DewfruitCropBlock(FabricBlockSettings.copyOf(Blocks.BEETROOTS)));
     public static final Block CLOVER_FLOWER = registerBlock("clover_flower", new FlowerBlock(StatusEffects.LUCK, 25, FabricBlockSettings.copyOf(Blocks.ALLIUM).nonOpaque().noCollision()));
+    public static final Block CLOVER = registerBlock("clover", new PlantBlock(FabricBlockSettings.copyOf(Blocks.FERN).nonOpaque().noCollision()));
     public static final Block POTTED_CLOVER = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "potted_clover_flower"), new FlowerPotBlock(CLOVER_FLOWER, FabricBlockSettings.copyOf(Blocks.POTTED_ALLIUM).nonOpaque()));
 
     private static Block registerBlock(String name, Block block){

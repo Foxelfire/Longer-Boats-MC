@@ -15,6 +15,7 @@ public class TutorialModClient implements ClientModInitializer{
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.DEWFRUIT_CROP, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CLOVER_FLOWER, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.POTTED_CLOVER, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CLOVER, RenderLayer.getCutout());
     }
     
 

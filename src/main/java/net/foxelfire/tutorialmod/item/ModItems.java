@@ -65,6 +65,7 @@ public class ModItems {
         entries.add(FIRE_STALK);
         entries.add(DEWFRUIT_SEEDS);
         entries.add(ModBlocks.CLOVER_FLOWER);
+        entries.add(ModBlocks.CLOVER);
     }
     private static void itemGroupToAddToFoodTab(FabricItemGroupEntries entries){
         entries.add(KONPEITO);

@@ -42,6 +42,7 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider{
         addDrop(ModBlocks.PYRITE_TRAPDOOR);
         addDrop(ModBlocks.DEWFRUIT_CROP, cropDrops(ModBlocks.DEWFRUIT_CROP, ModItems.DEWFRUIT, ModItems.DEWFRUIT_SEEDS, dewfruitPredicateBuilder));
         addDrop(ModBlocks.CLOVER_FLOWER);
+        addDrop(ModBlocks.CLOVER);
         addPottedPlantDrops(ModBlocks.POTTED_CLOVER);
     }
 
