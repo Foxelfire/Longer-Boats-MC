@@ -5,6 +5,7 @@ import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModCustomTrades;
 import net.foxelfire.tutorialmod.util.ModLootTableModifiers;
+import net.foxelfire.tutorialmod.villager.ModVillagers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class TutorialMod implements ModInitializer {
 		FuelItems.registerFuelInstances();
 		ModLootTableModifiers.modifyLootTables();
 		ModCustomTrades.registerCustomTrades();
+		ModVillagers.registerVillagers();
 		LOGGER.info("Hello Fabric world!");
 	}
 }

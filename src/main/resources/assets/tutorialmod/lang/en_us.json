@@ -46,5 +46,6 @@
     "item.tutorialmod.iron_detector": "Iron Ore Detector",
     "item.tutorialmod.copper_detector": "Copper Ore Detector",
     "item.tutorialmod.gold_detector": "Gold Ore Detector",
-    "item.tutorialmod.light_wand": "Luminous Wand"
+    "item.tutorialmod.light_wand": "Luminous Wand",
+    "entity.minecraft.villager.miner": "Miner"
 }
