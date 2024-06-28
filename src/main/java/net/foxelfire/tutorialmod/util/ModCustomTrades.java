@@ -17,6 +17,8 @@ public class ModCustomTrades {
         addLevel4Trades();
         addLevel5Trades();
     }
+    // TODO: Switch everything back to direct TradeOffer() calls? Probably won't fix the post-exit crash but worth a shot
+    // if that doesn't work, either figure out how tf to update lwjgl or give up
     public static void addLevel1Trades(){
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories -> {
             factories.add((entity, random) -> new TradeOffers.BuyForOneEmeraldFactory(ModItems.PYRITE, 4, 16, 1).create(entity, random));
