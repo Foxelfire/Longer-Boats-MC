@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "tutorialmod:pyrite_ingot"
+    }
+  },
+  "pattern": [
+    "P",
+    "P",
+    "/"
+  ],
+  "result": {
+    "item": "tutorialmod:pyrite_sword"
+  },
+  "show_notification": true
+}

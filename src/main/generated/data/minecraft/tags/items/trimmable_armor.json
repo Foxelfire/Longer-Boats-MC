@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "tutorialmod:pyrite_leggings",
+    "tutorialmod:pyrite_boots",
+    "tutorialmod:pyrite_helmet",
+    "tutorialmod:pyrite_chestplate"
+  ]
+}

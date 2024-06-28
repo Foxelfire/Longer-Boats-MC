@@ -1,0 +1,60 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "Recipes",
+  "ingredients": [
+    {
+      "item": "minecraft:brown_dye"
+    },
+    [
+      {
+        "item": "tutorialmod:black_konpeito"
+      },
+      {
+        "item": "tutorialmod:blue_konpeito"
+      },
+      {
+        "item": "tutorialmod:cyan_konpeito"
+      },
+      {
+        "item": "tutorialmod:gray_konpeito"
+      },
+      {
+        "item": "tutorialmod:green_konpeito"
+      },
+      {
+        "item": "tutorialmod:light_blue_konpeito"
+      },
+      {
+        "item": "tutorialmod:light_gray_konpeito"
+      },
+      {
+        "item": "tutorialmod:lime_konpeito"
+      },
+      {
+        "item": "tutorialmod:magenta_konpeito"
+      },
+      {
+        "item": "tutorialmod:orange_konpeito"
+      },
+      {
+        "item": "tutorialmod:pink_konpeito"
+      },
+      {
+        "item": "tutorialmod:purple_konpeito"
+      },
+      {
+        "item": "tutorialmod:red_konpeito"
+      },
+      {
+        "item": "tutorialmod:yellow_konpeito"
+      },
+      {
+        "item": "tutorialmod:konpeito"
+      }
+    ]
+  ],
+  "result": {
+    "item": "tutorialmod:brown_konpeito"
+  }
+}

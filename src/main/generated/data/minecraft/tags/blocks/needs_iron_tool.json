@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "tutorialmod:pyrite_block",
+    "tutorialmod:pyrite_door",
+    "tutorialmod:pyrite_pressure_plate",
+    "tutorialmod:pyrite_slab",
+    "tutorialmod:pyrite_stairs",
+    "tutorialmod:pyrite_trapdoor",
+    "tutorialmod:pyrite_wall",
+    "tutorialmod:pyrite_button"
+  ]
+}

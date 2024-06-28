@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 150,
+  "experience": 0.5,
+  "group": "Recipes",
+  "ingredient": {
+    "item": "tutorialmod:pyrite"
+  },
+  "result": "tutorialmod:pyrite_ingot"
+}
