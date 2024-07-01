@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.custom.DewfruitCropBlock;
 import net.foxelfire.tutorialmod.block.custom.SoundBlock;
+import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -30,7 +31,7 @@ import net.minecraft.entity.effect.StatusEffects;
 
 public class ModBlocks {
     public static final Block LIGHT_CRYSTAL_BLOCK = registerBlock("light_crystal_block", new Block(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.TERRACOTTA_WHITE).luminance(state -> 7)));
-    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14), SoundEvents.BLOCK_BEACON_ACTIVATE));
+    public static final Block LIGHT_LANTERN_BLOCK = registerBlock("light_lantern_block", new SoundBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).mapColor(MapColor.WHITE).luminance(state -> 14).sounds(ModSounds.LIGHT_LANTERN_SOUNDS), SoundEvents.BLOCK_BEACON_ACTIVATE));
     public static final Block PYRITE_BLOCK = registerBlock("pyrite_block", new Block(FabricBlockSettings.copyOf(Blocks.COPPER_BLOCK).mapColor(MapColor.YELLOW).velocityMultiplier(1.05f).strength(2.5f,6.0f)));
     public static final Block PYRITE_STAIRS = registerBlock("pyrite_stairs", new StairsBlock(ModBlocks.PYRITE_BLOCK.getDefaultState(),FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK)));
     public static final Block PYRITE_SLAB = registerBlock("pyrite_slab", new SlabBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK)));

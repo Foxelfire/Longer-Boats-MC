@@ -3,6 +3,7 @@ package net.foxelfire.tutorialmod;
 import net.fabricmc.api.ModInitializer;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.foxelfire.tutorialmod.util.ModCustomTrades;
 import net.foxelfire.tutorialmod.util.ModLootTableModifiers;
 import net.foxelfire.tutorialmod.villager.ModVillagers;
@@ -28,6 +29,7 @@ public class TutorialMod implements ModInitializer {
 		ModLootTableModifiers.modifyLootTables();
 		ModCustomTrades.registerCustomTrades();
 		ModVillagers.registerVillagers();
+		ModSounds.registerSounds();
 		LOGGER.info("Hello Fabric world!");
 	}
 }

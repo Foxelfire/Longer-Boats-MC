@@ -19,6 +19,7 @@ public class ModCustomTrades {
     }
     // TODO: Switch everything back to direct TradeOffer() calls? Probably won't fix the post-exit crash but worth a shot
     // if that doesn't work, either figure out how tf to update lwjgl or give up
+    // UPDATE: this crash is probably mojang's fault! 1.20.1 has a broken lwjgl version that can fuck with mods. this in theory should solve itself when i update my mod version
     public static void addLevel1Trades(){
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories -> {
             factories.add((entity, random) -> new TradeOffers.BuyForOneEmeraldFactory(ModItems.PYRITE, 4, 16, 1).create(entity, random));
