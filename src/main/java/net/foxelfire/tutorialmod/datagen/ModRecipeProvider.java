@@ -1,6 +1,5 @@
 package net.foxelfire.tutorialmod.datagen;
 
-import java.util.function.Consumer;
 import java.util.List;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -8,7 +7,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModTags;
-import net.minecraft.data.server.recipe.RecipeJsonProvider;
+import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.RecipeProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
@@ -40,7 +39,7 @@ public class ModRecipeProvider extends FabricRecipeProvider{
     }
 
     @Override
-    public void generate(Consumer<RecipeJsonProvider> exporter) {
+    public void generate(RecipeExporter exporter) {
         offerSmelting(exporter, SMELT_TO_PYRITE_INGOT, RecipeCategory.MISC, ModItems.PYRITE_INGOT, 0.5f, 150, getName());
         offerBlasting(exporter, SMELT_TO_PYRITE_INGOT, RecipeCategory.MISC, ModItems.PYRITE_INGOT, 0.5f, 75, getName());
         offerDyeableFoodRecipes(exporter, DYES, DYEABLE_KONPEITO, getName());
@@ -125,7 +124,7 @@ public class ModRecipeProvider extends FabricRecipeProvider{
         .offerTo(exporter, new Identifier(getRecipeName(ModItems.PYRITE_BOOTS)));
     }
     // this recipe is stolen from minecraft's RecipeProvider, it's just the dyeable recipes one but with the RecipeCategory of FOOD instead of BUILDING_BLOCKS
-    private static void offerDyeableFoodRecipes(Consumer<RecipeJsonProvider> exporter, List<Item> dyes, List<Item> dyeables, String group) {
+    private static void offerDyeableFoodRecipes(RecipeExporter exporter, List<Item> dyes, List<Item> dyeables, String group) {
         for (int i = 0; i < dyes.size(); ++i) {
             Item item = dyes.get(i);
             Item item2 = dyeables.get(i);

@@ -17,23 +17,16 @@ public class ModCustomTrades {
         addLevel4Trades();
         addLevel5Trades();
     }
-    // TODO: Switch everything back to direct TradeOffer() calls? Probably won't fix the post-exit crash but worth a shot
-    // if that doesn't work, either figure out how tf to update lwjgl or give up
-    // UPDATE: this crash is probably mojang's fault! 1.20.1 has a broken lwjgl version that can fuck with mods. this in theory should solve itself when i update my mod version
+    // DONE! it DID solve itself! that's probably why mojang made the change, too...
     public static void addLevel1Trades(){
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories -> {
-            factories.add((entity, random) -> new TradeOffers.BuyForOneEmeraldFactory(ModItems.PYRITE, 4, 16, 1).create(entity, random));
-            /* STOP DOING WHATEVER I JUST FIGURED OUT HOW TO DO
-            * "Yeah give me static classes that i can instantiate anyways bc why not" - Statements dreamed up by the utterly deranged
-            * "Hello I would like new Tree.Apple(4).makeStack() please"
-            * THEY HAVE PLAYED US FOR ABSOLUTE FOOLS
-             */
+            factories.add((entity, random) -> new TradeOffer(new ItemStack(Items.EMERALD, 1), new ItemStack(ModItems.PYRITE, 2), 15, 2, 0.05f));
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories ->{
-            factories.add((entity, random) -> new TradeOffers.BuyForOneEmeraldFactory(Items.RAW_COPPER, 16, 16, 1).create(entity, random));
+            factories.add((entity, random) -> new TradeOffer(new ItemStack(Items.RAW_COPPER, 16), new ItemStack(Items.EMERALD, 1), 15, 2, 0.05f));
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories ->{
-            factories.add((entity, random) -> new TradeOffers.BuyForOneEmeraldFactory(Items.COAL, 12, 12, 1).create(entity, random));
+          factories.add((entity, random) -> new TradeOffer(new ItemStack(Items.COAL, 12), new ItemStack(Items.EMERALD, 1), 15, 2, 0.05f));
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 1, factories ->{
             factories.add((entity, random) -> new TradeOffer(new ItemStack(Items.STONE_PICKAXE, 1), new ItemStack(Items.EMERALD, 1), 3, 2, 0.05f));
@@ -85,10 +78,10 @@ public class ModCustomTrades {
     }
     public static void addLevel5Trades(){
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 5, factories ->{
-            factories.add((entity, random) -> new TradeOffers.SellEnchantedToolFactory(Items.DIAMOND_PICKAXE, 1, 3, 15).create(entity, random));
+            factories.add((entity, random) -> new TradeOffers.SellEnchantedToolFactory(Items.DIAMOND_PICKAXE, 8, 3, 15).create(entity, random));
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.MINER_PROFESSION, 5, factories ->{
-            factories.add((entity, random) -> new TradeOffers.SellEnchantedToolFactory(ModItems.PYRITE_PICKAXE, 1, 3, 15).create(entity, random));
+            factories.add((entity, random) -> new TradeOffers.SellEnchantedToolFactory(ModItems.PYRITE_PICKAXE, 4, 3, 15).create(entity, random));
         });
     }
 }
