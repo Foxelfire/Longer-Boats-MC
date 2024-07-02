@@ -9,6 +9,8 @@ import net.minecraft.util.Identifier;
 
 public class ModSounds {
 
+    public static final SoundEvent BAR_BRAWL = registerSoundEvent("bar_brawl");
+
     public static final SoundEvent METAL_DETECTOR_FOUND_ORE = registerSoundEvent("metal_detector_found_ore");
 
     public static final SoundEvent LIGHT_LANTERN_BREAK = registerSoundEvent("light_lantern_break");

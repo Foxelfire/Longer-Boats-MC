@@ -1,4 +1,4 @@
-// 1.20.1	2024-06-27T21:09:14.1162837	Tutorial Mod/Recipes
+// 1.20.1	2024-07-01T17:26:26.1561362	Tutorial Mod/Recipes
 2fc85a6182b421010b48490387d1bf842fb801f2 data\tutorialmod\recipes\pyrite_block.json
 f8d6070be09374481779220441cd31e6c29f1961 data\tutorialmod\recipes\light_crystal_block.json
 1f2476763b5893747ffa5488cbb9533b205dfeed data\tutorialmod\advancements\recipes\food\dye_brown_konpeito.json
@@ -9,9 +9,9 @@ f8d6070be09374481779220441cd31e6c29f1961 data\tutorialmod\recipes\light_crystal_
 e8b35454edcdb33a9e9d9c394e152d5d18471993 data\tutorialmod\recipes\pyrite_chestplate.json
 eb212f2f0161afa5f49ebcfff069df781953392f data\tutorialmod\advancements\recipes\food\dye_light_blue_konpeito.json
 08f38a9a2af990d5cf8a4f9ccf5be1d580475d0e data\tutorialmod\recipes\pyrite_shovel.json
-80cd04edc40e0894075120cd9dad0d0aa4b30968 data\tutorialmod\recipes\pyrite_wall.json
 56c958ff7d698b45d7408943c3d1eae5826660ec data\tutorialmod\advancements\recipes\decorations\pyrite_block.json
 6ce29c8d119d13840d6e9b7b3937fa75f9b18dfe data\tutorialmod\recipes\pyrite_ingot_from_blasting_pyrite.json
+80cd04edc40e0894075120cd9dad0d0aa4b30968 data\tutorialmod\recipes\pyrite_wall.json
 f22c9fc0feb16a8217ee290ac53792d42e40032d data\tutorialmod\advancements\recipes\misc\pyrite_button_from_pyrite_ingot.json
 3457d4df163b856b8d1b5663d1c15c69feba14b9 data\tutorialmod\recipes\pyrite_slab.json
 e657d2cbc2fb401ca0d5fa806ad836f41eca6450 data\tutorialmod\advancements\recipes\food\dye_pink_konpeito.json
@@ -54,8 +54,8 @@ a1883f3d74d533bff88cad2b8e61a0375ed2bcf0 data\tutorialmod\advancements\recipes\r
 3a92e51fc98c82167f6f049df51709665fa58177 data\tutorialmod\recipes\pyrite_pressure_plate.json
 24bdae58d161af6187a2442668730958a72222c0 data\tutorialmod\advancements\recipes\food\dye_konpeito.json
 ca63d50f99168de5ac4caea4af78b4491d357f81 data\tutorialmod\advancements\recipes\tools\pyrite_pickaxe.json
-ae6e0aad64cea6aca118b0180fd513cc6724db3a data\tutorialmod\advancements\recipes\food\dye_orange_konpeito.json
 db627c7a36b49f8d3f9296524d60ea852bf7c893 data\tutorialmod\recipes\dye_lime_konpeito.json
+ae6e0aad64cea6aca118b0180fd513cc6724db3a data\tutorialmod\advancements\recipes\food\dye_orange_konpeito.json
 5fa966f4dce23bcf31d5b6bc7a8951a310017dbf data\tutorialmod\advancements\recipes\misc\pyrite_ingot_from_smelting_pyrite.json
 46e62b94fd7eb7373d048f0ecac92087fdaa8d44 data\tutorialmod\advancements\recipes\food\dye_blue_konpeito.json
 4867f8fffb2569c526f7c791512df9c8afe41517 data\tutorialmod\recipes\dye_magenta_konpeito.json

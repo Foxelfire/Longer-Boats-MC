@@ -55,6 +55,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_LEGGINGS);
         itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_BOOTS);
 
+        itemModelGenerator.register(ModItems.BAR_BRAWL_MUSIC_DISC, Models.GENERATED);
         itemModelGenerator.register(ModItems.COPPER_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.COAL_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.GOLD_DETECTOR, Models.GENERATED);

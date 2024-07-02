@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.custom.*;
+import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -51,6 +52,7 @@ public class ModItems {
     public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
 
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
+    public static final Item BAR_BRAWL_MUSIC_DISC = registerItem("bar_brawl_music_disc", new MusicDiscItem(7, ModSounds.BAR_BRAWL, new FabricItemSettings().maxCount(1), 122));
 
     public static final Item DEWFRUIT_SEEDS = registerItem("dewfruit_seeds", new AliasedBlockItem(ModBlocks.DEWFRUIT_CROP, new FabricItemSettings()));
     public static final Item DEWFRUIT = registerItem("dewfruit", new Item(new FabricItemSettings().food(ModFoodComponents.DEWFRUIT)));
@@ -109,6 +111,7 @@ public class ModItems {
         entries.add(PYRITE_AXE);
         entries.add(PYRITE_SHOVEL);
         entries.add(PYRITE_HOE);
+        entries.add(BAR_BRAWL_MUSIC_DISC);
     }
     private static void itemGroupToAddToCombatTab(FabricItemGroupEntries entries){
         entries.add(PYRITE_SWORD);
