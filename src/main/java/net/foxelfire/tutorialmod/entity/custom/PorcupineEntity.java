@@ -23,10 +23,10 @@ public class PorcupineEntity extends AnimalEntity{
     protected void initGoals(){
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new EscapeDangerGoal(this, 1.2));
-        this.goalSelector.add(2, new AnimalMateGoal(this, 1.0));
-        this.goalSelector.add(3, new TemptGoal(this, 1.0, Ingredient.ofItems(Items.APPLE), false));
-        this.goalSelector.add(4, new FollowParentGoal(this, 1));
-        this.goalSelector.add(5, new WanderAroundGoal(this, 1));
+        this.goalSelector.add(2, new AnimalMateGoal(this, 0.75));
+        this.goalSelector.add(3, new TemptGoal(this, 0.75, Ingredient.ofItems(Items.APPLE), false));
+        this.goalSelector.add(4, new FollowParentGoal(this, 0.5));
+        this.goalSelector.add(5, new WanderAroundGoal(this, 0.5));
         this.goalSelector.add(6, new LookAroundGoal(this));
     }
 
