@@ -1,5 +1,7 @@
 package net.foxelfire.tutorialmod.datagen;
 
+import java.util.Optional;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.foxelfire.tutorialmod.block.ModBlocks;
@@ -7,8 +9,10 @@ import net.foxelfire.tutorialmod.block.custom.DewfruitCropBlock;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
+import net.minecraft.data.client.Model;
 import net.minecraft.data.client.Models;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.util.Identifier;
 
 public class ModModelProvider extends FabricModelProvider{
 
@@ -56,6 +60,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.registerArmor((ArmorItem)ModItems.PYRITE_BOOTS);
 
         itemModelGenerator.register(ModItems.BAR_BRAWL_MUSIC_DISC, Models.GENERATED);
+        itemModelGenerator.register(ModItems.PORCUPINE_SPAWN_EGG, new Model(Optional.of(new Identifier("item/template_spawn_egg")), Optional.empty())); // spawn egg textures are auto-generated
         itemModelGenerator.register(ModItems.COPPER_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.COAL_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.GOLD_DETECTOR, Models.GENERATED);

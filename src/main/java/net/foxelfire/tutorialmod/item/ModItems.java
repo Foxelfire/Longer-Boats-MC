@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.ModBlocks;
+import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.item.custom.*;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.minecraft.item.*;
@@ -53,6 +54,7 @@ public class ModItems {
 
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
     public static final Item BAR_BRAWL_MUSIC_DISC = registerItem("bar_brawl_music_disc", new MusicDiscItem(7, ModSounds.BAR_BRAWL, new FabricItemSettings().maxCount(1), 122));
+    public static final Item PORCUPINE_SPAWN_EGG = registerItem("porcupine_spawn_egg", new SpawnEggItem(ModEntities.PORCUPINE, 0xa86518, 0x3b260f, new FabricItemSettings()));
 
     public static final Item DEWFRUIT_SEEDS = registerItem("dewfruit_seeds", new AliasedBlockItem(ModBlocks.DEWFRUIT_CROP, new FabricItemSettings()));
     public static final Item DEWFRUIT = registerItem("dewfruit", new Item(new FabricItemSettings().food(ModFoodComponents.DEWFRUIT)));
@@ -121,6 +123,9 @@ public class ModItems {
         entries.add(PYRITE_HELMET);
         entries.add(PYRITE_LEGGINGS);
     }
+    private static void itemGroupToAddToSpawnEggsTab(FabricItemGroupEntries entries){
+        entries.add(PORCUPINE_SPAWN_EGG);
+    }
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, new Identifier(TutorialMod.MOD_ID, name), item);
     }
@@ -132,5 +137,6 @@ public class ModItems {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(ModItems::itemGroupToAddToToolsTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(ModItems::itemGroupToAddToFoodTab);
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(ModItems::itemGroupToAddToCombatTab);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(ModItems::itemGroupToAddToSpawnEggsTab);
     }
 }

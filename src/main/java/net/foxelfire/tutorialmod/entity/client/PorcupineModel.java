@@ -3,6 +3,7 @@ package net.foxelfire.tutorialmod.entity.client;
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 
+import net.foxelfire.tutorialmod.entity.animation.ModAnimations;
 import net.foxelfire.tutorialmod.entity.custom.PorcupineEntity;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;
@@ -14,17 +15,18 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
 
 public class PorcupineModel<T extends PorcupineEntity> extends SinglePartEntityModel<T> {
 	private final ModelPart porcupine;
-	@SuppressWarnings("unused") // i have no clue about this one
+	@SuppressWarnings("unused")
 	private final ModelPart head;
 	public PorcupineModel(ModelPart root) {
 		this.porcupine = root.getChild("porcupine");
 		this.head = porcupine.getChild("body").getChild("torso").getChild("head"); // the path for this can be found in Blockbench
 	}
-	@SuppressWarnings("unused") // .addChild() modifies the data of its instance... so all these variables are useless.
-	// The animations are text files so they're not needed there either. No clue why Blockbench formats its auto-generated java files like this.
+	@SuppressWarnings("unused") // these variables are indeed useless. No clue why Blockbench calls .addChild() like this,
+	// but I don't want to find out so we're just gonna have to live with it.
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
@@ -166,6 +168,16 @@ public class PorcupineModel<T extends PorcupineEntity> extends SinglePartEntityM
 	}
 	@Override
 	public void setAngles(PorcupineEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		this.getPart().traverse().forEach(ModelPart::resetTransform);
+		setHeadAngles(netHeadYaw, headPitch);
+		this.animateMovement(ModAnimations.PORCUPINE_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
+		this.updateAnimation(entity.idleAnimationState, ModAnimations.PORCUPINE_IDLE, ageInTicks, 1f);
+	}
+	private void setHeadAngles(float headYaw, float headPitch){
+		headYaw = MathHelper.clamp(headYaw, -30f, 30f);
+		headPitch = MathHelper.clamp(headPitch, -25f, 45f);
+		this.head.yaw = headYaw * 0.017453292f;
+		this.head.pitch = headPitch * 0.017453292f;
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
