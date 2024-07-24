@@ -31,7 +31,6 @@ public class TutorialMod implements ModInitializer {
 		ModCustomTrades.registerCustomTrades();
 		ModVillagers.registerVillagers();
 		ModSounds.registerSounds();
-		// This is broken... something's wrong with our entity renderer in PorcupineRenderer, it's not mapping it to the EntityType
 		ModEntities.registerModEntities();
 	}
 }

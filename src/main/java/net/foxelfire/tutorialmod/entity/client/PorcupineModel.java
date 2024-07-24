@@ -19,7 +19,6 @@ import net.minecraft.util.math.MathHelper;
 
 public class PorcupineModel<T extends PorcupineEntity> extends SinglePartEntityModel<T> {
 	private final ModelPart porcupine;
-	@SuppressWarnings("unused")
 	private final ModelPart head;
 	public PorcupineModel(ModelPart root) {
 		this.porcupine = root.getChild("porcupine");
