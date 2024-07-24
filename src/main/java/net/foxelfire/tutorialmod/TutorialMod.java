@@ -2,6 +2,7 @@ package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.foxelfire.tutorialmod.block.ModBlocks;
+import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.foxelfire.tutorialmod.util.ModCustomTrades;
@@ -30,6 +31,7 @@ public class TutorialMod implements ModInitializer {
 		ModCustomTrades.registerCustomTrades();
 		ModVillagers.registerVillagers();
 		ModSounds.registerSounds();
-		LOGGER.info("Hello Fabric world!");
+		// This is broken... something's wrong with our entity renderer in PorcupineRenderer, it's not mapping it to the EntityType
+		ModEntities.registerModEntities();
 	}
 }
