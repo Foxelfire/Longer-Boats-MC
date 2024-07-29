@@ -1,7 +1,7 @@
-// 1.20.2	2024-07-24T00:53:38.7391843	Tutorial Mod/Tags for minecraft:item
+// 1.20.2	2024-07-29T00:19:37.6211832	Tutorial Mod/Tags for minecraft:item
 9639b71005e3c0c3c5970c51c1bdae3cf3459d56 data\minecraft\tags\items\creeper_drop_music_discs.json
 4c9df6b6f05a5d81344e95432e43aef33c75bede data\minecraft\tags\items\sniffer_food.json
 f92a071412dc7b361210bb93e630541357547b1b data\tutorialmod\tags\items\konpeito_seed_cores.json
 1f2b404ce5a026459749c2598454ddc3f04268b0 data\minecraft\tags\items\trimmable_armor.json
-ff507a2ee65c9756bb78099f4cbbb52570cea485 data\minecraft\tags\items\small_flowers.json
 9639b71005e3c0c3c5970c51c1bdae3cf3459d56 data\minecraft\tags\items\music_discs.json
+ff507a2ee65c9756bb78099f4cbbb52570cea485 data\minecraft\tags\items\small_flowers.json

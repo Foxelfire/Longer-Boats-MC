@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "category": "misc",
+    "group": "book_and_quill",
+    "ingredients": [
+      {
+        "item": "tutorialmod:porcupine_quill"
+      },
+      {
+        "item": "minecraft:book"
+      },
+      {
+        "item": "minecraft:ink_sac"
+      }
+    ],
+    "result": {
+      "item": "minecraft:writable_book",
+      "count": 1
+    },
+    "credits":"https://misode.github.io/recipe/"
+  }
+  
