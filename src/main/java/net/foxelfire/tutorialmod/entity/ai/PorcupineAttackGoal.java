@@ -63,8 +63,8 @@ public class PorcupineAttackGoal extends MeleeAttackGoal{
         return this.ticksUntilNextAttack <= attackLengthInTicks;
     }
     protected boolean isTargetCloseEnough(LivingEntity target){
-        return this.entity.distanceTo(target) <= 4f;
-        /* the 2f here is in the F3 coordinates units.
+        return this.entity.distanceTo(target) <= 1.8f;
+        /* the 1.8f here is in the F3 coordinates units.
         the position of the attacker (us) and target is also in these units, so you end up starting at an
         infinitely small point in the middle of your model and ending at the other entity's also infinitely small middle
         when calculating distance, no accounting for hitboxes. so keep that in mind when you're changing this value.*/

@@ -66,12 +66,12 @@ public class PorcupineEntity extends AnimalEntity{
     @Override
     protected void initGoals(){
         this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new PorcupineAttackGoal(this, 1D, true));
-        this.goalSelector.add(2, new EscapeDangerGoal(this, 1.2));
-        this.goalSelector.add(3, new AnimalMateGoal(this, 0.75));
-        this.goalSelector.add(4, new TemptGoal(this, 0.75, Ingredient.ofItems(Items.APPLE), false));
-        this.goalSelector.add(4, new FollowParentGoal(this, 0.5));
-        this.goalSelector.add(5, new WanderAroundGoal(this, 0.5));
+        this.goalSelector.add(1, new PorcupineAttackGoal(this, 0.8, true));
+        this.goalSelector.add(2, new EscapeDangerGoal(this, 1.0));
+        this.goalSelector.add(3, new AnimalMateGoal(this, 0.6));
+        this.goalSelector.add(4, new TemptGoal(this, 0.6, Ingredient.ofItems(Items.APPLE), false));
+        this.goalSelector.add(4, new FollowParentGoal(this, 0.32));
+        this.goalSelector.add(5, new WanderAroundGoal(this, 0.3));
         this.goalSelector.add(6, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new RevengeGoal(this));
@@ -80,8 +80,7 @@ public class PorcupineEntity extends AnimalEntity{
 
     public static DefaultAttributeContainer.Builder createPorcupineAttributes(){
         return MobEntity.createMobAttributes()
-            .add(EntityAttributes.GENERIC_MAX_HEALTH, 15)
-            .add(EntityAttributes.GENERIC_ARMOR, 0.7f)
+            .add(EntityAttributes.GENERIC_MAX_HEALTH, 25)
             .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3f)
             .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 4);
     }
