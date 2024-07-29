@@ -55,6 +55,7 @@ public class ModItems {
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
     public static final Item BAR_BRAWL_MUSIC_DISC = registerItem("bar_brawl_music_disc", new MusicDiscItem(7, ModSounds.BAR_BRAWL, new FabricItemSettings().maxCount(1), 122));
     public static final Item PORCUPINE_SPAWN_EGG = registerItem("porcupine_spawn_egg", new SpawnEggItem(ModEntities.PORCUPINE, 0xa86518, 0x3b260f, new FabricItemSettings()));
+    public static final Item PORCUPINE_QUILL = registerItem("porcupine_quill", new Item(new FabricItemSettings()));
 
     public static final Item DEWFRUIT_SEEDS = registerItem("dewfruit_seeds", new AliasedBlockItem(ModBlocks.DEWFRUIT_CROP, new FabricItemSettings()));
     public static final Item DEWFRUIT = registerItem("dewfruit", new Item(new FabricItemSettings().food(ModFoodComponents.DEWFRUIT)));
@@ -63,6 +64,7 @@ public class ModItems {
         entries.add(PYRITE);
         entries.add(LIGHT_SHARD);
         entries.add(PYRITE_INGOT);
+        entries.add(PORCUPINE_QUILL);
     }
     private static void itemGroupToAddToNaturalTab(FabricItemGroupEntries entries){
         entries.add(ModBlocks.LIGHT_CRYSTAL_BLOCK);

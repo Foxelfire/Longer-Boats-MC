@@ -82,6 +82,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.PURPLE_KONPEITO, Models.GENERATED);
         itemModelGenerator.register(ModItems.RED_KONPEITO, Models.GENERATED);
         itemModelGenerator.register(ModItems.YELLOW_KONPEITO, Models.GENERATED);
+        itemModelGenerator.register(ModItems.PORCUPINE_QUILL, Models.GENERATED);
     }
 
 }
