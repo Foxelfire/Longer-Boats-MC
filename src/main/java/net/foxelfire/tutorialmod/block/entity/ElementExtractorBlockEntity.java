@@ -21,6 +21,8 @@ import net.minecraft.world.World;
 
 public class ElementExtractorBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory{
 
+    /* TODO: come up with good name for block entity, work on light dust texture, slow down crafting, and figure out elemental mechanics and what this mod is about*/
+
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
     /* naming all our inventory slots in this block entity to remember which slot corresponds to which index
      * add more when we get more
