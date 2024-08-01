@@ -29,10 +29,10 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     public static final int OUTPUT_SLOT = 1;
     protected final PropertyDelegate propertyDelegate;
     private int craftingProgress = 0;
-    private int maxProgress = 144;
+    private int maxProgress = 72;
 
     public ElementExtractorBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.ELEMENT_EXTRACTOR_BLOCK_ENTITY, pos, state); // get rid of type later!
+        super(ModBlockEntities.ELEMENT_EXTRACTOR_BLOCK_ENTITY, pos, state);
         this.propertyDelegate = new PropertyDelegate() { // client-server syncing bullshit
 
             @Override
@@ -98,7 +98,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         if(world.isClient){
             return;
         }
-        if(!isOutputSlotFull()){
+        if(isOutputSlotAddable()){
             if(this.hasRecipe()){
                 this.craftingProgress++;
                 markDirty(world, pos, state);
@@ -116,8 +116,8 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         }
     }
 
-    private boolean isOutputSlotFull() {
-        return !this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getCount() >= this.getStack(OUTPUT_SLOT).getMaxCount();
+    private boolean isOutputSlotAddable() {
+        return this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getCount() < this.getStack(OUTPUT_SLOT).getMaxCount();
     }
 
     private boolean hasRecipe() {
@@ -129,7 +129,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
 
     private boolean isOutputSlotFree(ItemStack matchingItem) {
         return (this.getStack(OUTPUT_SLOT).getItem() == matchingItem.getItem() || this.getStack(OUTPUT_SLOT).isEmpty())
-        && (this.getStack(OUTPUT_SLOT).getCount() + matchingItem.getCount()) <= getStack(OUTPUT_SLOT).getCount();
+        && (this.getStack(OUTPUT_SLOT).getCount() + matchingItem.getCount()) <= getStack(OUTPUT_SLOT).getMaxCount();
     }
 
     private void craftItem() {

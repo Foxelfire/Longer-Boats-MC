@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 
 public class ElementExtractorBlock extends BlockWithEntity{
 
-    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 14, 16);
 
     public ElementExtractorBlock(Settings settings) {
         super(settings);

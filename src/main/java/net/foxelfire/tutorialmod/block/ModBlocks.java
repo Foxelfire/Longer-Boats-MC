@@ -50,7 +50,7 @@ public class ModBlocks {
     public static final Block CLOVER = registerBlock("clover", new PlantBlock(FabricBlockSettings.copyOf(Blocks.FERN).nonOpaque().noCollision()));
     public static final Block POTTED_CLOVER = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "potted_clover_flower"), new FlowerPotBlock(CLOVER_FLOWER, FabricBlockSettings.copyOf(Blocks.POTTED_ALLIUM).nonOpaque()));
 
-    public static final Block ELEMENT_EXTRACTOR_BLOCK = registerBlock("element_extractor", new ElementExtractorBlock(FabricBlockSettings.copyOf(Blocks.COPPER_BLOCK).nonOpaque().mapColor(MapColor.DEEPSLATE_GRAY).luminance(state -> 4)));
+    public static final Block ELEMENT_EXTRACTOR_BLOCK = registerBlock("element_extractor", new ElementExtractorBlock(FabricBlockSettings.copyOf(Blocks.NETHERITE_BLOCK).nonOpaque().mapColor(MapColor.DEEPSLATE_GRAY).luminance(state -> 4)));
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);

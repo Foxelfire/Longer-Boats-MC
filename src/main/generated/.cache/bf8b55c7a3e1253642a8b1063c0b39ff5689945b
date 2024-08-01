@@ -1,4 +1,4 @@
-// 1.20.2	2024-07-31T23:57:51.2061433	Tutorial Mod/Model Definitions
+// 1.20.2	2024-08-01T00:32:46.8422212	Tutorial Mod/Model Definitions
 63ec6c618a3a23eab4cab9c52d7d3250de9b516e assets\tutorialmod\models\item\porcupine_spawn_egg.json
 89a3f9fb8ae827d0cef3474b591e3a01a0f73015 assets\tutorialmod\blockstates\pyrite_pressure_plate.json
 91f94870821bebcb4dd926be112512c987f68e3d assets\tutorialmod\blockstates\dewfruit_crop.json
@@ -86,6 +86,7 @@ c9e6291ab8e0141eb7f4aa274a8f94e9310b2866 assets\tutorialmod\models\item\pyrite_d
 7aad2e86ceeb4cfce86b4e39a3a05f0e3eb91183 assets\tutorialmod\models\item\pyrite_helmet_copper_trim.json
 36da0dcf03b1cec039ea5559849abd4c04d8a809 assets\tutorialmod\models\item\pyrite_button.json
 9c8426efe0fec49d90ab3f050e7e4b2af11c1981 assets\tutorialmod\models\item\pyrite_leggings_amethyst_trim.json
+9ae8837698a2fe4a5c865c91e05e88a23e1f84e8 assets\tutorialmod\models\item\light_dust.json
 98b865ad022b00d2e43df0a93797413ebf1a5270 assets\tutorialmod\models\item\pyrite_pickaxe.json
 ee209933059405891697c4c56b400731b3525f34 assets\tutorialmod\models\block\pyrite_pressure_plate_down.json
 ebdab52ee5f47d2a9163efbbfa60adcda85f3304 assets\tutorialmod\models\block\pyrite_trapdoor_open.json
@@ -139,7 +140,6 @@ ed1b5db7737ad43079dcb23e10ed0d4eda37086a assets\tutorialmod\models\item\pyrite_b
 eea58b99ba308ef14e9ac2fe868fdce674db2f1c assets\tutorialmod\models\block\dewfruit_crop_stage9.json
 a6e875e12af9171a718940ac855a0eb0d049edb0 assets\tutorialmod\blockstates\pyrite_wall.json
 53ffc2443585d34b1482ec332ddc15662d806986 assets\tutorialmod\models\block\dewfruit_crop_stage3.json
-d00b193a68e6c1961b4df4665db4259118e41a7f assets\tutorialmod\models\item\luminous_dust.json
 e8bcdd0c86a15c1acaa0d2ac7d22ad031d1a72d9 assets\tutorialmod\models\item\pyrite_chestplate_copper_trim.json
 1c9c7f594009e2ca26865091367245c79bdb6961 assets\tutorialmod\models\item\pyrite_chestplate.json
 06bc1a19bc43aea8b11624ba14ae9bd3fbf316f2 assets\tutorialmod\models\item\pyrite_helmet_gold_trim.json

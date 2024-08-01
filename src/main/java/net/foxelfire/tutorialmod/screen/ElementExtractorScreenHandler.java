@@ -39,12 +39,10 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
         addProperties(propertyDelegate2);
     }
 
-    private void addPlayerInventory(PlayerInventory inventory){
-        for(int r = 0; r < 3; ++r){ // inventory rows
-            for(int c = 0; c < 9; ++c){ // inventory columns
-                // magic numbers are precalculated pixel positions within the 27-slot player inventory texture
-                // yes, this will break with custom inventory textures but so will many other mods
-                this.addSlot(new Slot(inventory, r + c * 9 + 9, 8 + c * 18, 84 + r * 18));
+    private void addPlayerInventory(PlayerInventory playerInventory) {
+        for (int i = 0; i < 3; ++i) {
+            for (int l = 0; l < 9; ++l) {
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
             }
         }
     }
