@@ -9,6 +9,9 @@ import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
 import net.foxelfire.tutorialmod.entity.client.PorcupineModel;
 import net.foxelfire.tutorialmod.entity.client.PorcupineRenderer;
+import net.foxelfire.tutorialmod.screen.ElementExtractorScreen;
+import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 
 public class TutorialModClient implements ClientModInitializer{
@@ -25,5 +28,6 @@ public class TutorialModClient implements ClientModInitializer{
 
         EntityRendererRegistry.register(ModEntities.PORCUPINE, PorcupineRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.PORCUPINE, PorcupineModel::getTexturedModelData);
+        HandledScreens.register(ModScreenHandlers.ELEMENT_EXTRACTOR_SCREEN_HANDLER, ElementExtractorScreen::new);
     }
 }

@@ -2,8 +2,10 @@ package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.foxelfire.tutorialmod.block.ModBlocks;
+import net.foxelfire.tutorialmod.block.entity.ModBlockEntities;
 import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.foxelfire.tutorialmod.util.ModCustomTrades;
 import net.foxelfire.tutorialmod.util.ModLootTableModifiers;
@@ -32,5 +34,7 @@ public class TutorialMod implements ModInitializer {
 		ModVillagers.registerVillagers();
 		ModSounds.registerSounds();
 		ModEntities.registerModEntities();
+		ModBlockEntities.registerBlockEntities();
+		ModScreenHandlers.registerScreenHandlers();
 	}
 }

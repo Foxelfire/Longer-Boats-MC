@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.custom.DewfruitCropBlock;
+import net.foxelfire.tutorialmod.block.custom.ElementExtractorBlock;
 import net.foxelfire.tutorialmod.block.custom.SoundBlock;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.minecraft.item.BlockItem;
@@ -48,6 +49,8 @@ public class ModBlocks {
     public static final Block CLOVER_FLOWER = registerBlock("clover_flower", new FlowerBlock(StatusEffects.LUCK, 25, FabricBlockSettings.copyOf(Blocks.ALLIUM).nonOpaque().noCollision()));
     public static final Block CLOVER = registerBlock("clover", new PlantBlock(FabricBlockSettings.copyOf(Blocks.FERN).nonOpaque().noCollision()));
     public static final Block POTTED_CLOVER = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "potted_clover_flower"), new FlowerPotBlock(CLOVER_FLOWER, FabricBlockSettings.copyOf(Blocks.POTTED_ALLIUM).nonOpaque()));
+
+    public static final Block ELEMENT_EXTRACTOR_BLOCK = registerBlock("element_extractor", new ElementExtractorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque()));
 
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);

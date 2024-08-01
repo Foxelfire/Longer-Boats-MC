@@ -25,6 +25,7 @@ public class ModModelProvider extends FabricModelProvider{
         // generates blockstates (apparently, don't trust me on this) and both the block model and item model json files for literally every block.
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.LIGHT_CRYSTAL_BLOCK);
         blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.LIGHT_LANTERN_BLOCK);
+        blockStateModelGenerator.registerSimpleState(ModBlocks.ELEMENT_EXTRACTOR_BLOCK);
         
         BlockStateModelGenerator.BlockTexturePool pyritePool = blockStateModelGenerator.registerCubeAllModelTexturePool(ModBlocks.PYRITE_BLOCK);
         pyritePool.button(ModBlocks.PYRITE_BUTTON);
@@ -47,6 +48,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.PYRITE_INGOT, Models.GENERATED);
         itemModelGenerator.register(ModItems.FIRE_STALK, Models.GENERATED);
         itemModelGenerator.register(ModItems.DEWFRUIT, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LIGHT_DUST, Models.GENERATED);
 
         itemModelGenerator.register(ModItems.PYRITE_AXE, Models.HANDHELD);
         itemModelGenerator.register(ModItems.PYRITE_PICKAXE, Models.HANDHELD);
