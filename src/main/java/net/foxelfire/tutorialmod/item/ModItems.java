@@ -25,9 +25,9 @@ public class ModItems {
     public static final Item PYRITE_HOE = registerItem("pyrite_hoe", new HoeItem(ModToolMaterial.PYRITE, 0, 0.0f, new FabricItemSettings()));
 
     public static final Item PYRITE_HELMET = registerItem("pyrite_helmet", new ModArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.HELMET, new FabricItemSettings()));
-    public static final Item PYRITE_CHESTPLATE = registerItem("pyrite_chestplate", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
-    public static final Item PYRITE_LEGGINGS = registerItem("pyrite_leggings", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
-    public static final Item PYRITE_BOOTS = registerItem("pyrite_boots", new ArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.BOOTS, new FabricItemSettings()));
+    public static final Item PYRITE_CHESTPLATE = registerItem("pyrite_chestplate", new ModArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
+    public static final Item PYRITE_LEGGINGS = registerItem("pyrite_leggings", new ModArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
+    public static final Item PYRITE_BOOTS = registerItem("pyrite_boots", new ModArmorItem(ModArmorMaterials.PYRITE, ArmorItem.Type.BOOTS, new FabricItemSettings()));
 
     public static final Item COAL_DETECTOR = registerItem("coal_detector", new CoalDetectorItem(new FabricItemSettings().maxDamage(128)));
     public static final Item COPPER_DETECTOR = registerItem("copper_detector", new CopperDetectorItem(new FabricItemSettings().maxDamage(128)));
