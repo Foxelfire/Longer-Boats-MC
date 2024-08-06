@@ -3,7 +3,6 @@ package net.foxelfire.tutorialmod.block.entity;
 import java.util.Optional;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.recipe.ElementExtractorRecipe;
 import net.foxelfire.tutorialmod.screen.ElementExtractorScreenHandler;
 import net.minecraft.block.BlockState;
@@ -26,17 +25,17 @@ import net.minecraft.world.World;
 
 public class ElementExtractorBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory{
 
-    /* TODO: come up with good name for block entity, work on light dust texture, slow down crafting, and figure out elemental mechanics and what this mod is about*/
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
     /* naming all our inventory slots in this block entity to remember which slot corresponds to which index
      * add more when we get more
+     * it's time Foxel, TODO: add more slots you coward and align name and other shit properly
      */
     public static final int INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
     protected final PropertyDelegate propertyDelegate;
     private int craftingProgress = 0;
-    private int maxProgress = 72;
+    private int maxProgress = 144;
 
     public ElementExtractorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ELEMENT_EXTRACTOR_BLOCK_ENTITY, pos, state);
