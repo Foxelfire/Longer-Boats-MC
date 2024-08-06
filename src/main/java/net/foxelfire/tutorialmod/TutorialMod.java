@@ -5,6 +5,7 @@ import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.block.entity.ModBlockEntities;
 import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.recipe.ModRecipes;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.foxelfire.tutorialmod.util.ModCustomTrades;
@@ -36,5 +37,6 @@ public class TutorialMod implements ModInitializer {
 		ModEntities.registerModEntities();
 		ModBlockEntities.registerBlockEntities();
 		ModScreenHandlers.registerScreenHandlers();
+		ModRecipes.registerRecipes();
 	}
 }

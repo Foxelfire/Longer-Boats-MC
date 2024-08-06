@@ -1,16 +1,21 @@
 package net.foxelfire.tutorialmod.block.entity;
 
+import java.util.Optional;
+
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.recipe.ElementExtractorRecipe;
 import net.foxelfire.tutorialmod.screen.ElementExtractorScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -123,10 +128,16 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     }
 
     private boolean hasRecipe() {
-        ItemStack result = new ItemStack(ModItems.LIGHT_DUST);
-        boolean hasCorrectInput = (this.getStack(INPUT_SLOT).getItem() == ModItems.LIGHT_SHARD);
-        return hasCorrectInput && isOutputSlotFree(result);
+        Optional<RecipeEntry<ElementExtractorRecipe>> recipe = getCurrentRecipe();
+        return recipe.isPresent() && isOutputSlotFree(recipe.get().value().getResult(null));
+    }
 
+    private Optional<RecipeEntry<ElementExtractorRecipe>> getCurrentRecipe() {
+        SimpleInventory inv = new SimpleInventory(this.size());
+        for(int i = 0; i < this.size(); i++){
+            inv.setStack(i, this.getStack(i));
+        }
+        return getWorld().getRecipeManager().getFirstMatch(ElementExtractorRecipe.Type.INSTANCE, inv, getWorld());
     }
 
     private boolean isOutputSlotFree(ItemStack matchingItem) {
@@ -135,9 +146,10 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     }
 
     private void craftItem() {
+        Optional<RecipeEntry<ElementExtractorRecipe>> recipe = getCurrentRecipe();
         this.removeStack(INPUT_SLOT, 1);
-        ItemStack result = new ItemStack(ModItems.LIGHT_DUST);
-        this.setStack(OUTPUT_SLOT, new ItemStack(result.getItem(), this.getStack(OUTPUT_SLOT).getCount() + 1));
+        this.setStack(OUTPUT_SLOT, new ItemStack(recipe.get().value().getResult(null).getItem(), 
+        this.getStack(OUTPUT_SLOT).getCount() + recipe.get().value().getResult(null).getCount()));
     }
 
     private void resetCraftingProgress() {
