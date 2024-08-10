@@ -1,0 +1,16 @@
+{
+    "type":"tutorialmod:element_extracting",
+    "requires_fuel": true,
+    "ingredients":[
+        {
+            "item":"minecraft:bamboo"
+        },
+        {
+            "item":"minecraft:bone_meal",
+            "count":2
+        }
+    ],
+    "output":{
+        "item":"tutorialmod:fire_stalk"
+    }
+}

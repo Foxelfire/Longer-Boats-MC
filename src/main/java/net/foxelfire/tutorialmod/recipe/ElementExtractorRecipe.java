@@ -24,8 +24,10 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
     private final ItemStack output;
     private final List<Ingredient> recipeItems;
+    private final String requiredFuel;
 
-    public ElementExtractorRecipe(List<Ingredient> recipeItems, ItemStack output){
+    public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, ItemStack output){
+        this.requiredFuel = requiredFuel;
         this.output = output;
         this.recipeItems = recipeItems;
     }
@@ -45,6 +47,10 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return output;
     }
 
+    public String getRequiredFuel(){
+        return requiredFuel;
+    }
+
     @Override
     public DefaultedList<Ingredient> getIngredients(){
         DefaultedList<Ingredient> list = DefaultedList.ofSize(this.recipeItems.size());
@@ -59,12 +65,16 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         }
         // tests if the item in input slot matches recipe's json index in "ingredients":[]
         // 3:05 in #31 for more info
-        return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
+        if(!recipeRequiresFuel()){
+            return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
+        }
+        return 
+        recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_1))
+     && recipeItems.get(1).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2));
     }
 
-    private boolean recipeRequiresFuel() {
-        //TODO finish this thing. first thing when you get back. no excuses.
-        throw new UnsupportedOperationException("I haven't made recipes that require fuel yet!");
+    public boolean recipeRequiresFuel() {
+       return !(requiredFuel.equals("none"));
     }
 
     @Override
@@ -91,7 +101,11 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         // SIKE: IT'S OUR GOAL RN! go to https://docs.fabricmc.net/develop/codecs to make this little shit
         // so u can prove you're better than him /j
         public static final Codec<ElementExtractorRecipe> CODEC = RecordCodecBuilder.create
-            (in -> in.group(
+            (recipeInstance -> recipeInstance.group(
+                Codec.STRING
+                .fieldOf("requires_fuel")
+                .forGetter(ElementExtractorRecipe::getRequiredFuel),
+
                 validateAmount(Ingredient.DISALLOW_EMPTY_CODEC, 9)
                     .fieldOf("ingredients")
                     .forGetter(ElementExtractorRecipe::getIngredients)
@@ -100,13 +114,13 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
                     .fieldOf("output")
                     .forGetter(r -> r.output)
 
-            ).apply(in, ElementExtractorRecipe::new));
+            ).apply(recipeInstance, ElementExtractorRecipe::new));
 
         private static Codec<List<Ingredient>> validateAmount(Codec<Ingredient> delegate, int max) {
             return Codecs.validate // codec obtained by validating other codec, validator function for it
                 (Codecs.validate( // codec, validator function
-                    delegate.listOf(),
-                    list -> list.size() > max ? DataResult.error(() -> "Recipe has too many ingredients!") : DataResult.success(list)
+                delegate.listOf(),
+                list -> list.size() > max ? DataResult.error(() -> "Recipe has too many ingredients!") : DataResult.success(list)
                 ), 
                 list -> list.isEmpty() ? DataResult.error(() -> "Recipe has no ingredients!") : DataResult.success(list)
             );
@@ -119,17 +133,19 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
         @Override
         public ElementExtractorRecipe read(PacketByteBuf buf) {
+            String requiredFuel = buf.readString();
             DefaultedList<Ingredient> inputItems = DefaultedList.ofSize(buf.readInt(), Ingredient.EMPTY);
             for(int i = 0; i < inputItems.size(); i++){ // getting our recipe over from client to server
                 inputItems.set(i, Ingredient.fromPacket(buf));
             }
             ItemStack outputItem = buf.readItemStack(); // wtf are we reading? why are there no arguments?
             // how tf do we know that this buf has a valid ItemStack? we don't. we trust the caller of this. more on this later
-            return new ElementExtractorRecipe(inputItems, outputItem);
+            return new ElementExtractorRecipe(requiredFuel, inputItems, outputItem);
         }
 
         @Override
         public void write(PacketByteBuf buf, ElementExtractorRecipe recipe) {
+            buf.writeString(recipe.requiredFuel);
             buf.writeInt(recipe.getIngredients().size()); // this is what we read for size when we make the DefaultedList in read()
             for (Ingredient recipeIngredient : recipe.getIngredients()) {
                 recipeIngredient.write(buf);

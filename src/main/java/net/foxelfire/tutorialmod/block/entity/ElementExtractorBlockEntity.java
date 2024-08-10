@@ -119,7 +119,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         }
         if(isSlotAddable(OUTPUT_SLOT)){
             if(this.hasRecipe()){
-                if(this.recipeRequiresFuel()){
+                if(recipeRequiresFuel(getCurrentRecipe())){
                     useAnyStoredFuel();
                 }
                 this.craftingProgress++;
@@ -138,6 +138,10 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         }
     }
 
+    private boolean recipeRequiresFuel(Optional<RecipeEntry<ElementExtractorRecipe>> currentRecipe) {
+        return currentRecipe.get().value().recipeRequiresFuel();
+    }
+
     private boolean isSlotAddable(int slot) { // add int resultAmount to account for crafting 4 items at once
         return this.getStack(slot).isEmpty() || this.getStack(slot).getCount() < this.getStack(slot).getMaxCount();
     }
@@ -145,10 +149,6 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     private boolean hasRecipe() {
         Optional<RecipeEntry<ElementExtractorRecipe>> recipe = getCurrentRecipe();
         return recipe.isPresent() && isOutputSlotUnclogged(recipe.get().value().getResult(null));
-    }
-
-    private boolean recipeRequiresFuel() {
-        return false; // TODO: make a recipe that requires fuel, go into ElementExtractorRecipe
     }
 
     private Optional<RecipeEntry<ElementExtractorRecipe>> getCurrentRecipe() {
@@ -190,10 +190,11 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     public enum FUEL_TYPE {
         NOTHING(),
         LIGHT(ModItems.LIGHT_DUST),
-        /*AIR("wind_energy"),
-        FIRE("heat_energy"),
-        EARTH("earth_energy"), add all this later once their sourceItems are done
-        WATER("water_energy"),
+        AIR(ModItems.WIND_DUST),
+        FIRE(ModItems.FIRE_DUST),
+        EARTH(ModItems.EARTH_DUST),
+        WATER(ModItems.WATER_DUST),
+        /*
         PLANT("life_energy"),
         ICE("negative_energy"),
         ELECTRIC("lightning_energy"),

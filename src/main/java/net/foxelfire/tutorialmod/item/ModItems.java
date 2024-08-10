@@ -53,6 +53,10 @@ public class ModItems {
     public static final Item YELLOW_KONPEITO = registerItem("yellow_konpeito", new Item(new FabricItemSettings().food(ModFoodComponents.YELLOW_KONPEITO).maxCount(16)));
 
     public static final Item LIGHT_DUST = registerItem("light_dust", new Item(new FabricItemSettings()));
+    public static final Item WIND_DUST = registerItem("wind_dust", new Item(new FabricItemSettings()));
+    public static final Item FIRE_DUST = registerItem("fire_dust", new Item(new FabricItemSettings()));
+    public static final Item EARTH_DUST = registerItem("earth_dust", new Item(new FabricItemSettings()));
+    public static final Item WATER_DUST = registerItem("water_dust", new Item(new FabricItemSettings()));
 
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
     public static final Item BAR_BRAWL_MUSIC_DISC = registerItem("bar_brawl_music_disc", new MusicDiscItem(7, ModSounds.BAR_BRAWL, new FabricItemSettings().maxCount(1), 122));
@@ -66,6 +70,10 @@ public class ModItems {
         entries.add(PYRITE);
         entries.add(LIGHT_SHARD);
         entries.add(LIGHT_DUST);
+        entries.add(WIND_DUST);
+        entries.add(FIRE_DUST);
+        entries.add(EARTH_DUST);
+        entries.add(WATER_DUST);
         entries.add(PYRITE_INGOT);
         entries.add(PORCUPINE_QUILL);
     }
