@@ -20,28 +20,35 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
 
     public ElementExtractorScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
         this(syncId, inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()), 
-        new ArrayPropertyDelegate(2));
+        new ArrayPropertyDelegate(4));
     }
 
     public ElementExtractorScreenHandler(int syncId, PlayerInventory inventory, BlockEntity blockEntity, PropertyDelegate propertyDelegate2) {
         super(ModScreenHandlers.ELEMENT_EXTRACTOR_SCREEN_HANDLER, syncId);
-        checkSize((Inventory)blockEntity, 2);
+        checkSize((Inventory)blockEntity, 4);
         this.inventory = (Inventory)blockEntity;
         inventory.onOpen(inventory.player);
         this.propertyDelegate = propertyDelegate2;
         this.blockEntity = (ElementExtractorBlockEntity)blockEntity;
-
-        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.INPUT_SLOT, 80, 11)); // (80, 11) on the gui tecture
-        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.OUTPUT_SLOT, 80, 59)); 
+        fillThisInventory();
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
-
         addProperties(propertyDelegate2);
+    }
+
+    private void fillThisInventory() {
+        final int slotRowYLevel = 16;
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.SHARD_INPUT_SLOT, 99, 36));
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.OUTPUT_SLOT, 80, 64));
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.FUEL_INPUT_SLOT, 61, 36));
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.INGREDIENT_SLOT_1, 61, slotRowYLevel));
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.INGREDIENT_SLOT_2, 80, slotRowYLevel));
+        this.addSlot(new Slot(this.inventory, ElementExtractorBlockEntity.INGREDIENT_SLOT_3, 99, slotRowYLevel));
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
-            for (int l = 0; l < 9; ++l) {
+            for (int l = 0; l < 9; ++l) { // these magic numbers are precalculated
                 this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
             }
         }
@@ -87,14 +94,23 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
         return newStack;
     }
 
-    public boolean isCrafting() {
+    public boolean isCrafting() { //change later
         return propertyDelegate.get(0) > 0;
     }
 
-    public int getScaledProgress() {
+    public int getArrowScaledProgress() {
         int progress = this.propertyDelegate.get(0);
         int maxProgress = this.propertyDelegate.get(1);
-        int arrowWidthInPixels = 26;
-        return maxProgress != 0 && progress != 0 ? progress * arrowWidthInPixels / maxProgress : 0;
+        int arrowHeightInPixels = 26;
+        return maxProgress != 0 && progress != 0 ? progress * arrowHeightInPixels / maxProgress : 0;
+    }
+    public int getFuelRemaining(){
+        int fuelRemaining = this.propertyDelegate.get(2);
+        return fuelRemaining;
+        // No resizing needed - fuelRemaining's max is 20, it corresponds 1/1 to the pixel width of the gauge.
+    }
+    public ElementExtractorBlockEntity.FUEL_TYPE getFuelType(){
+        int fuelTypeAsOrdinal = this.propertyDelegate.get(3);
+        return ElementExtractorBlockEntity.FUEL_TYPE.getByOrdinal(fuelTypeAsOrdinal);
     }
 }

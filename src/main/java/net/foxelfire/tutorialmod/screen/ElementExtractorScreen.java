@@ -3,6 +3,7 @@ package net.foxelfire.tutorialmod.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.foxelfire.tutorialmod.TutorialMod;
+import net.foxelfire.tutorialmod.block.entity.ElementExtractorBlockEntity;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
@@ -14,7 +15,7 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
 
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/element_extractor_gui.png");
 
-    // Override the void init() if you want to adjust the title text of the BlockEntity or the player inv, 
+    // TODO if there's any title problems: Override the void init() if you want to adjust the title text of the BlockEntity or the player inv, 
     // all those fields are inherited already
 
     public ElementExtractorScreen(ElementExtractorScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -48,7 +49,10 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
              * here is drawContextInstance.drawTexture(fullTexture, drawLocationX, drawLocationY, subtextureX, subtextureY,
              * subtextureWidth, subtextureHeight). God, I love Minecraft's texture system.
              */
-            context.drawTexture(TEXTURE, x+85, y+30, 176, 0, 8, handler.getScaledProgress());
+            context.drawTexture(TEXTURE, x+85, y+35, 176, 0, 8, handler.getArrowScaledProgress());
+        }
+        if(!handler.getFuelType().equals(ElementExtractorBlockEntity.FUEL_TYPE.NOTHING)){
+            context.drawTexture(TEXTURE, x+60, y+55, 176, handler.getFuelType().getTextureCoordinate(), handler.getFuelRemaining(), 6);
         }
     }
 

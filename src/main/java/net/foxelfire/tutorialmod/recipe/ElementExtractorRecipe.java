@@ -59,7 +59,12 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         }
         // tests if the item in input slot matches recipe's json index in "ingredients":[]
         // 3:05 in #31 for more info
-        return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.INPUT_SLOT));
+        return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
+    }
+
+    private boolean recipeRequiresFuel() {
+        //TODO finish this thing. first thing when you get back. no excuses.
+        throw new UnsupportedOperationException("I haven't made recipes that require fuel yet!");
     }
 
     @Override
@@ -83,16 +88,28 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
         // Tutorial creator has no clue how a codec works so make it one of your final goals to learn them
         // so that you eventually know how to do whatever this is better
-        public static final Codec<ElementExtractorRecipe> CODEC = RecordCodecBuilder.create(in -> in.group(
-            validateAmount(Ingredient.DISALLOW_EMPTY_CODEC, 9)
-            .fieldOf("ingredients").forGetter(ElementExtractorRecipe::getIngredients),
-            RecipeCodecs.CRAFTING_RESULT.fieldOf("output").forGetter(r -> r.output)
+        // SIKE: IT'S OUR GOAL RN! go to https://docs.fabricmc.net/develop/codecs to make this little shit
+        // so u can prove you're better than him /j
+        public static final Codec<ElementExtractorRecipe> CODEC = RecordCodecBuilder.create
+            (in -> in.group(
+                validateAmount(Ingredient.DISALLOW_EMPTY_CODEC, 9)
+                    .fieldOf("ingredients")
+                    .forGetter(ElementExtractorRecipe::getIngredients)
+                ,
+                RecipeCodecs.CRAFTING_RESULT
+                    .fieldOf("output")
+                    .forGetter(r -> r.output)
+
             ).apply(in, ElementExtractorRecipe::new));
 
         private static Codec<List<Ingredient>> validateAmount(Codec<Ingredient> delegate, int max) {
-            return Codecs.validate(Codecs.validate(
-                delegate.listOf(), list -> list.size() > max ? DataResult.error(() -> "Recipe has too many ingredients!") : DataResult.success(list)
-                ), list -> list.isEmpty() ? DataResult.error(() -> "Recipe has no ingredients!") : DataResult.success(list));
+            return Codecs.validate // codec obtained by validating other codec, validator function for it
+                (Codecs.validate( // codec, validator function
+                    delegate.listOf(),
+                    list -> list.size() > max ? DataResult.error(() -> "Recipe has too many ingredients!") : DataResult.success(list)
+                ), 
+                list -> list.isEmpty() ? DataResult.error(() -> "Recipe has no ingredients!") : DataResult.success(list)
+            );
         }
 
         @Override
@@ -131,6 +148,5 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
              * is not going to have a fun time.
              */
         }
-        
     }
 }
