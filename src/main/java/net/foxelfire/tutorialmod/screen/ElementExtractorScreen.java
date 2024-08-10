@@ -30,7 +30,6 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight); // u and v (the 2 zeroes) are offsets
-        // Experiment TODO if we have spare time: try using drawGuiTexture() instead?
         renderProgressArrow(x, y, context);
     }
 
