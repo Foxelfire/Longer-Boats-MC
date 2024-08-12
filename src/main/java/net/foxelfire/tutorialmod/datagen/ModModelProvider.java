@@ -48,7 +48,13 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.PYRITE_INGOT, Models.GENERATED);
         itemModelGenerator.register(ModItems.FIRE_STALK, Models.GENERATED);
         itemModelGenerator.register(ModItems.DEWFRUIT, Models.GENERATED);
+
         itemModelGenerator.register(ModItems.LIGHT_DUST, Models.GENERATED);
+        itemModelGenerator.register(ModItems.WIND_DUST, Models.GENERATED);
+        itemModelGenerator.register(ModItems.FIRE_DUST, Models.GENERATED);
+        itemModelGenerator.register(ModItems.EARTH_DUST, Models.GENERATED);
+        itemModelGenerator.register(ModItems.WATER_DUST, Models.GENERATED);
+
 
         itemModelGenerator.register(ModItems.PYRITE_AXE, Models.HANDHELD);
         itemModelGenerator.register(ModItems.PYRITE_PICKAXE, Models.HANDHELD);

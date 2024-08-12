@@ -51,6 +51,8 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return requiredFuel;
     }
 
+    //private Map<Integer, String> getFuelTypeBackFromOrdinal
+
     @Override
     public DefaultedList<Ingredient> getIngredients(){
         DefaultedList<Ingredient> list = DefaultedList.ofSize(this.recipeItems.size());
@@ -68,13 +70,15 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         if(!recipeRequiresFuel()){
             return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
         }
-        return 
+        return
         recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_1))
-     && recipeItems.get(1).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2));
+     && recipeItems.get(1).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2))
+     && requiredFuel.equals(ElementExtractorBlockEntity.FUEL_TYPE.getByItem
+     (inventory.getStack(ElementExtractorBlockEntity.INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem()).getId());
     }
 
     public boolean recipeRequiresFuel() {
-       return !(requiredFuel.equals("none"));
+       return !(requiredFuel.equals("not_fueled"));
     }
 
     @Override
@@ -103,7 +107,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         public static final Codec<ElementExtractorRecipe> CODEC = RecordCodecBuilder.create
             (recipeInstance -> recipeInstance.group(
                 Codec.STRING
-                .fieldOf("requires_fuel")
+                .fieldOf("fuel_type_required")
                 .forGetter(ElementExtractorRecipe::getRequiredFuel),
 
                 validateAmount(Ingredient.DISALLOW_EMPTY_CODEC, 9)

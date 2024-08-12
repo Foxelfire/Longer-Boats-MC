@@ -36,7 +36,7 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         .add(ModItems.DEWFRUIT_SEEDS)
         .add(ModItems.DEWFRUIT);
         // Blocks w/ flower-related BlockTags don't have their item forms automatically added to the corresponding ItemTag, 
-        // even tho they're still ItemConvertibles which makes doing that easy??? average lazy mojang - fine, i'll do it myself
+        // even tho they're still ItemConvertibles which makes doing that easy??? average lazy mojang /j - fine, i'll do it myself
         getOrCreateTagBuilder(ItemTags.SMALL_FLOWERS).add(ModBlocks.CLOVER_FLOWER.asItem());
         getOrCreateTagBuilder(ItemTags.MUSIC_DISCS).add(ModItems.BAR_BRAWL_MUSIC_DISC);
         getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(ModItems.BAR_BRAWL_MUSIC_DISC);

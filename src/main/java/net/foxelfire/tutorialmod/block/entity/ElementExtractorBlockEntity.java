@@ -1,6 +1,7 @@
 package net.foxelfire.tutorialmod.block.entity;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.item.ModItems;
@@ -29,13 +30,14 @@ import net.minecraft.world.World;
 public class ElementExtractorBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory{
 
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(6, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(7, ItemStack.EMPTY);
     public static final int SHARD_INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
     public static final int FUEL_INPUT_SLOT = 2;
     public static final int INGREDIENT_SLOT_1 = 3;
     public static final int INGREDIENT_SLOT_2 = 4;
     public static final int INGREDIENT_SLOT_3 = 5;
+    public static final int INVISIBLE_FUEL_SLOT_FOR_RECIPES = 6;
     protected final PropertyDelegate propertyDelegate;
     private int craftingProgress = 0;
     private int maxProgress = 144;
@@ -117,6 +119,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         if(world.isClient){
             return;
         }
+        tryToStoreFuel();
         if(isSlotAddable(OUTPUT_SLOT)){
             if(this.hasRecipe()){
                 if(recipeRequiresFuel(getCurrentRecipe())){
@@ -137,6 +140,46 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
             markDirty(world, pos, state); // marks the block position for chunk saving
         }
     }
+
+    // oh god mc's functional programming-like structure is infecting me
+    // yes, this is literally just because i didn't want to copy-paste a foreach loop and a really gross-looking if statement
+    // between tryToStoreFuel() and useAnyStoredFuel(). deal with it, future me, past me wanted to feel smart.
+    private void doSomethingCoolWithTheFuelThisItemIs(Consumer<ElementExtractorBlockEntity.FUEL_TYPE> typeOperation, 
+    boolean additionalCondition){
+        for (ElementExtractorBlockEntity.FUEL_TYPE fuel : ElementExtractorBlockEntity.FUEL_TYPE.fuels) {
+            if(fuel != ElementExtractorBlockEntity.FUEL_TYPE.NOTHING && this.getStack(FUEL_INPUT_SLOT).getItem().equals(fuel.item) && additionalCondition){
+                typeOperation.accept(fuel);
+            }
+        }
+    }
+
+    private void tryToStoreFuel() { // when there's no fuel-needing recipe and the gauge is empty
+        doSomethingCoolWithTheFuelThisItemIs(fuel -> {
+            setStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES,
+            new ItemStack(this.getStack(FUEL_INPUT_SLOT).getItem(), 1));
+            this.currentFuelTypeAsOrdinal = fuel.ordinal();
+            this.removeStack(FUEL_INPUT_SLOT, 1);
+            this.fuelAmount = 20;
+        }, this.getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).isEmpty());
+    }
+
+    public void useAnyStoredFuel(){ // when there is a fuel-needing recipe
+        doSomethingCoolWithTheFuelThisItemIs(fuelType -> {
+             this.currentFuelTypeAsOrdinal = fuelType.ordinal();
+             this.removeStack(FUEL_INPUT_SLOT, 1);
+             this.fuelAmount = 20; }, this.fuelAmount <= 1);
+         if(this.fuelAmount > 0){
+             fuelAmount--;
+         } else {
+            /* the invis slot effectively has a max capacity of 1 bc that's all we will ever set it to
+            *  so we can wipe the whole stack fine
+            *  it's only here in the first place so we can tell mc's recipe client/server syncing system to read
+            *  the recipe differently if there's an item in this slot, so it's fine to do weird shit like this
+            *  bc the player never interacts w/ it so there's no danger of weird edge cases
+            */
+            this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
+         }
+     }
 
     private boolean recipeRequiresFuel(Optional<RecipeEntry<ElementExtractorRecipe>> currentRecipe) {
         return currentRecipe.get().value().recipeRequiresFuel();
@@ -175,35 +218,24 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         this.craftingProgress = 0;
     }
 
-    public void useAnyStoredFuel(){
-        for (ElementExtractorBlockEntity.FUEL_TYPE fuelType : ElementExtractorBlockEntity.FUEL_TYPE.fuels) {
-            if(fuelType != ElementExtractorBlockEntity.FUEL_TYPE.NOTHING && this.getStack(FUEL_INPUT_SLOT).getItem().equals(fuelType.item) && this.fuelAmount <= 1){
-                this.currentFuelTypeAsOrdinal = fuelType.ordinal();
-                this.removeStack(FUEL_INPUT_SLOT, 1);
-                this.fuelAmount = 20;
-            }
-        }
-        if(this.fuelAmount > 0){
-            fuelAmount--;
-        }
-    }
     public enum FUEL_TYPE {
         NOTHING(),
-        LIGHT(ModItems.LIGHT_DUST),
-        AIR(ModItems.WIND_DUST),
-        FIRE(ModItems.FIRE_DUST),
-        EARTH(ModItems.EARTH_DUST),
-        WATER(ModItems.WATER_DUST),
+        LIGHT(ModItems.LIGHT_DUST, "light_fuel"),
+        AIR(ModItems.WIND_DUST, "wind_fuel"),
+        FIRE(ModItems.FIRE_DUST, "fire_fuel"),
+        EARTH(ModItems.EARTH_DUST, "earth_fuel"),
+        WATER(ModItems.WATER_DUST, "water_fuel"),
         /*
         PLANT("life_energy"),
         ICE("negative_energy"),
         ELECTRIC("lightning_energy"),
         SOUND("sonic_energy"),*/
-        MAGIC(Items.AMETHYST_SHARD);
+        MAGIC(Items.AMETHYST_SHARD, "arcane_fuel");
 
-        int propertyDelegateKey;
-        Item item;
-        int fuelTextureYCoordinate;
+        private Item item; // states assigned in constructor
+        private String id;
+
+        private int fuelTextureYCoordinate;
         static int firstTextureYCoordinate = 26; // beginning of fuel bar textures in pixels of gui/element_extractor.png
         /* ty to https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.9.3,
          * original idea for defining coordinates this way sparked from reading https://stackoverflow.com/a/66601869.
@@ -217,16 +249,17 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         static {
             for(int i = 1; i < fuels.length; i++){
                 fuels[i].fuelTextureYCoordinate = (i-1)*5 + firstTextureYCoordinate; // works during first iteration bc 0*5 leaves only the first location - its own coordinate
-                fuels[i].propertyDelegateKey = (i-1);
             }
         }
 
-        FUEL_TYPE (Item associatedItem){
+        FUEL_TYPE (Item associatedItem, String id){
             this.item = associatedItem;
+            this.id = id;
         }
 
         FUEL_TYPE(){
             this.item = null;
+            this.id = "not_fueled";
         }
 
         public int getTextureCoordinate(){
@@ -234,12 +267,23 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         }
         public static ElementExtractorBlockEntity.FUEL_TYPE getByOrdinal(int number){
             if(!(number > 0 && number < 10)){
-                return ElementExtractorBlockEntity.FUEL_TYPE.NOTHING;
+                return NOTHING;
             }
             return fuels[number];
         }
+        public static ElementExtractorBlockEntity.FUEL_TYPE getByItem(Item item){
+            for (FUEL_TYPE fuel : fuels) {
+                if(fuel != NOTHING && fuel.item.equals(item)){
+                    return fuel;
+                }
+            }
+            return NOTHING;
+        }
         public Item getItem(){
             return this.item;
+        }
+        public String getId(){
+            return id;
         }
     }
 }
