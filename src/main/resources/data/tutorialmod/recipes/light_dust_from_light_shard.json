@@ -1,6 +1,6 @@
 {
     "type":"tutorialmod:element_extracting",
-    "requires_fuel": false,
+    "fuel_type_required": "not_fueled",
     "ingredients":[
         {
             "item":"tutorialmod:light_shard"

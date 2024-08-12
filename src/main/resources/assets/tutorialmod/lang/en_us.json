@@ -51,6 +51,10 @@
     "item.tutorialmod.gold_detector": "Gold Ore Detector",
     "item.tutorialmod.light_wand": "Luminous Wand",
     "item.tutorialmod.light_dust":"Luminous Powder",
+    "item.tutorialmod.wind_dust":"Wind Powder",
+    "item.tutorialmod.fire_dust":"Flaming Powder",
+    "item.tutorialmod.earth_dust":"Earthy Powder",
+    "item.tutorialmod.water_dust":"Aquaric Powder",
     "item.tutorialmod.porcupine_spawn_egg":"Porcupine Spawn Egg",
     "item.tutorialmod.porcupine_quill": "Porcupine Quill",
 
