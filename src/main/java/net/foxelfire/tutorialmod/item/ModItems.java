@@ -57,6 +57,11 @@ public class ModItems {
     public static final Item FIRE_DUST = registerItem("fire_dust", new Item(new FabricItemSettings()));
     public static final Item EARTH_DUST = registerItem("earth_dust", new Item(new FabricItemSettings()));
     public static final Item WATER_DUST = registerItem("water_dust", new Item(new FabricItemSettings()));
+    public static final Item PLANT_DUST = registerItem("plant_dust", new Item(new FabricItemSettings()));
+    public static final Item ICE_DUST = registerItem("ice_dust", new Item(new FabricItemSettings()));
+    public static final Item ELECTRIC_DUST = registerItem("electric_dust", new Item(new FabricItemSettings()));
+    public static final Item SOUND_DUST = registerItem("sound_dust", new Item(new FabricItemSettings()));
+    public static final Item ARCANE_DUST = registerItem("arcane_dust", new Item(new FabricItemSettings()));
 
     public static final Item LUMINOUS_WAND = registerItem("light_wand", new Item(new FabricItemSettings().maxCount(1)));
     public static final Item BAR_BRAWL_MUSIC_DISC = registerItem("bar_brawl_music_disc", new MusicDiscItem(7, ModSounds.BAR_BRAWL, new FabricItemSettings().maxCount(1), 122));
@@ -74,6 +79,11 @@ public class ModItems {
         entries.add(FIRE_DUST);
         entries.add(EARTH_DUST);
         entries.add(WATER_DUST);
+        entries.add(PLANT_DUST);
+        entries.add(ICE_DUST);
+        entries.add(ELECTRIC_DUST);
+        entries.add(SOUND_DUST);
+        entries.add(ARCANE_DUST);
         entries.add(PYRITE_INGOT);
         entries.add(PORCUPINE_QUILL);
     }

@@ -51,8 +51,6 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return requiredFuel;
     }
 
-    //private Map<Integer, String> getFuelTypeBackFromOrdinal
-
     @Override
     public DefaultedList<Ingredient> getIngredients(){
         DefaultedList<Ingredient> list = DefaultedList.ofSize(this.recipeItems.size());

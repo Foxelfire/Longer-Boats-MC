@@ -1,4 +1,4 @@
-// 1.20.2	2024-08-11T20:08:52.5605929	Tutorial Mod/Recipes
+// 1.20.2	2024-08-12T18:33:59.0243842	Tutorial Mod/Recipes
 f8d6070be09374481779220441cd31e6c29f1961 data\tutorialmod\recipes\light_crystal_block.json
 2fc85a6182b421010b48490387d1bf842fb801f2 data\tutorialmod\recipes\pyrite_block.json
 626ab7b9fea3a04a5994f540135e04cb998ba0f7 data\tutorialmod\advancements\recipes\food\dye_brown_konpeito.json
@@ -23,8 +23,8 @@ a6d8f5f20e3b9072caaccd9d76e0df613d194e22 data\tutorialmod\advancements\recipes\f
 f4830cde7f0d2d636251c0c6de086aca0447325f data\tutorialmod\advancements\recipes\food\dye_cyan_konpeito.json
 2f2fcdb23bec670d5336134fb5a0f55e139b282f data\tutorialmod\advancements\recipes\combat\pyrite_leggings.json
 23af92b119fccf776db748350d0cf97ac3e69dba data\tutorialmod\recipes\dye_purple_konpeito.json
-4e8bfadf4d9e2582b144eaadd5be7b74ba0cffa6 data\tutorialmod\advancements\recipes\tools\pyrite_axe.json
 4e49e286b7117d6045a40860ce73a5038af97691 data\tutorialmod\advancements\recipes\tools\pyrite_hoe.json
+4e8bfadf4d9e2582b144eaadd5be7b74ba0cffa6 data\tutorialmod\advancements\recipes\tools\pyrite_axe.json
 a0763a915a4e00754db246e16f23194118c0e335 data\tutorialmod\advancements\recipes\building_blocks\light_crystal_block.json
 dab88844baeb8d2874ca0c5a6eb4f8001c05213e data\tutorialmod\advancements\recipes\combat\pyrite_chestplate.json
 50042004b1aa04a492797fcf7526e6e67bd52df3 data\tutorialmod\recipes\pyrite_boots.json
