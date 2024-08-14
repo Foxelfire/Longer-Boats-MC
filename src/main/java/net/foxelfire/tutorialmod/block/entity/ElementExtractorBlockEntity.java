@@ -15,7 +15,6 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeEntry;
@@ -225,12 +224,11 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         FIRE(ModItems.FIRE_DUST, "fire_fuel"),
         EARTH(ModItems.EARTH_DUST, "earth_fuel"),
         WATER(ModItems.WATER_DUST, "water_fuel"),
-        /*
-        PLANT("life_energy"),
-        ICE("negative_energy"),
-        ELECTRIC("lightning_energy"),
-        SOUND("sonic_energy"),*/
-        MAGIC(Items.AMETHYST_SHARD, "arcane_fuel");
+        PLANT(ModItems.PLANT_DUST, "plant_fuel"),
+        ICE(ModItems.ICE_DUST, "ice_fuel"),
+        ELECTRIC(ModItems.ELECTRIC_DUST, "electric_fuel"),
+        SOUND(ModItems.SOUND_DUST, "sound_fuel"),
+        MAGIC(ModItems.ARCANE_DUST, "arcane_fuel");
 
         private Item item; // states assigned in constructor
         private String id;
@@ -266,7 +264,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
             return this.fuelTextureYCoordinate;
         }
         public static ElementExtractorBlockEntity.FUEL_TYPE getByOrdinal(int number){
-            if(!(number > 0 && number < 10)){
+            if(!(number > 0 && number < 11)){
                 return NOTHING;
             }
             return fuels[number];
