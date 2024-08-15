@@ -26,6 +26,8 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
     private final List<Ingredient> recipeItems;
     private final String requiredFuel;
 
+    // TODO: add a way to modify ingredients to store item counts, or store them separately and map them on after
+    // TODO: after count storage is done, work on empty space checking using Ingredient.EMPTY
     public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, ItemStack output){
         this.requiredFuel = requiredFuel;
         this.output = output;

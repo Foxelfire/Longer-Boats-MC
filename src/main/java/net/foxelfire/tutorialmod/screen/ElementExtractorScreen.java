@@ -15,8 +15,11 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
 
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/element_extractor_gui.png");
 
-    // TODO if there's any title problems: Override the void init() if you want to adjust the title text of the BlockEntity or the player inv, 
-    // all those fields are inherited already
+    @Override
+    protected void init(){
+        super.init();
+        titleY-=1; // yes, this is what looks good to me. i CAN tell the difference.
+    }
 
     public ElementExtractorScreen(ElementExtractorScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
