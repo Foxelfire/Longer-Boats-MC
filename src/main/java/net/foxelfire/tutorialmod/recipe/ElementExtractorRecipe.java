@@ -3,7 +3,6 @@ package net.foxelfire.tutorialmod.recipe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -30,7 +29,6 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
     private final List<Ingredient> recipeItems;
     private final String requiredFuel;
 
-    // TODO: after count storage is done, work on empty space checking using Ingredient.EMPTY
     public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, Optional<List<Integer>> recipeCounts, ItemStack output){
         this.requiredFuel = requiredFuel;
         this.output = output;
@@ -85,20 +83,6 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
     private boolean inventoryMatches(SimpleInventory inventory){
 
-        // ty to this post for helping me make an easy filter: https://stackoverflow.com/questions/2955043/predicate-in-java
-        // don't question it i'm running on no sleep currently
-        Predicate<Ingredient> isFuel = new Predicate<Ingredient>(){
-            @Override
-            public boolean test(Ingredient t) {
-                for (ItemStack stack : t.getMatchingStacks()) {
-                    if(ElementExtractorBlockEntity.FUEL_TYPE.isFuel(stack)){
-                        return true;
-                    }
-                }
-                return false;
-            }
-            
-        };
         DefaultedList<ItemStack> emptyList = DefaultedList.ofSize(3, ItemStack.EMPTY);
 
         List<ItemStack> inputSubInventory = new ArrayList<ItemStack>();
@@ -109,7 +93,6 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
         List<Ingredient> mutableRecipeItems = new ArrayList<Ingredient>();
         mutableRecipeItems.addAll(recipeItems);
-        mutableRecipeItems.removeIf(isFuel);
     
         int positionInRecipe = 0;
         for(int i = 0; i < 3; i++){
@@ -177,8 +160,8 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
             ).apply(recipeInstance, ElementExtractorRecipe::new));
 
         private static Codec<List<Ingredient>> validateAmount(Codec<Ingredient> delegate, int max) {
-            return Codecs.validate // codec obtained by validating other codec, validator function for it
-                (Codecs.validate( // codec, validator function
+            return Codecs.validate // yeah im just gonna admit i have no clue what this does.
+                (Codecs.validate(
                 delegate.listOf(),
                 list -> list.size() > max ? DataResult.error(() -> "Recipe has too many ingredients!") : DataResult.success(list)
                 ), 
@@ -191,16 +174,16 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
             return CODEC;
         }
 
+        // these two methods get our recipe's info from client to server
         @Override
         public ElementExtractorRecipe read(PacketByteBuf buf) {
             String requiredFuel = buf.readString();
             DefaultedList<Ingredient> inputItems = DefaultedList.ofSize(buf.readInt(), Ingredient.EMPTY);
-            for(int i = 0; i < inputItems.size(); i++){ // getting our recipe over from client to server
+            for(int i = 0; i < inputItems.size(); i++){
                 inputItems.set(i, Ingredient.fromPacket(buf));
             }
             Optional<List<Integer>> recipeCounts = buf.readOptional(null);
-            ItemStack outputItem = buf.readItemStack(); // wtf are we reading? why are there no arguments?
-            // how tf do we know that this buf has a valid ItemStack? we don't. we trust the caller of this. more on this later
+            ItemStack outputItem = buf.readItemStack();
             return new ElementExtractorRecipe(requiredFuel, inputItems, recipeCounts, outputItem);
         }
 
@@ -213,16 +196,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
             }
             buf.writeOptional(recipe.recipeCounts, null);
             buf.writeItemStack(recipe.getResult(null));
-            /* promise me, the for loop in read() and the foreach one here are supposed to be looking at the same data.
-             * so are buf.read/writeItemStack(). These two methods give data to each other from the client and server.
-             * the reason why they don't look anything like each other, sharing zero variable names is because this data is accessed
-             * from buffers of presumably json data sent through packets - so the client calls one method, server calls another,
-             * and because the buffers here are simply arguments the client/server decides later, there's no way to tell what our data is
-             * unless you track down where these methods get called, what is being passed into them, and what data that argument has.
-             * All this to say I have zero control or knowledge over how MC uses these.
-             * so, while you (future me) can override these just fine, (and in fact you have to bc they don't have defaults in their interface) 
-             * you really have to be careful that you're writing and reading the same things, in the same order.
-             */
+            // make sure you read and write the same things!
         }
     }
 }

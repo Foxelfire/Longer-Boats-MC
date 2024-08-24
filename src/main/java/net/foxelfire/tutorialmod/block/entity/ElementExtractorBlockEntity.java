@@ -221,7 +221,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
                 this.removeStack(SHARD_INPUT_SLOT, 1);
             } else {
                 Optional<List<Integer>> counts = recipe.get().value().getIngredientCounts();
-                int inventoryStartingOffset = INGREDIENT_SLOT_1;
+                int inventoryStartingOffset = this.inventory.get(INGREDIENT_SLOT_1).isEmpty() ? INGREDIENT_SLOT_2 : INGREDIENT_SLOT_1;
                 for (Integer count : counts.get()) {
                     this.removeStack(inventoryStartingOffset, count);
                     inventoryStartingOffset++;
@@ -247,7 +247,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         SOUND(ModItems.SOUND_DUST, "sound_fuel"),
         MAGIC(ModItems.ARCANE_DUST, "arcane_fuel");
 
-        private Item item; // states assigned in constructor
+        private Item item;
         private String id;
 
         private int fuelTextureYCoordinate;
