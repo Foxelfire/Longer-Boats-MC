@@ -1,6 +1,7 @@
 package net.foxelfire.tutorialmod.recipe;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -23,15 +24,16 @@ import net.minecraft.world.World;
 public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
     private final ItemStack output;
+    private final Optional<List<Integer>> recipeCounts;
     private final List<Ingredient> recipeItems;
     private final String requiredFuel;
 
-    // TODO: add a way to modify ingredients to store item counts, or store them separately and map them on after
     // TODO: after count storage is done, work on empty space checking using Ingredient.EMPTY
-    public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, ItemStack output){
+    public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, Optional<List<Integer>> recipeCounts, ItemStack output){
         this.requiredFuel = requiredFuel;
         this.output = output;
         this.recipeItems = recipeItems;
+        this.recipeCounts = recipeCounts;
     }
 
     @Override
@@ -60,6 +62,10 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return list;
     }
 
+    public Optional<List<Integer>> getIngredientCounts(){
+        return this.recipeCounts;
+    }
+
     @Override
     public boolean matches(SimpleInventory inventory, World world) {
         if(world.isClient()){
@@ -67,7 +73,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         }
         // tests if the item in input slot matches recipe's json index in "ingredients":[]
         // 3:05 in #31 for more info
-        if(!recipeRequiresFuel()){
+        if(!requiresFuel()){ // yes, all non-fuel recipes require the shard slot...
             return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
         }
         return
@@ -77,7 +83,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
      (inventory.getStack(ElementExtractorBlockEntity.INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem()).getId());
     }
 
-    public boolean recipeRequiresFuel() {
+    public boolean requiresFuel() {
        return !(requiredFuel.equals("not_fueled"));
     }
 
@@ -114,6 +120,11 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
                     .fieldOf("ingredients")
                     .forGetter(ElementExtractorRecipe::getIngredients)
                 ,
+                Codec.INT
+                .listOf()
+                .optionalFieldOf("ingredient_counts")
+                .forGetter(ElementExtractorRecipe::getIngredientCounts),
+
                 RecipeCodecs.CRAFTING_RESULT
                     .fieldOf("output")
                     .forGetter(r -> r.output)
@@ -142,9 +153,10 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
             for(int i = 0; i < inputItems.size(); i++){ // getting our recipe over from client to server
                 inputItems.set(i, Ingredient.fromPacket(buf));
             }
+            Optional<List<Integer>> recipeCounts = buf.readOptional(null);
             ItemStack outputItem = buf.readItemStack(); // wtf are we reading? why are there no arguments?
             // how tf do we know that this buf has a valid ItemStack? we don't. we trust the caller of this. more on this later
-            return new ElementExtractorRecipe(requiredFuel, inputItems, outputItem);
+            return new ElementExtractorRecipe(requiredFuel, inputItems, recipeCounts, outputItem);
         }
 
         @Override
@@ -154,6 +166,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
             for (Ingredient recipeIngredient : recipe.getIngredients()) {
                 recipeIngredient.write(buf);
             }
+            buf.writeOptional(recipe.recipeCounts, null);
             buf.writeItemStack(recipe.getResult(null));
             /* promise me, the for loop in read() and the foreach one here are supposed to be looking at the same data.
              * so are buf.read/writeItemStack(). These two methods give data to each other from the client and server.
@@ -163,9 +176,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
              * unless you track down where these methods get called, what is being passed into them, and what data that argument has.
              * All this to say I have zero control or knowledge over how MC uses these.
              * so, while you (future me) can override these just fine, (and in fact you have to bc they don't have defaults in their interface) 
-             * you really have to be careful that you're writing and reading only Ingredient instances and an ItemStack,
-             * in that order, Ingredients in order of their slots. If not, whatever in MC's source calls these
-             * is not going to have a fun time.
+             * you really have to be careful that you're writing and reading the same things, in the same order.
              */
         }
     }

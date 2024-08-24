@@ -1,5 +1,6 @@
 package net.foxelfire.tutorialmod.block.entity;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -41,7 +42,8 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     private int craftingProgress = 0;
     private int maxProgress = 144;
     private int fuelAmount = 0;
-    private int currentFuelTypeAsOrdinal = 0; //this is FUEL_TYPE.NOTHING
+    private int currentFuelTypeAsOrdinal = 0; //this is FUEL_TYPE.NOTHING bc at this point in time i didn't know Optional was a thing
+    // and i'm too lazy to refactor this now
 
     public ElementExtractorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ELEMENT_EXTRACTOR_BLOCK_ENTITY, pos, state);
@@ -181,7 +183,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
      }
 
     private boolean recipeRequiresFuel(Optional<RecipeEntry<ElementExtractorRecipe>> currentRecipe) {
-        return currentRecipe.get().value().recipeRequiresFuel();
+        return currentRecipe.get().value().requiresFuel();
     }
 
     private boolean isSlotAddable(int slot) { // add int resultAmount to account for crafting 4 items at once
@@ -208,9 +210,24 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
 
     private void craftItem() {
         Optional<RecipeEntry<ElementExtractorRecipe>> recipe = getCurrentRecipe();
-        this.removeStack(SHARD_INPUT_SLOT, 1);
+        this.removeCorrectIngredientAmounts(recipe);
         this.setStack(OUTPUT_SLOT, new ItemStack(recipe.get().value().getResult(null).getItem(), 
         this.getStack(OUTPUT_SLOT).getCount() + recipe.get().value().getResult(null).getCount()));
+    }
+
+    private void removeCorrectIngredientAmounts(Optional<RecipeEntry<ElementExtractorRecipe>> recipe) {
+        if(recipe.isPresent()){
+            if(!recipe.get().value().requiresFuel()){
+                this.removeStack(SHARD_INPUT_SLOT, 1);
+            } else {
+                Optional<List<Integer>> counts = recipe.get().value().getIngredientCounts();
+                int inventoryStartingOffset = INGREDIENT_SLOT_1;
+                for (Integer count : counts.get()) {
+                    this.removeStack(inventoryStartingOffset, count);
+                    inventoryStartingOffset++;
+                }
+            }
+        }
     }
 
     private void resetCraftingProgress() {
