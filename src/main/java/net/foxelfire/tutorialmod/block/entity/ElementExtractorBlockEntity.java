@@ -294,6 +294,14 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
             }
             return NOTHING;
         }
+        public static boolean isFuel(ItemStack stack){
+            for (ElementExtractorBlockEntity.FUEL_TYPE fuel : fuels) {
+                if(fuel != NOTHING && fuel.item.equals(stack.getItem())){
+                    return true;
+                }
+            }
+            return false;
+        }
         public Item getItem(){
             return this.item;
         }

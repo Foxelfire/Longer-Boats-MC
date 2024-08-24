@@ -1,7 +1,9 @@
 package net.foxelfire.tutorialmod.recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -76,11 +78,54 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         if(!requiresFuel()){ // yes, all non-fuel recipes require the shard slot...
             return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
         }
-        return
-        recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_1))
-     && recipeItems.get(1).test(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2))
+        return inventoryMatches(inventory)
      && requiredFuel.equals(ElementExtractorBlockEntity.FUEL_TYPE.getByItem
      (inventory.getStack(ElementExtractorBlockEntity.INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem()).getId());
+    }
+
+    private boolean inventoryMatches(SimpleInventory inventory){
+
+        // ty to this post for helping me make an easy filter: https://stackoverflow.com/questions/2955043/predicate-in-java
+        // don't question it i'm running on no sleep currently
+        Predicate<Ingredient> isFuel = new Predicate<Ingredient>(){
+            @Override
+            public boolean test(Ingredient t) {
+                for (ItemStack stack : t.getMatchingStacks()) {
+                    if(ElementExtractorBlockEntity.FUEL_TYPE.isFuel(stack)){
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+        };
+        DefaultedList<ItemStack> emptyList = DefaultedList.ofSize(3, ItemStack.EMPTY);
+
+        List<ItemStack> inputSubInventory = new ArrayList<ItemStack>();
+        inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_1));
+        inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2));
+        inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_3));
+        inputSubInventory.removeAll(emptyList);
+
+        List<Ingredient> mutableRecipeItems = new ArrayList<Ingredient>();
+        mutableRecipeItems.addAll(recipeItems);
+        mutableRecipeItems.removeIf(isFuel);
+    
+        int positionInRecipe = 0;
+        for(int i = 0; i < 3; i++){
+            if((!inventory.getStack(i+3).isEmpty() || i==2) && inputSubInventory.size() == mutableRecipeItems.size()){
+                if(positionInRecipe < mutableRecipeItems.size()){
+                    if(mutableRecipeItems.get(positionInRecipe).test(inputSubInventory.get(positionInRecipe))){
+                        positionInRecipe++;
+                    } else {
+                        positionInRecipe = 0;
+                    }
+                }
+            } else {
+                positionInRecipe = 0;
+            }
+        }
+        return positionInRecipe == mutableRecipeItems.size();
     }
 
     public boolean requiresFuel() {
