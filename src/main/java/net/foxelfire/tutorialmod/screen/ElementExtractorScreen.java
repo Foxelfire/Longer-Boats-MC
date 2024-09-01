@@ -1,5 +1,7 @@
 package net.foxelfire.tutorialmod.screen;
 
+import java.util.Arrays;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.foxelfire.tutorialmod.TutorialMod;
@@ -8,6 +10,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -18,7 +21,7 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
     @Override
     protected void init(){
         super.init();
-        titleY-=1; // yes, this is what looks good to me. i CAN tell the difference.
+        titleY = 5; // yes, this is what looks good to me. i CAN tell the difference.
     }
 
     public ElementExtractorScreen(ElementExtractorScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -53,8 +56,15 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
              */
             context.drawTexture(TEXTURE, x+85, y+35, 176, 0, 8, handler.getArrowScaledProgress());
         }
-        if(!handler.getFuelType().equals(ElementExtractorBlockEntity.FUEL_TYPE.NOTHING)){
-            context.drawTexture(TEXTURE, x+60, y+55, 176, handler.getFuelType().getTextureCoordinate(), handler.getFuelRemaining(), 6);
+        if(!handler.getFuel().equals(Items.AIR)){
+            /* textures for fuel storage bars are stored 5 pixels down from each other,
+             * in the same order as they're stored in the array POSSIBLE_FUELS, so we
+             * can perform some pixel offset magic to get the Y-coordinate from their 
+             * array indices. Textures immediately start 26 pixels down from top left
+             * corner, which makes the first fuel's index, 0, cancel out nicely. */
+            int yCord = (Arrays.asList(ElementExtractorBlockEntity.POSSIBLE_FUELS)
+            .indexOf(handler.getFuel()) * 5) + 26;
+            context.drawTexture(TEXTURE, x+60, y+55, 176, yCord, handler.getFuelRemaining(), 6);
         }
     }
 

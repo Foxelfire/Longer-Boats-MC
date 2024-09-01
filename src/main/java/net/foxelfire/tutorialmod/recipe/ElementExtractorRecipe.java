@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.foxelfire.tutorialmod.block.entity.ElementExtractorBlockEntity;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
@@ -18,6 +19,7 @@ import net.minecraft.recipe.RecipeCodecs;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.world.World;
@@ -27,9 +29,9 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
     private final ItemStack output;
     private final Optional<List<Integer>> recipeCounts;
     private final List<Ingredient> recipeItems;
-    private final String requiredFuel;
+    private final Optional<Item> requiredFuel;
 
-    public ElementExtractorRecipe(String requiredFuel, List<Ingredient> recipeItems, Optional<List<Integer>> recipeCounts, ItemStack output){
+    public ElementExtractorRecipe(Optional<Item> requiredFuel, List<Ingredient> recipeItems, Optional<List<Integer>> recipeCounts, ItemStack output){
         this.requiredFuel = requiredFuel;
         this.output = output;
         this.recipeItems = recipeItems;
@@ -51,7 +53,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return output;
     }
 
-    public String getRequiredFuel(){
+    public Optional<Item> getRequiredFuel(){
         return requiredFuel;
     }
 
@@ -73,12 +75,11 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         }
         // tests if the item in input slot matches recipe's json index in "ingredients":[]
         // 3:05 in #31 for more info
-        if(!requiresFuel()){ // yes, all non-fuel recipes require the shard slot...
+        if(requiredFuel.isEmpty()){ // yes, all non-fuel recipes require the shard slot...
             return recipeItems.get(0).test(inventory.getStack(ElementExtractorBlockEntity.SHARD_INPUT_SLOT));
         }
         return inventoryMatches(inventory)
-     && requiredFuel.equals(ElementExtractorBlockEntity.FUEL_TYPE.getByItem
-     (inventory.getStack(ElementExtractorBlockEntity.INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem()).getId());
+     && requiredFuel.get().equals(inventory.getStack(ElementExtractorBlockEntity.INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem());
     }
 
     private boolean inventoryMatches(SimpleInventory inventory){
@@ -111,10 +112,6 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         return positionInRecipe == mutableRecipeItems.size();
     }
 
-    public boolean requiresFuel() {
-       return !(requiredFuel.equals("not_fueled"));
-    }
-
     @Override
     public RecipeSerializer<?> getSerializer() {
         return Serializer.INSTANCE;
@@ -140,8 +137,8 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         // so u can prove you're better than him /j
         public static final Codec<ElementExtractorRecipe> CODEC = RecordCodecBuilder.create
             (recipeInstance -> recipeInstance.group(
-                Codec.STRING
-                .fieldOf("fuel_type_required")
+                Registries.ITEM.getCodec()
+                .optionalFieldOf("fuel_type_required")
                 .forGetter(ElementExtractorRecipe::getRequiredFuel),
 
                 validateAmount(Ingredient.DISALLOW_EMPTY_CODEC, 9)
@@ -177,7 +174,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
         // these two methods get our recipe's info from client to server
         @Override
         public ElementExtractorRecipe read(PacketByteBuf buf) {
-            String requiredFuel = buf.readString();
+            Optional<Item> requiredFuel = buf.readOptional(null);
             DefaultedList<Ingredient> inputItems = DefaultedList.ofSize(buf.readInt(), Ingredient.EMPTY);
             for(int i = 0; i < inputItems.size(); i++){
                 inputItems.set(i, Ingredient.fromPacket(buf));
@@ -189,7 +186,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
 
         @Override
         public void write(PacketByteBuf buf, ElementExtractorRecipe recipe) {
-            buf.writeString(recipe.requiredFuel);
+            buf.writeOptional(recipe.requiredFuel, null);
             buf.writeInt(recipe.getIngredients().size()); // this is what we read for size when we make the DefaultedList in read()
             for (Ingredient recipeIngredient : recipe.getIngredients()) {
                 recipeIngredient.write(buf);

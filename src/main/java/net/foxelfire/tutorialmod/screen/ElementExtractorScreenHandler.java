@@ -1,11 +1,14 @@
 package net.foxelfire.tutorialmod.screen;
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.entity.ElementExtractorBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
@@ -109,8 +112,16 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
         return fuelRemaining;
         // No resizing needed - fuelRemaining's max is 20, it corresponds 1/1 to the pixel width of the gauge.
     }
-    public ElementExtractorBlockEntity.FUEL_TYPE getFuelType(){
-        int fuelTypeAsOrdinal = this.propertyDelegate.get(3);
-        return ElementExtractorBlockEntity.FUEL_TYPE.getByOrdinal(fuelTypeAsOrdinal);
+    public Item getFuel(){
+        int fuel = this.propertyDelegate.get(3);
+        if(fuel == -1){
+            return Items.AIR;
+        }
+        try {
+            return ElementExtractorBlockEntity.POSSIBLE_FUELS[fuel];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            TutorialMod.LOGGER.error("fuelIndexProperty is greater than 9, the highest possible fuel value,\nor the 4th property of the PropertyDelegate got corrupted, somehow. Further Info:\n", e);
+        }
+        return Items.AIR;
     }
 }

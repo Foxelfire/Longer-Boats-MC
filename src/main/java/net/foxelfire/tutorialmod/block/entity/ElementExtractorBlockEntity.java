@@ -1,8 +1,8 @@
 package net.foxelfire.tutorialmod.block.entity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.item.ModItems;
@@ -29,7 +29,6 @@ import net.minecraft.world.World;
 
 public class ElementExtractorBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory{
 
-
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(7, ItemStack.EMPTY);
     public static final int SHARD_INPUT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
@@ -38,24 +37,32 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     public static final int INGREDIENT_SLOT_2 = 4;
     public static final int INGREDIENT_SLOT_3 = 5;
     public static final int INVISIBLE_FUEL_SLOT_FOR_RECIPES = 6;
+    public static final Item[] POSSIBLE_FUELS = {ModItems.LIGHT_DUST, ModItems.WIND_DUST, ModItems.FIRE_DUST,
+    ModItems.EARTH_DUST, ModItems.WATER_DUST, ModItems.PLANT_DUST, ModItems.ICE_DUST, ModItems.ELECTRIC_DUST,
+    ModItems.SOUND_DUST, ModItems.ARCANE_DUST};
     protected final PropertyDelegate propertyDelegate;
     private int craftingProgress = 0;
     private int maxProgress = 144;
     private int fuelAmount = 0;
-    private int currentFuelTypeAsOrdinal = 0; //this is FUEL_TYPE.NOTHING bc at this point in time i didn't know Optional was a thing
-    // and i'm too lazy to refactor this now
+    /* "using -1 for empty Optional storing as an int?? stinky code :(" yeah well PropertyDelegates, 
+     *  the only way to get a block entity's data onto a server, only can take ints
+     *  so there's no standard way to describe an empty value because they can't exist.
+     *  I'm deeply upset at this, too, but at least this is a better way to cope with it
+     *  than whatever I was doing before.
+     */
+    private int fuelIndexProperty = getCurrentFuel().isEmpty() ?
+    -1 : Arrays.asList(POSSIBLE_FUELS).indexOf(getCurrentFuel().get());
 
     public ElementExtractorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ELEMENT_EXTRACTOR_BLOCK_ENTITY, pos, state);
-        this.propertyDelegate = new PropertyDelegate() { // client-server syncing bullshit
-
+        this.propertyDelegate = new PropertyDelegate() {
             @Override
             public int get(int index) {
                 return switch(index){
                     case 0 -> ElementExtractorBlockEntity.this.craftingProgress;
                     case 1 -> ElementExtractorBlockEntity.this.maxProgress;
                     case 2 -> ElementExtractorBlockEntity.this.fuelAmount;
-                    case 3 -> ElementExtractorBlockEntity.this.currentFuelTypeAsOrdinal;
+                    case 3 -> ElementExtractorBlockEntity.this.fuelIndexProperty;
                     default -> 0;
                 };
             }
@@ -66,7 +73,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
                     case 0 -> ElementExtractorBlockEntity.this.craftingProgress = value;
                     case 1 -> ElementExtractorBlockEntity.this.maxProgress = value;
                     case 2 -> ElementExtractorBlockEntity.this.fuelAmount = value;
-                    case 3 -> ElementExtractorBlockEntity.this.currentFuelTypeAsOrdinal = value;
+                    case 3 -> ElementExtractorBlockEntity.this.fuelIndexProperty = value;
                 }
             }
 
@@ -89,7 +96,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         Inventories.writeNbt(nbt, inventory);
         nbt.putInt("CraftingProgress", craftingProgress);
         nbt.putInt("FuelRemaining", fuelAmount);
-        nbt.putInt("TypeOfFuel", currentFuelTypeAsOrdinal);
+        nbt.putInt("TypeOfFuel", fuelIndexProperty);
     }
 
     @Override
@@ -116,15 +123,25 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         return inventory;
     }
 
+    private Optional<Item> getCurrentFuel(){
+        // Items.AIR is the value of getItem() used on any empty ItemStack/empty slot,
+        // and it's not a possible fuel, so we don't need to check if empty
+        if(Arrays.asList(POSSIBLE_FUELS).contains(getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem())){
+            return Optional.of(getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).getItem());
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public void tick(World world, BlockState state, BlockPos pos) {
         if(world.isClient){
             return;
         }
-        tryToStoreFuel();
+        storeFuel();
         if(isSlotAddable(OUTPUT_SLOT)){
             if(this.hasRecipe()){
                 if(recipeRequiresFuel(getCurrentRecipe())){
-                    useAnyStoredFuel();
+                    useFuel();
                 }
                 this.craftingProgress++;
                 markDirty(world, pos, state);
@@ -142,48 +159,43 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         }
     }
 
-    // oh god mc's functional programming-like structure is infecting me
-    // yes, this is literally just because i didn't want to copy-paste a foreach loop and a really gross-looking if statement
-    // between tryToStoreFuel() and useAnyStoredFuel(). deal with it, future me, past me wanted to feel smart.
-    private void doSomethingCoolWithTheFuelThisItemIs(Consumer<ElementExtractorBlockEntity.FUEL_TYPE> typeOperation, 
-    boolean additionalCondition){
-        for (ElementExtractorBlockEntity.FUEL_TYPE fuel : ElementExtractorBlockEntity.FUEL_TYPE.fuels) {
-            if(fuel != ElementExtractorBlockEntity.FUEL_TYPE.NOTHING && this.getStack(FUEL_INPUT_SLOT).getItem().equals(fuel.item) && additionalCondition){
-                typeOperation.accept(fuel);
-            }
+    private void useFuel() {
+        if(fuelAmount <= 1 ){
+            refillFuel();
+        }
+        if(this.fuelAmount > 0){
+            fuelAmount--;
+        } else {
+           /* the invis slot effectively has a max capacity of 1 bc that's all we will ever set it to
+           *  so we can wipe the whole stack fine
+           *  it's only here in the first place so we can tell mc's recipe client/server syncing system to read
+           *  the recipe differently if there's an item in this slot, so it's fine to do weird shit like this
+           *  bc the player never interacts w/ it so there's no danger of weird edge cases
+           */
+           this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
         }
     }
 
-    private void tryToStoreFuel() { // when there's no fuel-needing recipe and the gauge is empty
-        doSomethingCoolWithTheFuelThisItemIs(fuel -> {
-            setStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES,
-            new ItemStack(this.getStack(FUEL_INPUT_SLOT).getItem(), 1));
-            this.currentFuelTypeAsOrdinal = fuel.ordinal();
-            this.removeStack(FUEL_INPUT_SLOT, 1);
-            this.fuelAmount = 20;
-        }, this.getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).isEmpty());
+    private void storeFuel(){
+        if(this.getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).isEmpty()){
+            setStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES, new ItemStack(this.getStack(FUEL_INPUT_SLOT).getItem(), 1));
+            refillFuel();
+        }
     }
 
-    public void useAnyStoredFuel(){ // when there is a fuel-needing recipe
-        doSomethingCoolWithTheFuelThisItemIs(fuelType -> {
-             this.currentFuelTypeAsOrdinal = fuelType.ordinal();
-             this.removeStack(FUEL_INPUT_SLOT, 1);
-             this.fuelAmount = 20; }, this.fuelAmount <= 1);
-         if(this.fuelAmount > 0){
-             fuelAmount--;
-         } else {
-            /* the invis slot effectively has a max capacity of 1 bc that's all we will ever set it to
-            *  so we can wipe the whole stack fine
-            *  it's only here in the first place so we can tell mc's recipe client/server syncing system to read
-            *  the recipe differently if there's an item in this slot, so it's fine to do weird shit like this
-            *  bc the player never interacts w/ it so there's no danger of weird edge cases
-            */
-            this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
-         }
-     }
+    private void refillFuel(){
+        updateFuelItem();
+        this.removeStack(FUEL_INPUT_SLOT, 1);
+        this.fuelAmount = 20;
+    }
+
+    private void updateFuelItem(){
+        this.fuelIndexProperty = getCurrentFuel().isEmpty() ?
+        -1 : Arrays.asList(POSSIBLE_FUELS).indexOf(getCurrentFuel().get());
+    }
 
     private boolean recipeRequiresFuel(Optional<RecipeEntry<ElementExtractorRecipe>> currentRecipe) {
-        return currentRecipe.get().value().requiresFuel();
+        return currentRecipe.get().value().getRequiredFuel().isEmpty();
     }
 
     private boolean isSlotAddable(int slot) { // add int resultAmount to account for crafting 4 items at once
@@ -217,7 +229,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
 
     private void removeCorrectIngredientAmounts(Optional<RecipeEntry<ElementExtractorRecipe>> recipe) {
         if(recipe.isPresent()){
-            if(!recipe.get().value().requiresFuel()){
+            if(recipeRequiresFuel(recipe)){
                 this.removeStack(SHARD_INPUT_SLOT, 1);
             } else {
                 Optional<List<Integer>> counts = recipe.get().value().getIngredientCounts();
@@ -232,81 +244,5 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
 
     private void resetCraftingProgress() {
         this.craftingProgress = 0;
-    }
-
-    public enum FUEL_TYPE {
-        NOTHING(),
-        LIGHT(ModItems.LIGHT_DUST, "light_fuel"),
-        AIR(ModItems.WIND_DUST, "wind_fuel"),
-        FIRE(ModItems.FIRE_DUST, "fire_fuel"),
-        EARTH(ModItems.EARTH_DUST, "earth_fuel"),
-        WATER(ModItems.WATER_DUST, "water_fuel"),
-        PLANT(ModItems.PLANT_DUST, "plant_fuel"),
-        ICE(ModItems.ICE_DUST, "ice_fuel"),
-        ELECTRIC(ModItems.ELECTRIC_DUST, "electric_fuel"),
-        SOUND(ModItems.SOUND_DUST, "sound_fuel"),
-        MAGIC(ModItems.ARCANE_DUST, "arcane_fuel");
-
-        private Item item;
-        private String id;
-
-        private int fuelTextureYCoordinate;
-        static int firstTextureYCoordinate = 26; // beginning of fuel bar textures in pixels of gui/element_extractor.png
-        /* ty to https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.9.3,
-         * original idea for defining coordinates this way sparked from reading https://stackoverflow.com/a/66601869.
-         * works bc every texture is stored 5 pixels down from each other, meaning we can define everything
-         * from the first one by adding 5 repeatedly, which is the same as multiplication. Saves making more instances of stuff
-         * if there's a more readable way to just do this in the constructor, fml
-         * this is my first time using an enum all by myself, let me be proud of myself for a moment :(
-         */
-        static ElementExtractorBlockEntity.FUEL_TYPE[] fuels = FUEL_TYPE.values();
-
-        static {
-            for(int i = 1; i < fuels.length; i++){
-                fuels[i].fuelTextureYCoordinate = (i-1)*5 + firstTextureYCoordinate; // works during first iteration bc 0*5 leaves only the first location - its own coordinate
-            }
-        }
-
-        FUEL_TYPE (Item associatedItem, String id){
-            this.item = associatedItem;
-            this.id = id;
-        }
-
-        FUEL_TYPE(){
-            this.item = null;
-            this.id = "not_fueled";
-        }
-
-        public int getTextureCoordinate(){
-            return this.fuelTextureYCoordinate;
-        }
-        public static ElementExtractorBlockEntity.FUEL_TYPE getByOrdinal(int number){
-            if(!(number > 0 && number < 11)){
-                return NOTHING;
-            }
-            return fuels[number];
-        }
-        public static ElementExtractorBlockEntity.FUEL_TYPE getByItem(Item item){
-            for (FUEL_TYPE fuel : fuels) {
-                if(fuel != NOTHING && fuel.item.equals(item)){
-                    return fuel;
-                }
-            }
-            return NOTHING;
-        }
-        public static boolean isFuel(ItemStack stack){
-            for (ElementExtractorBlockEntity.FUEL_TYPE fuel : fuels) {
-                if(fuel != NOTHING && fuel.item.equals(stack.getItem())){
-                    return true;
-                }
-            }
-            return false;
-        }
-        public Item getItem(){
-            return this.item;
-        }
-        public String getId(){
-            return id;
-        }
     }
 }
