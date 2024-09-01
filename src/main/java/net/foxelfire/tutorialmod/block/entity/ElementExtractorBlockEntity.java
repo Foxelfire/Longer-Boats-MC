@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.recipe.ElementExtractorRecipe;
 import net.foxelfire.tutorialmod.screen.ElementExtractorScreenHandler;
@@ -170,10 +169,8 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
            *  the recipe differently if there's an item in this slot, so it's fine to do weird shit like this
            *  bc the player never interacts w/ it so there's no danger of weird edge cases
            */
-            TutorialMod.LOGGER.info("Removing a stack at: " + fuelAmount); 
             this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
         }
-        TutorialMod.LOGGER.info("Fuel Left: " + fuelAmount); 
     }
 
     private void storeFuel(){

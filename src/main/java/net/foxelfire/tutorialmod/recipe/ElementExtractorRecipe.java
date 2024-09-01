@@ -3,11 +3,13 @@ package net.foxelfire.tutorialmod.recipe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.entity.ElementExtractorBlockEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
@@ -83,33 +85,30 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
     }
 
     private boolean inventoryMatches(SimpleInventory inventory){
-        // TODO: figure out what i made at 3am here and refactor it so it makes sense
-        DefaultedList<ItemStack> emptyList = DefaultedList.ofSize(3, ItemStack.EMPTY);
 
         List<ItemStack> inputSubInventory = new ArrayList<ItemStack>();
         inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_1));
         inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_2));
         inputSubInventory.add(inventory.getStack(ElementExtractorBlockEntity.INGREDIENT_SLOT_3));
-        inputSubInventory.removeAll(emptyList);
+        int recipeItemsProcessed = 0;
 
-        List<Ingredient> mutableRecipeItems = new ArrayList<Ingredient>();
-        mutableRecipeItems.addAll(recipeItems);
-    
-        int positionInRecipe = 0;
-        for(int i = 0; i < 3; i++){
-            if((!inventory.getStack(i+3).isEmpty() || i==2) && inputSubInventory.size() == mutableRecipeItems.size()){
-                if(positionInRecipe < mutableRecipeItems.size()){
-                    if(mutableRecipeItems.get(positionInRecipe).test(inputSubInventory.get(positionInRecipe))){
-                        positionInRecipe++;
-                    } else {
-                        positionInRecipe = 0;
-                    }
+        for(int i = 0; i < inputSubInventory.size(); i++){
+            if(!inputSubInventory.get(i).isEmpty()){
+                recipeItemsProcessed++; 
+                // only start checking for matches between recipeItems and the inv once you skip the empty, potentially padding slots
+                // lists being zero indexed is normally helpful but not here, also make sure early there aren't more items than expected
+                if(recipeItemsProcessed > recipeItems.size() || !recipeItems.get(recipeItemsProcessed-1).test(inputSubInventory.get(i))){
+                    return false;
                 }
-            } else {
-                positionInRecipe = 0;
+            } else if(recipeItemsProcessed < recipeItems.size() && recipeItemsProcessed != 0){ 
+                return false; // we haven't finished checking for matches, but the next slot is empty? Oh no, a gap in the middle!
             }
         }
-        return positionInRecipe == mutableRecipeItems.size();
+
+        if(recipeItemsProcessed == recipeItems.size()){ // we're finished checking all the items and there's no problems!
+            return true;
+        }
+        return false; // there weren't enough items to check, they just gave us the first few ingredients and left us hanging!
     }
 
     @Override
