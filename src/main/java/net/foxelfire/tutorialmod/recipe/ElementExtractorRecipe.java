@@ -83,7 +83,7 @@ public class ElementExtractorRecipe implements Recipe<SimpleInventory>{
     }
 
     private boolean inventoryMatches(SimpleInventory inventory){
-
+        // TODO: figure out what i made at 3am here and refactor it so it makes sense
         DefaultedList<ItemStack> emptyList = DefaultedList.ofSize(3, ItemStack.EMPTY);
 
         List<ItemStack> inputSubInventory = new ArrayList<ItemStack>();

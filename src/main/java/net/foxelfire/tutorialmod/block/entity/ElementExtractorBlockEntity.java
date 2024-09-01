@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.recipe.ElementExtractorRecipe;
 import net.foxelfire.tutorialmod.screen.ElementExtractorScreenHandler;
@@ -160,10 +161,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     }
 
     private void useFuel() {
-        if(fuelAmount <= 1 ){
-            refillFuel();
-        }
-        if(this.fuelAmount > 0){
+        if(fuelAmount > 1 || (this.getStack(FUEL_INPUT_SLOT).isEmpty() && fuelAmount == 1)){
             fuelAmount--;
         } else {
            /* the invis slot effectively has a max capacity of 1 bc that's all we will ever set it to
@@ -172,12 +170,14 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
            *  the recipe differently if there's an item in this slot, so it's fine to do weird shit like this
            *  bc the player never interacts w/ it so there's no danger of weird edge cases
            */
-           this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
+            TutorialMod.LOGGER.info("Removing a stack at: " + fuelAmount); 
+            this.removeStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES);
         }
+        TutorialMod.LOGGER.info("Fuel Left: " + fuelAmount); 
     }
 
     private void storeFuel(){
-        if(this.getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).isEmpty()){
+        if(this.getStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES).isEmpty() && Arrays.asList(POSSIBLE_FUELS).contains(this.getStack(FUEL_INPUT_SLOT).getItem())){
             setStack(INVISIBLE_FUEL_SLOT_FOR_RECIPES, new ItemStack(this.getStack(FUEL_INPUT_SLOT).getItem(), 1));
             refillFuel();
         }
@@ -195,7 +195,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     }
 
     private boolean recipeRequiresFuel(Optional<RecipeEntry<ElementExtractorRecipe>> currentRecipe) {
-        return currentRecipe.get().value().getRequiredFuel().isEmpty();
+        return currentRecipe.get().value().getRequiredFuel().isPresent();
     }
 
     private boolean isSlotAddable(int slot) { // add int resultAmount to account for crafting 4 items at once
@@ -210,7 +210,9 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     private Optional<RecipeEntry<ElementExtractorRecipe>> getCurrentRecipe() {
         SimpleInventory inv = new SimpleInventory(this.size());
         for(int i = 0; i < this.size(); i++){
-            inv.setStack(i, this.getStack(i));
+            if(i != FUEL_INPUT_SLOT){
+                inv.setStack(i, this.getStack(i));
+            }
         }
         return getWorld().getRecipeManager().getFirstMatch(ElementExtractorRecipe.Type.INSTANCE, inv, getWorld());
     }
@@ -229,7 +231,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
 
     private void removeCorrectIngredientAmounts(Optional<RecipeEntry<ElementExtractorRecipe>> recipe) {
         if(recipe.isPresent()){
-            if(recipeRequiresFuel(recipe)){
+            if(!recipeRequiresFuel(recipe)){
                 this.removeStack(SHARD_INPUT_SLOT, 1);
             } else {
                 Optional<List<Integer>> counts = recipe.get().value().getIngredientCounts();
