@@ -64,7 +64,7 @@ public class ElementExtractorScreen extends HandledScreen<ElementExtractorScreen
              * corner, which makes the first fuel's index, 0, cancel out nicely. */
             int yCord = (Arrays.asList(ElementExtractorBlockEntity.POSSIBLE_FUELS)
             .indexOf(handler.getFuel()) * 5) + 26;
-            context.drawTexture(TEXTURE, x+60, y+55, 176, yCord, handler.getFuelRemaining(), 6);
+            context.drawTexture(TEXTURE, x+60, y+55, 176, yCord, handler.getScaledFuelRemaining(), 6);
         }
     }
 

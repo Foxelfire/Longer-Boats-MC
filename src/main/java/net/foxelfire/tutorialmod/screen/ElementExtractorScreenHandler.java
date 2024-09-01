@@ -97,7 +97,7 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
         return newStack;
     }
 
-    public boolean isCrafting() { //change later
+    public boolean isCrafting() {
         return propertyDelegate.get(0) > 0;
     }
 
@@ -107,10 +107,11 @@ public class ElementExtractorScreenHandler extends ScreenHandler{
         int arrowHeightInPixels = 26;
         return maxProgress != 0 && progress != 0 ? progress * arrowHeightInPixels / maxProgress : 0;
     }
-    public int getFuelRemaining(){
+    public int getScaledFuelRemaining(){
         int fuelRemaining = this.propertyDelegate.get(2);
-        return fuelRemaining;
-        // No resizing needed - fuelRemaining's max is 20, it corresponds 1/1 to the pixel width of the gauge.
+        // the maximum amount of fuel is 40, and the pixel width of the progress bar is 20, so a simple division by 2 should be fine
+        return fuelRemaining != 0 ? fuelRemaining / 2 : 0;
+        
     }
     public Item getFuel(){
         int fuel = this.propertyDelegate.get(3);

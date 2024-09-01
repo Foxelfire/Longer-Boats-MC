@@ -185,7 +185,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
     private void refillFuel(){
         updateFuelItem();
         this.removeStack(FUEL_INPUT_SLOT, 1);
-        this.fuelAmount = 20;
+        this.fuelAmount = 40;
     }
 
     private void updateFuelItem(){
@@ -197,7 +197,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         return currentRecipe.get().value().getRequiredFuel().isPresent();
     }
 
-    private boolean isSlotAddable(int slot) { // add int resultAmount to account for crafting 4 items at once
+    private boolean isSlotAddable(int slot) {
         return this.getStack(slot).isEmpty() || this.getStack(slot).getCount() < this.getStack(slot).getMaxCount();
     }
 
@@ -216,7 +216,7 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
         return getWorld().getRecipeManager().getFirstMatch(ElementExtractorRecipe.Type.INSTANCE, inv, getWorld());
     }
 
-    private boolean isOutputSlotUnclogged(ItemStack matchingItem) { // add int resultAmount to account for crafting 4 items at once
+    private boolean isOutputSlotUnclogged(ItemStack matchingItem) {
         return (this.getStack(OUTPUT_SLOT).getItem() == matchingItem.getItem() || this.getStack(OUTPUT_SLOT).isEmpty())
         && (this.getStack(OUTPUT_SLOT).getCount() + matchingItem.getCount()) <= getStack(OUTPUT_SLOT).getMaxCount();
     }
