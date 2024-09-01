@@ -3,8 +3,10 @@ package net.foxelfire.tutorialmod.block.entity;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.recipe.ElementExtractorRecipe;
 import net.foxelfire.tutorialmod.screen.ElementExtractorScreenHandler;
@@ -232,10 +234,19 @@ public class ElementExtractorBlockEntity extends BlockEntity implements Extended
                 this.removeStack(SHARD_INPUT_SLOT, 1);
             } else {
                 Optional<List<Integer>> counts = recipe.get().value().getIngredientCounts();
-                int inventoryStartingOffset = this.inventory.get(INGREDIENT_SLOT_1).isEmpty() ? INGREDIENT_SLOT_2 : INGREDIENT_SLOT_1;
+                Supplier<Integer> inventoryStartingOffset = () -> { // to get to the ingredient slots, which are listed in the middle
+                    for(int i = 0; i < 3; i++){
+                        if(!inventory.get(i+3).isEmpty()){
+                            return i+3;
+                        }
+                    } // all the slots are empty??? then how can this recipe be valid? that's a bigger issue
+                    TutorialMod.LOGGER.error("A Recipe of type tutorialmod:element_extracting cannot have no ingredients");
+                    return 0;
+                };
+                int iso = inventoryStartingOffset.get();
                 for (Integer count : counts.get()) {
-                    this.removeStack(inventoryStartingOffset, count);
-                    inventoryStartingOffset++;
+                    this.removeStack(iso, count);
+                    iso++;
                 }
             }
         }

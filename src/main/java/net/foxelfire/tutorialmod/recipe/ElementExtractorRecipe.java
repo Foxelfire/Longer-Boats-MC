@@ -3,13 +3,11 @@ package net.foxelfire.tutorialmod.recipe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.block.entity.ElementExtractorBlockEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
