@@ -20,7 +20,9 @@ import net.minecraft.block.ButtonBlock;
 import net.minecraft.block.DoorBlock;
 import net.minecraft.block.FlowerBlock;
 import net.minecraft.block.FlowerPotBlock;
+import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.PillarBlock;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.block.PressurePlateBlock;
 import net.minecraft.block.SlabBlock;
@@ -44,6 +46,16 @@ public class ModBlocks {
 
     public static final Block PYRITE_DOOR = registerBlock("pyrite_door", new DoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
     public static final Block PYRITE_TRAPDOOR = registerBlock("pyrite_trapdoor", new TrapdoorBlock(FabricBlockSettings.copyOf(ModBlocks.PYRITE_BLOCK).nonOpaque(), BlockSetType.GOLD));
+
+    public static final Block CEDAR_LOG = registerBlock("cedar_log", new PillarBlock(FabricBlockSettings.copyOf(Blocks.SPRUCE_LOG).strength(4.5f)));
+    public static final Block CEDAR_WOOD = registerBlock("cedar_wood", new PillarBlock(FabricBlockSettings.copyOf(Blocks.SPRUCE_WOOD).strength(4.5f)));
+    public static final Block STRIPPED_CEDAR_LOG = registerBlock("stripped_cedar_log", new PillarBlock(FabricBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_LOG).strength(4.5f)));
+    public static final Block STRIPPED_CEDAR_WOOD = registerBlock("stripped_cedar_wood", new PillarBlock(FabricBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_WOOD).strength(4.5f)));
+
+    public static final Block CEDAR_PLANKS = registerBlock("cedar_planks", new Block(FabricBlockSettings.copyOf(Blocks.SPRUCE_PLANKS).strength(4.5f)));
+    public static final Block CEDAR_LEAVES = registerBlock("cedar_leaves", new LeavesBlock(FabricBlockSettings.copyOf(Blocks.SPRUCE_LEAVES).nonOpaque()));
+
+    public static final Block CEDAR_SAPLING = registerBlock("cedar_sapling", new Block(FabricBlockSettings.copyOf(Blocks.SPRUCE_SAPLING))); // TODO: make this a sapling
 
     public static final Block DEWFRUIT_CROP = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "dewfruit_crop"), new DewfruitCropBlock(FabricBlockSettings.copyOf(Blocks.BEETROOTS)));
     public static final Block CLOVER_FLOWER = registerBlock("clover_flower", new FlowerBlock(StatusEffects.LUCK, 25, FabricBlockSettings.copyOf(Blocks.ALLIUM).nonOpaque().noCollision()));

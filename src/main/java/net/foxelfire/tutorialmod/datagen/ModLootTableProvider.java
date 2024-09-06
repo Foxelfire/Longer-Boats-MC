@@ -40,6 +40,14 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider{
         addDrop(ModBlocks.PYRITE_BUTTON);
         addDrop(ModBlocks.PYRITE_WALL);
         addDrop(ModBlocks.PYRITE_TRAPDOOR);
+
+        addDrop(ModBlocks.CEDAR_PLANKS);
+        addDrop(ModBlocks.CEDAR_LOG);
+        addDrop(ModBlocks.CEDAR_WOOD);
+        addDrop(ModBlocks.STRIPPED_CEDAR_LOG);
+        addDrop(ModBlocks.STRIPPED_CEDAR_WOOD);
+
+        addDrop(ModBlocks.CEDAR_LEAVES, leavesDrops(ModBlocks.CEDAR_LEAVES, ModBlocks.CEDAR_LEAVES, BlockLootTableGenerator.SAPLING_DROP_CHANCE));
         addDrop(ModBlocks.DEWFRUIT_CROP, cropDrops(ModBlocks.DEWFRUIT_CROP, ModItems.DEWFRUIT, ModItems.DEWFRUIT_SEEDS, dewfruitPredicateBuilder));
         addDrop(ModBlocks.CLOVER_FLOWER);
         addDrop(ModBlocks.CLOVER);

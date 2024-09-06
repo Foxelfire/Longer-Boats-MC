@@ -12,6 +12,7 @@
     "item.tutorialmod.pyrite_ingot":"Pyrite Ingot",
     "item.tutorialmod.fire_stalk": "Firestalk",
     "item.tutorialmod.light_shard": "Luminous Shard",
+
     "block.tutorialmod.light_crystal_block": "Luminous Crystal Block",
     "block.tutorialmod.light_lantern_block": "Luminous Lantern",
     "block.tutorialmod.pyrite_block": "Block Of Pyrite",
@@ -22,7 +23,14 @@
     "block.tutorialmod.pyrite_pressure_plate": "Pyrite Pressure Plate",
     "block.tutorialmod.pyrite_door": "Pyrite Door",
     "block.tutorialmod.pyrite_trapdoor": "Pyrite Trapdoor",
+    "block.tutorialmod.cedar_planks":"Cedar Planks",
+    "block.tutorialmod.cedar_leaves":"Cedar Leaves",
+    "block.tutorialmod.cedar_log":"Cedar Log",
+    "block.tutorialmod.cedar_wood":"Cedar Wood",
+    "block.tutorialmod.stripped_cedar_log":"Stripped Cedar Log",
+    "block.tutorialmod.stripped_cedar_wood":"Stripped Cedar Wood",
     "block.tutorialmod.element_extractor":"Elemental Extractor",
+
     "item.tutorialmod.konpeito": "White Konpeito",
     "item.tutorialmod.black_konpeito": "Black Konpeito",
     "item.tutorialmod.blue_konpeito": "Blue Konpeito",
@@ -39,8 +47,10 @@
     "item.tutorialmod.purple_konpeito": "Purple Konpeito",
     "item.tutorialmod.red_konpeito": "Red Konpeito",
     "item.tutorialmod.yellow_konpeito": "Yellow Konpeito",
+
     "block.tutorialmod.clover":"Clover",
     "block.tutorialmod.clover_flower":"Flowering Clover",
+
     "item.tutorialmod.dewfruit_seeds": "Dewfruit Seeds",
     "item.tutorialmod.dewfruit": "Dewfruit",
     "item.tutorialmod.bar_brawl_music_disc": "Music Disc",

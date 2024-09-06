@@ -1,6 +1,8 @@
 package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.block.entity.ModBlockEntities;
 import net.foxelfire.tutorialmod.entity.ModEntities;
@@ -38,5 +40,15 @@ public class TutorialMod implements ModInitializer {
 		ModBlockEntities.registerBlockEntities();
 		ModScreenHandlers.registerScreenHandlers();
 		ModRecipes.registerRecipes();
+
+		StrippableBlockRegistry.register(ModBlocks.CEDAR_WOOD, ModBlocks.STRIPPED_CEDAR_WOOD);
+		StrippableBlockRegistry.register(ModBlocks.CEDAR_LOG, ModBlocks.STRIPPED_CEDAR_LOG);
+
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.CEDAR_LEAVES, new FlammableBlockRegistry.Entry(30, 60));
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.CEDAR_PLANKS, new FlammableBlockRegistry.Entry(5, 20));
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.CEDAR_LOG, new FlammableBlockRegistry.Entry(5, 5));
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.CEDAR_WOOD, new FlammableBlockRegistry.Entry(5, 5));
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.STRIPPED_CEDAR_LOG, new FlammableBlockRegistry.Entry(5, 5));
+		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.STRIPPED_CEDAR_WOOD, new FlammableBlockRegistry.Entry(5, 5));
 	}
 }

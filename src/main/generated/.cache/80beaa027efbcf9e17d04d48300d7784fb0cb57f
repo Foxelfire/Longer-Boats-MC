@@ -1,8 +1,9 @@
-// 1.20.2	2024-08-13T21:30:57.9261554	Tutorial Mod/Tags for minecraft:block
+// 1.20.2	2024-09-05T18:30:45.1692056	Tutorial Mod/Tags for minecraft:block
 6f94e652e68da084403b6ad38666f5469960ad66 data\minecraft\tags\blocks\crops.json
 e1a8f38b38a4d3aa26378c3d54caed2d81fdad7f data\minecraft\tags\blocks\mineable\pickaxe.json
 7fed7cdc0dd1cf8373ef024b548b329b12a16426 data\minecraft\tags\blocks\needs_diamond_tool.json
 ff507a2ee65c9756bb78099f4cbbb52570cea485 data\minecraft\tags\blocks\small_flowers.json
+b6f45eb276e26bd426229c36b2224015a0e0dff3 data\minecraft\tags\blocks\logs_that_burn.json
 77182556dfc2a24a5a9efa9dbf1728451964dbb8 data\minecraft\tags\blocks\needs_iron_tool.json
-c732aa54368ddcd4f538372597abdb6ac8c6e7ca data\minecraft\tags\blocks\walls.json
 f6199b9b7c73d4b9306b764c071f937c45255878 data\fabric\tags\blocks\needs_tool_level_4.json
+c732aa54368ddcd4f538372597abdb6ac8c6e7ca data\minecraft\tags\blocks\walls.json

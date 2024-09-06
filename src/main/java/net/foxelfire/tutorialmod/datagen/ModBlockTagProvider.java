@@ -37,6 +37,11 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider{
         getOrCreateTagBuilder(BlockTags.WALLS).add(ModBlocks.PYRITE_WALL);
         getOrCreateTagBuilder(BlockTags.CROPS).add(ModBlocks.DEWFRUIT_CROP);
         getOrCreateTagBuilder(BlockTags.SMALL_FLOWERS).add(ModBlocks.CLOVER_FLOWER);
+        getOrCreateTagBuilder(BlockTags.LOGS_THAT_BURN)
+        .add(ModBlocks.CEDAR_LOG)
+        .add(ModBlocks.CEDAR_WOOD)
+        .add(ModBlocks.STRIPPED_CEDAR_LOG)
+        .add(ModBlocks.STRIPPED_CEDAR_WOOD);
         
     }
 

@@ -93,6 +93,10 @@ public class ModItems {
         entries.add(DEWFRUIT_SEEDS);
         entries.add(ModBlocks.CLOVER_FLOWER);
         entries.add(ModBlocks.CLOVER);
+        entries.add(ModBlocks.CEDAR_SAPLING);
+        entries.add(ModBlocks.CEDAR_LEAVES);
+        entries.add(ModBlocks.CEDAR_LOG);
+        entries.add(ModBlocks.CEDAR_WOOD);
     }
     private static void itemGroupToAddToFoodTab(FabricItemGroupEntries entries){
         entries.add(KONPEITO);
@@ -124,6 +128,11 @@ public class ModItems {
         entries.add(ModBlocks.PYRITE_DOOR);
         entries.add(ModBlocks.PYRITE_TRAPDOOR);
         entries.add(ModBlocks.PYRITE_WALL);
+        entries.add(ModBlocks.CEDAR_PLANKS);
+        entries.add(ModBlocks.CEDAR_LOG);
+        entries.add(ModBlocks.CEDAR_WOOD);
+        entries.add(ModBlocks.STRIPPED_CEDAR_LOG);
+        entries.add(ModBlocks.STRIPPED_CEDAR_WOOD);
     }
     private static void itemGroupToAddToToolsTab(FabricItemGroupEntries entries){
         entries.add(COAL_DETECTOR);

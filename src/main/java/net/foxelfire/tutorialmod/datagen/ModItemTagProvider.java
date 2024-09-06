@@ -40,6 +40,14 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider{
         getOrCreateTagBuilder(ItemTags.SMALL_FLOWERS).add(ModBlocks.CLOVER_FLOWER.asItem());
         getOrCreateTagBuilder(ItemTags.MUSIC_DISCS).add(ModItems.BAR_BRAWL_MUSIC_DISC);
         getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(ModItems.BAR_BRAWL_MUSIC_DISC);
+        // same goes for recipe grouping tags???? come ON, guys
+        getOrCreateTagBuilder(ItemTags.PLANKS).add(ModBlocks.CEDAR_PLANKS.asItem());
+        getOrCreateTagBuilder(ItemTags.LOGS_THAT_BURN)
+        .add(ModBlocks.CEDAR_LOG.asItem())
+        .add(ModBlocks.CEDAR_WOOD.asItem())
+        .add(ModBlocks.STRIPPED_CEDAR_LOG.asItem())
+        .add(ModBlocks.STRIPPED_CEDAR_WOOD.asItem());
+
     }
 
 }

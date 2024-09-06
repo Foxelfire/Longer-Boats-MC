@@ -35,6 +35,11 @@ public class ModModelProvider extends FabricModelProvider{
         pyritePool.stairs(ModBlocks.PYRITE_STAIRS);
         blockStateModelGenerator.registerDoor(ModBlocks.PYRITE_DOOR);
         blockStateModelGenerator.registerTrapdoor(ModBlocks.PYRITE_TRAPDOOR);
+        blockStateModelGenerator.registerLog(ModBlocks.CEDAR_LOG).log(ModBlocks.CEDAR_LOG).wood(ModBlocks.CEDAR_WOOD);
+        blockStateModelGenerator.registerLog(ModBlocks.STRIPPED_CEDAR_LOG).log(ModBlocks.STRIPPED_CEDAR_LOG).wood(ModBlocks.STRIPPED_CEDAR_WOOD);
+        blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.CEDAR_PLANKS);
+        blockStateModelGenerator.registerSimpleCubeAll(ModBlocks.CEDAR_LEAVES);
+        blockStateModelGenerator.registerTintableCross(ModBlocks.CEDAR_SAPLING, BlockStateModelGenerator.TintType.NOT_TINTED);
         blockStateModelGenerator.registerCrop(ModBlocks.DEWFRUIT_CROP, DewfruitCropBlock.AGE, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
         blockStateModelGenerator.registerFlowerPotPlant(ModBlocks.CLOVER_FLOWER, ModBlocks.POTTED_CLOVER, BlockStateModelGenerator.TintType.NOT_TINTED);
         blockStateModelGenerator.registerTintableCross(ModBlocks.CLOVER, BlockStateModelGenerator.TintType.NOT_TINTED);
