@@ -1,4 +1,4 @@
-// 1.20.2	2024-09-05T18:30:45.1656775	Tutorial Mod/Model Definitions
+// 1.20.2	2024-09-06T18:13:09.8590163	Tutorial Mod/Model Definitions
 63ec6c618a3a23eab4cab9c52d7d3250de9b516e assets\tutorialmod\models\item\porcupine_spawn_egg.json
 89a3f9fb8ae827d0cef3474b591e3a01a0f73015 assets\tutorialmod\blockstates\pyrite_pressure_plate.json
 91f94870821bebcb4dd926be112512c987f68e3d assets\tutorialmod\blockstates\dewfruit_crop.json
@@ -49,8 +49,8 @@ cc78f1ec81622f72c3c79c3c6014a4600266b23a assets\tutorialmod\models\item\lime_kon
 d92da66c72342f7410d6769b0026efcd0885741a assets\tutorialmod\models\block\pyrite_stairs_inner.json
 bde4b924c86d92925ed35377b6c1d1d6374fc5bc assets\tutorialmod\models\block\pyrite_wall_side_tall.json
 b1fb12e9705a8b267b5897d72cc8bbad868b51f1 assets\tutorialmod\models\block\dewfruit_crop_stage5.json
-83f86da734de6ae94802671dc30d36ad563c2dcd assets\tutorialmod\models\item\orange_konpeito.json
 9086de62a7f626874a6790d9e6ec6ab6441d0188 assets\tutorialmod\models\item\stripped_cedar_log.json
+83f86da734de6ae94802671dc30d36ad563c2dcd assets\tutorialmod\models\item\orange_konpeito.json
 25b5602e94da4563824a4293e2ea3a62ce61dbe8 assets\tutorialmod\models\block\dewfruit_crop_stage11.json
 0005d1c6b1a1c59bb0641613e5e286f430cafbdd assets\tutorialmod\models\item\pyrite_stairs.json
 f7a3e4246cccadca2f697a57352c05b9acb3ca1e assets\tutorialmod\models\block\dewfruit_crop_stage2.json
@@ -104,8 +104,8 @@ c9e6291ab8e0141eb7f4aa274a8f94e9310b2866 assets\tutorialmod\models\item\pyrite_d
 65d4faa600eccc5926648fb1d3f51b40de946422 assets\tutorialmod\models\item\pyrite_leggings_quartz_trim.json
 45fbe2a9afe0f7e2e745ae666aa099876d7109a8 assets\tutorialmod\models\block\cedar_leaves.json
 7aad2e86ceeb4cfce86b4e39a3a05f0e3eb91183 assets\tutorialmod\models\item\pyrite_helmet_copper_trim.json
-9c8426efe0fec49d90ab3f050e7e4b2af11c1981 assets\tutorialmod\models\item\pyrite_leggings_amethyst_trim.json
 36da0dcf03b1cec039ea5559849abd4c04d8a809 assets\tutorialmod\models\item\pyrite_button.json
+9c8426efe0fec49d90ab3f050e7e4b2af11c1981 assets\tutorialmod\models\item\pyrite_leggings_amethyst_trim.json
 9ae8837698a2fe4a5c865c91e05e88a23e1f84e8 assets\tutorialmod\models\item\light_dust.json
 98b865ad022b00d2e43df0a93797413ebf1a5270 assets\tutorialmod\models\item\pyrite_pickaxe.json
 ee209933059405891697c4c56b400731b3525f34 assets\tutorialmod\models\block\pyrite_pressure_plate_down.json

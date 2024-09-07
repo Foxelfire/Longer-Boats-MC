@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_stripped_cedar_wood": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tutorialmod:stripped_cedar_wood"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:cedar_planks_from_stripped_cedar_wood"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_stripped_cedar_wood"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:cedar_planks_from_stripped_cedar_wood"
+    ]
+  },
+  "sends_telemetry_event": false
+}

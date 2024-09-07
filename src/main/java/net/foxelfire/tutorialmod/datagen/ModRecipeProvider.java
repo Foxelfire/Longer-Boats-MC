@@ -49,7 +49,10 @@ public class ModRecipeProvider extends FabricRecipeProvider{
         offerPressurePlateRecipe(exporter, ModBlocks.PYRITE_PRESSURE_PLATE, ModItems.PYRITE_INGOT);
         offerWallRecipe(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.PYRITE_WALL, ModBlocks.PYRITE_BLOCK);
         offerShapelessRecipe(exporter, ModBlocks.PYRITE_BUTTON, ModItems.PYRITE_INGOT, null, 1);
-        
+        offerShapelessRecipe(exporter, ModBlocks.CEDAR_PLANKS, ModBlocks.CEDAR_LOG, "cedar_planks_recipes", 4);
+        offerShapelessRecipe(exporter, ModBlocks.CEDAR_PLANKS, ModBlocks.STRIPPED_CEDAR_LOG, "cedar_planks_recipes", 4);
+        offerShapelessRecipe(exporter, ModBlocks.CEDAR_PLANKS, ModBlocks.CEDAR_WOOD, "cedar_planks_recipes", 4);
+        offerShapelessRecipe(exporter, ModBlocks.CEDAR_PLANKS, ModBlocks.STRIPPED_CEDAR_WOOD, "cedar_planks_recipes", 4);
         
         createStairsRecipe(ModBlocks.PYRITE_STAIRS, Ingredient.ofItems(ModItems.PYRITE_INGOT))
         .criterion(hasItem(ModBlocks.PYRITE_BLOCK), conditionsFromItem(ModBlocks.PYRITE_BLOCK))

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "cedar_planks_recipes",
+  "ingredients": [
+    {
+      "item": "tutorialmod:stripped_cedar_wood"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "item": "tutorialmod:cedar_planks"
+  }
+}
