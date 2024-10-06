@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab",
-  "textures": {
-    "bottom": "tutorialmod:block/pyrite_block",
-    "side": "tutorialmod:block/pyrite_block",
-    "top": "tutorialmod:block/pyrite_block"
-  }
-}
