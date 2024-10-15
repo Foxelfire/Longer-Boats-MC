@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.entity.ModEntities;
+import net.foxelfire.tutorialmod.entity.client.CedarBoatModel;
+import net.foxelfire.tutorialmod.entity.client.CedarBoatRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
 import net.foxelfire.tutorialmod.entity.client.PorcupineModel;
 import net.foxelfire.tutorialmod.entity.client.PorcupineRenderer;
@@ -29,7 +31,9 @@ public class TutorialModClient implements ClientModInitializer{
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CLOVER, RenderLayer.getCutout());
 
         EntityRendererRegistry.register(ModEntities.PORCUPINE, PorcupineRenderer::new);
+        EntityRendererRegistry.register(ModEntities.CEDAR_BOAT, CedarBoatRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.PORCUPINE, PorcupineModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.CEDAR_BOAT, CedarBoatModel::getTexturedModelData);
         HandledScreens.register(ModScreenHandlers.ELEMENT_EXTRACTOR_SCREEN_HANDLER, ElementExtractorScreen::new);
     }
 }

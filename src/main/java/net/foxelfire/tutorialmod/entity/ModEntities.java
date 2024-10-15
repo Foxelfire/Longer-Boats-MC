@@ -19,7 +19,7 @@ public class ModEntities {
 
     public static final EntityType<CedarBoatEntity> CEDAR_BOAT = Registry.register(Registries.ENTITY_TYPE, new Identifier(TutorialMod.MOD_ID, "cedar_boat"),
     FabricEntityTypeBuilder.create(SpawnGroup.MISC, CedarBoatEntity::new)
-    .dimensions(EntityDimensions.fixed(1f, 1f)).build()); // dimensions are to be decided
+    .dimensions(EntityDimensions.fixed(4.0f, 0.5f)).build());
 
     public static void registerModEntities() {
         TutorialMod.LOGGER.info("Registering Entities for " + TutorialMod.MOD_ID);

@@ -83,6 +83,7 @@ public class ModModelProvider extends FabricModelProvider{
         itemModelGenerator.register(ModItems.COAL_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.GOLD_DETECTOR, Models.GENERATED);
         itemModelGenerator.register(ModItems.IRON_DETECTOR, Models.GENERATED);
+        itemModelGenerator.register(ModItems.CEDAR_BOAT_ITEM, Models.GENERATED);
 
         itemModelGenerator.register(ModItems.KONPEITO, Models.GENERATED);
         itemModelGenerator.register(ModItems.BLACK_KONPEITO, Models.GENERATED);
