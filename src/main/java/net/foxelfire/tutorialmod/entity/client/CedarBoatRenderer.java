@@ -25,7 +25,7 @@ public class CedarBoatRenderer extends EntityRenderer<CedarBoatEntity>{
     public Identifier getTexture(CedarBoatEntity var1) {
         return TEXTURE;
     }
-
+    // need to fix something? check out BoatEntityRenderer and maybe that whole type hierarchy
     @Override
     public void render(CedarBoatEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
         matrixStack.push();
