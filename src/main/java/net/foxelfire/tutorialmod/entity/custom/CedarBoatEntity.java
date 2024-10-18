@@ -4,16 +4,24 @@ package net.foxelfire.tutorialmod.entity.custom;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 
 public class CedarBoatEntity extends Entity {
 
+    private int lives;
+    
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
+        this.intersectionChecked = true;
+        this.lives = 6;
     }
 
     public Item asItem(){
@@ -34,12 +42,40 @@ public class CedarBoatEntity extends Entity {
         return (other.isCollidable() || other.isPushable()) && !entity.isConnectedThroughVehicle(other);
     }
 
+    @SuppressWarnings("resource")
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        if(this.isInvulnerableTo(source)){
+            return false;
+        }
+        if (this.getWorld().isClient || this.isRemoved()) {
+            return true;
+        }
+        if (source.getAttacker() instanceof PlayerEntity && ((PlayerEntity)source.getAttacker()).getAbilities().creativeMode) {
+            this.discard();
+        }
+        this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
+        lives--;
+        return true;
+    }
+
     protected void dropItems(DamageSource source) {
         this.dropItem(this.asItem());
     }
+
  
     protected int getMaxPassengers() {
         return 4;
+    }
+
+    @Override
+    protected Entity.MoveEffect getMoveEffect() {
+        return Entity.MoveEffect.EVENTS;
+    }
+
+    @Override
+    public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource){
+        return false;
     }
 
     @Override
@@ -58,8 +94,37 @@ public class CedarBoatEntity extends Entity {
     }
 
     @Override
+    public void pushAwayFrom(Entity entity) {
+        if (entity instanceof BoatEntity || entity instanceof CedarBoatEntity) {
+            if (entity.getBoundingBox().minY < this.getBoundingBox().maxY) {
+                super.pushAwayFrom(entity);
+            }
+        } else if (entity.getBoundingBox().minY <= this.getBoundingBox().minY) {
+            super.pushAwayFrom(entity);
+        }
+    }
+
+    @Override
+    public void tick(){
+        super.tick();
+        checkBlockCollision();
+        recognizeGravityExists();
+        this.move(MovementType.SELF, this.getVelocity());
+    }
+
+
+    @Override
     protected void readCustomDataFromNbt(NbtCompound var1) {
         
+    }
+
+    protected void recognizeGravityExists(){
+        if (this.isLogicalSideForUpdatingMovement()) {
+            double downwardAcceleration = this.hasNoGravity() ? 0.0 : (double)-0.04f;
+            Vec3d velocity = this.getVelocity();
+            this.scheduleVelocityUpdate();
+            this.setVelocity(velocity.x, velocity.y + downwardAcceleration, velocity.z);
+        }
     }
 
     @Override
