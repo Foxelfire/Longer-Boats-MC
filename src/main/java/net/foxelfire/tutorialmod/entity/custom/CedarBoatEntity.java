@@ -17,6 +17,7 @@ import net.minecraft.world.event.GameEvent;
 public class CedarBoatEntity extends Entity {
 
     private int lives;
+    protected Vec3d velocity;
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
@@ -59,6 +60,7 @@ public class CedarBoatEntity extends Entity {
             this.kill();
         }
         this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
+        this.reactToHit(source);
         lives--;
         return true;
     }
@@ -120,6 +122,11 @@ public class CedarBoatEntity extends Entity {
     @Override
     protected void readCustomDataFromNbt(NbtCompound var1) {
         
+    }
+
+    protected void reactToHit(DamageSource source){
+        this.scheduleVelocityUpdate();
+        this.addVelocity(source.getAttacker().getRotationVector());
     }
 
     protected void recognizeGravityExists(){
