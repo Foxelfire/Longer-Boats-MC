@@ -87,7 +87,9 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	}
 	@Override
 	public void setAngles(CedarBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		
+		this.getPart().traverse().forEach(ModelPart::resetTransform);
+		TutorialMod.LOGGER.info(entity.getBodyYaw() + "");
+		boat.yaw = entity.getBodyYaw();
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {

@@ -33,6 +33,7 @@ public class CedarBoatRenderer extends EntityRenderer<CedarBoatEntity>{
         matrixStack.translate(0.0f, 1.44f, 0.0f);
         matrixStack.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(180.0f));
         model.render(matrixStack, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, 1.0f);
+        model.setAngles(entity, 0, 0, entity.age, yaw, entity.getPitch());
         matrixStack.pop();
         super.render(entity, yaw, tickDelta, matrixStack, vertexConsumers, light);
     }

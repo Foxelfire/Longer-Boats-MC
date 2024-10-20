@@ -31,8 +31,9 @@ public class CedarBoatItem extends Item{
                     context.getStack().decrement(1);
                 }
             }
+            return ActionResult.SUCCESS;
         }
-        return ActionResult.SUCCESS;
+        return ActionResult.CONSUME;
     }
     
 }
