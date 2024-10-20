@@ -114,7 +114,6 @@ public class CedarBoatEntity extends Entity {
     public void tick(){
         super.tick();
         checkBlockCollision();
-        //this.scheduleVelocityUpdate();
         recognizeGravityExists();
         this.move(MovementType.SELF, this.getVelocity());
     }
