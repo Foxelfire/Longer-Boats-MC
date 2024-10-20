@@ -54,6 +54,10 @@ public class CedarBoatEntity extends Entity {
         if (source.getAttacker() instanceof PlayerEntity && ((PlayerEntity)source.getAttacker()).getAbilities().creativeMode) {
             this.discard();
         }
+        if(lives <= 1){
+            dropItems(source);
+            this.kill();
+        }
         this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
         lives--;
         return true;
