@@ -114,6 +114,7 @@ public class CedarBoatEntity extends Entity {
     public void tick(){
         super.tick();
         checkBlockCollision();
+        //this.scheduleVelocityUpdate();
         recognizeGravityExists();
         this.move(MovementType.SELF, this.getVelocity());
     }
@@ -132,9 +133,12 @@ public class CedarBoatEntity extends Entity {
     protected void recognizeGravityExists(){
         if (this.isLogicalSideForUpdatingMovement()) {
             double downwardAcceleration = this.hasNoGravity() ? 0.0 : (double)-0.04f;
+            double friction = this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
+            double velocityDecay = friction > 0 ? friction : 0;
             Vec3d velocity = this.getVelocity();
             this.scheduleVelocityUpdate();
-            this.setVelocity(velocity.x, velocity.y + downwardAcceleration, velocity.z);
+            this.setVelocity(velocity.x*velocityDecay, velocity.y + downwardAcceleration, velocity.z*velocityDecay);
+            
         }
     }
 
