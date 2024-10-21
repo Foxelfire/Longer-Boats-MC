@@ -25,7 +25,7 @@ public class CedarBoatItem extends Item{
             if(context.getWorld().getBlockState(context.getBlockPos().up(1)).isAir()){
                 BlockPos pos = context.getBlockPos();
                 type.spawnFromItemStack((ServerWorld)context.getWorld(), context.getStack(), context.getPlayer(), pos.up(1), 
-                SpawnReason.SPAWN_EGG, false, false);
+                SpawnReason.SPAWN_EGG, false, false).setYaw(context.getPlayerYaw() + 180.0f);
                 context.getWorld().emitGameEvent((Entity)context.getPlayer(), GameEvent.ENTITY_PLACE, context.getBlockPos());
                 if (!context.getPlayer().getAbilities().creativeMode) {
                     context.getStack().decrement(1);
