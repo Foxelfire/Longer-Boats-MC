@@ -17,7 +17,6 @@ import net.minecraft.world.event.GameEvent;
 public class CedarBoatEntity extends Entity {
 
     private int lives;
-    protected Vec3d velocity;
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
@@ -63,6 +62,22 @@ public class CedarBoatEntity extends Entity {
         this.reactToHit(source);
         lives--;
         return true;
+    }
+
+    protected void doMovement(){
+        if (this.isLogicalSideForUpdatingMovement()) {
+            double downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.04f;
+            double lackOfFriction = this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
+            if(this.isTouchingWater() && !this.isSubmergedInWater()){
+                this.setVelocity(this.getVelocity().multiply(1, 0, 1));
+                downwardAcceleration = 0;
+                lackOfFriction = 0.9;
+            }
+            double velocityDecay = lackOfFriction > 0 ? lackOfFriction : 0;
+            Vec3d velocity = this.getVelocity();
+            this.scheduleVelocityUpdate();
+            this.setVelocity(velocity.x*velocityDecay, velocity.y + downwardAcceleration, velocity.z*velocityDecay);
+        }
     }
 
     protected void dropItems(DamageSource source) {
@@ -114,7 +129,7 @@ public class CedarBoatEntity extends Entity {
     public void tick(){
         super.tick();
         checkBlockCollision();
-        recognizeGravityExists();
+        doMovement();
         this.move(MovementType.SELF, this.getVelocity());
     }
 
@@ -126,19 +141,7 @@ public class CedarBoatEntity extends Entity {
 
     protected void reactToHit(DamageSource source){
         this.scheduleVelocityUpdate();
-        this.addVelocity(source.getAttacker().getRotationVector());
-    }
-
-    protected void recognizeGravityExists(){
-        if (this.isLogicalSideForUpdatingMovement()) {
-            double downwardAcceleration = this.hasNoGravity() && !this.isOnGround() ? 0.0 : (double)-0.04f;
-            double friction = this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
-            double velocityDecay = friction > 0 ? friction : 0;
-            Vec3d velocity = this.getVelocity();
-            this.scheduleVelocityUpdate();
-            this.setVelocity(velocity.x*velocityDecay, velocity.y + downwardAcceleration, velocity.z*velocityDecay);
-            
-        }
+        this.addVelocity(source.getAttacker().getRotationVector().multiply(DEFAULT_FRICTION));
     }
 
     @Override
