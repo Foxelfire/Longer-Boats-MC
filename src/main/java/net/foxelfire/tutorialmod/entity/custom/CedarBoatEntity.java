@@ -1,6 +1,7 @@
 package net.foxelfire.tutorialmod.entity.custom;
 
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -72,6 +74,8 @@ public class CedarBoatEntity extends Entity {
                 this.setVelocity(this.getVelocity().multiply(1, 0, 1));
                 downwardAcceleration = 0;
                 lackOfFriction = 0.9;
+            } else if(this.isSubmergedInWater()){
+                downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.02f;
             }
             double velocityDecay = lackOfFriction > 0 ? lackOfFriction : 0;
             Vec3d velocity = this.getVelocity();
@@ -115,6 +119,21 @@ public class CedarBoatEntity extends Entity {
     }
 
     @Override
+    public void onBubbleColumnSurfaceCollision(boolean drag) {
+        this.getWorld().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
+        if (this.random.nextInt(20) == 0) {
+            this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), this.getSplashSound(), this.getSoundCategory(), 1.0f, 0.8f + 0.4f * this.random.nextFloat(), false);
+            this.emitGameEvent(GameEvent.SPLASH, this.getControllingPassenger());
+        }
+        if (!this.getWorld().isClient()) {
+            Vec3d vec3d = this.getVelocity();
+            double d = drag ? -0.7 : 0.3;
+            scheduleVelocityUpdate();
+            this.setVelocity(vec3d.x, d, vec3d.z);
+        }   
+    }
+
+    @Override
     public void pushAwayFrom(Entity entity) {
         if (entity instanceof BoatEntity || entity instanceof CedarBoatEntity) {
             if (entity.getBoundingBox().minY < this.getBoundingBox().maxY) {
@@ -130,6 +149,7 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         checkBlockCollision();
         doMovement();
+        TutorialMod.LOGGER.info("Current velocity: " + this.getVelocity());
         this.move(MovementType.SELF, this.getVelocity());
     }
 
