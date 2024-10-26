@@ -149,7 +149,6 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         checkBlockCollision();
         doMovement();
-        TutorialMod.LOGGER.info("Current velocity: " + this.getVelocity());
         this.move(MovementType.SELF, this.getVelocity());
     }
 
