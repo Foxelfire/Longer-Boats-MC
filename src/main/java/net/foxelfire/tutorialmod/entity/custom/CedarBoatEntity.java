@@ -19,6 +19,8 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -121,7 +123,7 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height - 0.1f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
+        return new Vector3f(0.0f, dimensions.height - 0.2f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
     }
 
     @Override
@@ -137,6 +139,17 @@ public class CedarBoatEntity extends Entity {
     @Override
     protected void initDataTracker() {
         
+    }
+
+    @Override
+    public ActionResult interact(PlayerEntity player, Hand hand) {
+        if (player.shouldCancelInteraction()) {
+            return ActionResult.PASS;
+        }
+        if (!this.getWorld().isClient()) {
+            return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
+        }
+        return ActionResult.SUCCESS;
     }
 
     @Override
