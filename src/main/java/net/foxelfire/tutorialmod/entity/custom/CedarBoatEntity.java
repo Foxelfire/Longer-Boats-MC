@@ -1,17 +1,24 @@
 package net.foxelfire.tutorialmod.entity.custom;
 
 
-import net.foxelfire.tutorialmod.TutorialMod;
+import java.util.List;
+
+import org.joml.Vector3f;
+
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -26,8 +33,28 @@ public class CedarBoatEntity extends Entity {
         this.lives = 6;
     }
 
+    private void acceptNearbyRiders() {
+        List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox().expand(0.15f, 0.1, 1.0f), EntityPredicates.canBePushedBy(this));
+        for(Entity entity : list){
+            if (!this.getWorld().isClient() && !(this.getControllingPassenger() instanceof PlayerEntity)
+            && this.getPassengerList().size() < this.getMaxPassengers()
+            && !entity.hasVehicle() && entity instanceof LivingEntity
+            && !(entity instanceof PlayerEntity || entity instanceof WaterCreatureEntity)) {
+                entity.startRiding(this);
+                continue;
+            }
+            this.pushAwayFrom(entity);
+        }
+    }
+
+
     public Item asItem(){
         return ModItems.CEDAR_BOAT_ITEM;
+    }
+
+    @Override
+    protected boolean canAddPassenger(Entity passenger) {
+        return this.getPassengerList().size() <= 4;
     }
 
     @Override
@@ -44,13 +71,12 @@ public class CedarBoatEntity extends Entity {
         return (other.isCollidable() || other.isPushable()) && !entity.isConnectedThroughVehicle(other);
     }
 
-    @SuppressWarnings("resource")
     @Override
     public boolean damage(DamageSource source, float amount) {
         if(this.isInvulnerableTo(source)){
             return false;
         }
-        if (this.getWorld().isClient || this.isRemoved()) {
+        if (this.getWorld().isClient() || this.isRemoved()) {
             return true;
         }
         if (source.getAttacker() instanceof PlayerEntity && ((PlayerEntity)source.getAttacker()).getAbilities().creativeMode) {
@@ -71,7 +97,7 @@ public class CedarBoatEntity extends Entity {
             double downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.04f;
             double lackOfFriction = this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
             if(this.isTouchingWater() && !this.isSubmergedInWater()){
-                this.setVelocity(this.getVelocity().multiply(1, 0, 1));
+                this.setVelocity(this.getVelocity().multiply(1, 0.2, 1));
                 downwardAcceleration = 0;
                 lackOfFriction = 0.9;
             } else if(this.isSubmergedInWater()){
@@ -91,6 +117,11 @@ public class CedarBoatEntity extends Entity {
  
     protected int getMaxPassengers() {
         return 4;
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
+        return new Vector3f(0.0f, dimensions.height - 0.1f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
     }
 
     @Override
@@ -149,9 +180,9 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         checkBlockCollision();
         doMovement();
+        acceptNearbyRiders();
         this.move(MovementType.SELF, this.getVelocity());
     }
-
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound var1) {
@@ -159,10 +190,11 @@ public class CedarBoatEntity extends Entity {
     }
 
     protected void reactToHit(DamageSource source){
-        this.scheduleVelocityUpdate();
-        this.addVelocity(source.getAttacker().getRotationVector().multiply(DEFAULT_FRICTION));
+        if(this.isLogicalSideForUpdatingMovement() && source.getAttacker() instanceof LivingEntity){
+            this.scheduleVelocityUpdate();
+            this.addVelocity(source.getAttacker().getRotationVector().multiply(DEFAULT_FRICTION));
+        }
     }
-
     @Override
     protected void writeCustomDataToNbt(NbtCompound var1) {
         
