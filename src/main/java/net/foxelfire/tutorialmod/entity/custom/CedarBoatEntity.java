@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -17,6 +21,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
@@ -97,7 +102,7 @@ public class CedarBoatEntity extends Entity {
     protected void doMovement(){
         if (this.isLogicalSideForUpdatingMovement()) {
             double downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.04f;
-            double lackOfFriction = this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
+            double lackOfFriction = .6*this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
             if(this.isTouchingWater() && !this.isSubmergedInWater()){
                 this.setVelocity(this.getVelocity().multiply(1, 0.2, 1));
                 downwardAcceleration = 0;
@@ -177,6 +182,35 @@ public class CedarBoatEntity extends Entity {
         }   
     }
 
+    private void sendC2SMovementInputPacket(PlayerEntity player) {
+        if(this.getWorld().isClient()){
+            ClientPlayerEntity rider = (ClientPlayerEntity)player;
+            float clientYawVelocity = 0;
+            float clientMovementThing = 0;
+            if (rider.input.pressingLeft) {
+                clientYawVelocity -= 1.0f;
+            }
+            if (rider.input.pressingRight) {
+                clientYawVelocity += 1.0f;
+            }
+            if (rider.input.pressingRight != rider.input.pressingLeft && !rider.input.pressingForward && !rider.input.pressingBack) {
+                clientMovementThing += 0.005f;
+            }
+            this.setYaw(this.getYaw() + clientYawVelocity);
+            if (rider.input.pressingForward) {
+                clientMovementThing += 0.04f;
+            }
+            if (rider.input.pressingBack) {
+                clientMovementThing -= 0.005f;
+            }
+            Vec3d velocityInfo = (this.getVelocity().add((-this.getYaw() * ((float)Math.PI / 180)) * clientMovementThing, 0.0, (this.getYaw() * ((float)Math.PI / 180)) * clientMovementThing));
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeInt(this.getId());
+            buf.writeVec3d(velocityInfo);
+            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+        }
+    }
+
     @Override
     public void pushAwayFrom(Entity entity) {
         if (entity instanceof BoatEntity || entity instanceof CedarBoatEntity) {
@@ -194,9 +228,15 @@ public class CedarBoatEntity extends Entity {
         checkBlockCollision();
         doMovement();
         acceptNearbyRiders();
+        if(this.getFirstPassenger() instanceof PlayerEntity){
+            if(this.getWorld().isClient()){
+                sendC2SMovementInputPacket((ClientPlayerEntity)this.getFirstPassenger());
+            }
+        }
         this.move(MovementType.SELF, this.getVelocity());
     }
-
+            
+            
     @Override
     protected void readCustomDataFromNbt(NbtCompound var1) {
         
@@ -205,7 +245,7 @@ public class CedarBoatEntity extends Entity {
     protected void reactToHit(DamageSource source){
         if(this.isLogicalSideForUpdatingMovement() && source.getAttacker() instanceof LivingEntity){
             this.scheduleVelocityUpdate();
-            this.addVelocity(source.getAttacker().getRotationVector().multiply(DEFAULT_FRICTION));
+            this.addVelocity(source.getAttacker().getRotationVector().multiply(.6));
         }
     }
     @Override
