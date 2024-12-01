@@ -7,6 +7,7 @@ import org.joml.Vector3f;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -99,24 +100,6 @@ public class CedarBoatEntity extends Entity {
         return true;
     }
 
-    protected void doMovement(){
-        if (this.isLogicalSideForUpdatingMovement()) {
-            double downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.04f;
-            double lackOfFriction = .6*this.getWorld().getBlockState(this.getBlockPos().down(1)).getBlock().getSlipperiness();
-            if(this.isTouchingWater() && !this.isSubmergedInWater()){
-                this.setVelocity(this.getVelocity().multiply(1, 0.2, 1));
-                downwardAcceleration = 0;
-                lackOfFriction = 0.9;
-            } else if(this.isSubmergedInWater()){
-                downwardAcceleration = this.hasNoGravity() || this.isOnGround() ? 0.0 : (double)-0.02f;
-            }
-            double velocityDecay = lackOfFriction > 0 ? lackOfFriction : 0;
-            Vec3d velocity = this.getVelocity();
-            this.scheduleVelocityUpdate();
-            this.setVelocity(velocity.x*velocityDecay, velocity.y + downwardAcceleration, velocity.z*velocityDecay);
-        }
-    }
-
     protected void dropItems(DamageSource source) {
         this.dropItem(this.asItem());
     }
@@ -186,26 +169,23 @@ public class CedarBoatEntity extends Entity {
         if(this.getWorld().isClient()){
             ClientPlayerEntity rider = (ClientPlayerEntity)player;
             float clientYawVelocity = 0;
-            float clientMovementThing = 0;
+            float clientForwardMovement = 0;
             if (rider.input.pressingLeft) {
                 clientYawVelocity -= 1.0f;
             }
             if (rider.input.pressingRight) {
                 clientYawVelocity += 1.0f;
             }
-            if (rider.input.pressingRight != rider.input.pressingLeft && !rider.input.pressingForward && !rider.input.pressingBack) {
-                clientMovementThing += 0.005f;
-            }
-            this.setYaw(this.getYaw() + clientYawVelocity);
             if (rider.input.pressingForward) {
-                clientMovementThing += 0.04f;
+                clientForwardMovement += 0.04f;
             }
             if (rider.input.pressingBack) {
-                clientMovementThing -= 0.005f;
+                clientForwardMovement -= 0.005f;
             }
-            Vec3d velocityInfo = (this.getVelocity().add((-this.getYaw() * ((float)Math.PI / 180)) * clientMovementThing, 0.0, (this.getYaw() * ((float)Math.PI / 180)) * clientMovementThing));
+            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement);
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(this.getId());
+            buf.writeFloat(clientYawVelocity);
             buf.writeVec3d(velocityInfo);
             ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
         }
@@ -226,13 +206,16 @@ public class CedarBoatEntity extends Entity {
     public void tick(){
         super.tick();
         checkBlockCollision();
-        doMovement();
         acceptNearbyRiders();
         if(this.getFirstPassenger() instanceof PlayerEntity){
             if(this.getWorld().isClient()){
-                sendC2SMovementInputPacket((ClientPlayerEntity)this.getFirstPassenger());
+                sendC2SMovementInputPacket((ClientPlayerEntity)this.getFirstPassenger()); 
+                // the server needs to know where we're going before applying other velocity modifiers
+                // so that we can receive an accurate movement packet back when we call scheduleVelocityUpdate()
+                // instead of a stale one that doesn't know the boat moved somewhere else
             }
         }
+        scheduleVelocityUpdate();
         this.move(MovementType.SELF, this.getVelocity());
     }
             
