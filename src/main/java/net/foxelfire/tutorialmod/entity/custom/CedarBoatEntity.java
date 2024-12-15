@@ -27,6 +27,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.GravityField;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -104,7 +105,20 @@ public class CedarBoatEntity extends Entity {
         this.dropItem(this.asItem());
     }
 
- 
+    private void fallAndDrag() {
+        if(!this.getWorld().isClient()){
+            if(!this.isOnGround() || this.isSubmergedInWater()){
+                this.setVelocity(this.getVelocity().add(0, -0.04, 0));
+            }
+            if(this.isTouchingWater() && !this.isSubmergedInWater()){
+                this.setVelocity(this.getVelocity().multiply(1, 0, 1));
+            }
+            float blockSlipperiness = this.getWorld().getBlockState(this.getPosWithYOffset(-1)).getBlock().getSlipperiness();
+            float drag = this.isOnGround() ? blockSlipperiness * 0.91f : 0.91f; // magic code stolen from LivingEntity.travel()
+            this.setVelocity(this.getVelocity().multiply(drag, 1, drag));
+        }
+    }
+
     protected int getMaxPassengers() {
         return 4;
     }
@@ -151,6 +165,7 @@ public class CedarBoatEntity extends Entity {
     }
 
     @Override
+    // TODO: figure out why tf a client-server desync happens here?
     public void onBubbleColumnSurfaceCollision(boolean drag) {
         this.getWorld().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
         if (this.random.nextInt(20) == 0) {
@@ -215,6 +230,7 @@ public class CedarBoatEntity extends Entity {
                 // instead of a stale one that doesn't know the boat moved somewhere else
             }
         }
+        fallAndDrag();
         scheduleVelocityUpdate();
         this.move(MovementType.SELF, this.getVelocity());
     }
