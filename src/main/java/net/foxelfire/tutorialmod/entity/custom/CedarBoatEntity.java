@@ -5,12 +5,8 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
-import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -22,12 +18,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.GravityField;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -56,6 +50,10 @@ public class CedarBoatEntity extends Entity {
         }
     }
 
+    private void acceptPlayerInput(Vec3d movement){
+        this.setVelocity(this.getVelocity().add(movement.multiply(.4)));
+    }
+
 
     public Item asItem(){
         return ModItems.CEDAR_BOAT_ITEM;
@@ -74,10 +72,6 @@ public class CedarBoatEntity extends Entity {
     @Override
     public boolean collidesWith(Entity other) {
         return BoatEntity.canCollide(this, other);
-    }
-
-    public static boolean canCollide(Entity entity, Entity other) {
-        return (other.isCollidable() || other.isPushable()) && !entity.isConnectedThroughVehicle(other);
     }
 
     @Override
@@ -106,17 +100,24 @@ public class CedarBoatEntity extends Entity {
     }
 
     private void fallAndDrag() {
-        if(!this.getWorld().isClient()){
-            if(!this.isOnGround() || this.isSubmergedInWater()){
-                this.setVelocity(this.getVelocity().add(0, -0.04, 0));
-            }
-            if(this.isTouchingWater() && !this.isSubmergedInWater()){
-                this.setVelocity(this.getVelocity().multiply(1, 0, 1));
-            }
-            float blockSlipperiness = this.getWorld().getBlockState(this.getPosWithYOffset(-1)).getBlock().getSlipperiness();
-            float drag = this.isOnGround() ? blockSlipperiness * 0.91f : 0.91f; // magic code stolen from LivingEntity.travel()
-            this.setVelocity(this.getVelocity().multiply(drag, 1, drag));
+        if(!this.isOnGround() || this.isSubmergedInWater()){
+            this.setVelocity(this.getVelocity().add(0, -0.04, 0));
         }
+        if(this.isTouchingWater() && !this.isSubmergedInWater()){
+            this.setVelocity(this.getVelocity().multiply(1, 0, 1));
+        }
+        float blockSlipperiness = this.getWorld().getBlockState(this.getPosWithYOffset(-1)).getBlock().getSlipperiness();
+        float drag = this.isOnGround() ? blockSlipperiness * 0.91f : 0.91f; // magic code stolen from LivingEntity.travel()
+        this.setVelocity(this.getVelocity().multiply(drag, 1, drag));
+    }
+
+    protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer) {
+        float rotationalSpeed = controllingPlayer.sidewaysSpeed * 0.5f;
+        float forwardSpeed = controllingPlayer.forwardSpeed;
+        if (forwardSpeed <= 0.0f) {
+            forwardSpeed *= 0.25f;
+        }
+        return new Vec3d(rotationalSpeed, 0.0, forwardSpeed);
     }
 
     protected int getMaxPassengers() {
@@ -165,45 +166,16 @@ public class CedarBoatEntity extends Entity {
     }
 
     @Override
-    // TODO: figure out why tf a client-server desync happens here?
     public void onBubbleColumnSurfaceCollision(boolean drag) {
         this.getWorld().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
         if (this.random.nextInt(20) == 0) {
             this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), this.getSplashSound(), this.getSoundCategory(), 1.0f, 0.8f + 0.4f * this.random.nextFloat(), false);
             this.emitGameEvent(GameEvent.SPLASH, this.getControllingPassenger());
         }
-        if (!this.getWorld().isClient()) {
-            Vec3d vec3d = this.getVelocity();
-            double d = drag ? -0.7 : 0.3;
-            scheduleVelocityUpdate();
-            this.setVelocity(vec3d.x, d, vec3d.z);
-        }   
-    }
-
-    private void sendC2SMovementInputPacket(PlayerEntity player) {
-        if(this.getWorld().isClient()){
-            ClientPlayerEntity rider = (ClientPlayerEntity)player;
-            float clientYawVelocity = 0;
-            float clientForwardMovement = 0;
-            if (rider.input.pressingLeft) {
-                clientYawVelocity -= 1.0f;
-            }
-            if (rider.input.pressingRight) {
-                clientYawVelocity += 1.0f;
-            }
-            if (rider.input.pressingForward) {
-                clientForwardMovement += 0.04f;
-            }
-            if (rider.input.pressingBack) {
-                clientForwardMovement -= 0.005f;
-            }
-            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement);
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(this.getId());
-            buf.writeFloat(clientYawVelocity);
-            buf.writeVec3d(velocityInfo);
-            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
-        }
+        Vec3d vec3d = this.getVelocity();
+        double d = drag ? -0.7 : 0.3;
+        scheduleVelocityUpdate();
+        this.setVelocity(vec3d.x, d, vec3d.z);
     }
 
     @Override
@@ -223,12 +195,7 @@ public class CedarBoatEntity extends Entity {
         checkBlockCollision();
         acceptNearbyRiders();
         if(this.getFirstPassenger() instanceof PlayerEntity){
-            if(this.getWorld().isClient()){
-                sendC2SMovementInputPacket((ClientPlayerEntity)this.getFirstPassenger()); 
-                // the server needs to know where we're going before applying other velocity modifiers
-                // so that we can receive an accurate movement packet back when we call scheduleVelocityUpdate()
-                // instead of a stale one that doesn't know the boat moved somewhere else
-            }
+            acceptPlayerInput(this.getControlledMovementInput((PlayerEntity)this.getFirstPassenger()));
         }
         fallAndDrag();
         scheduleVelocityUpdate();
