@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -22,6 +21,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -50,8 +50,11 @@ public class CedarBoatEntity extends Entity {
         }
     }
 
-    private void acceptPlayerInput(Vec3d movement){
-        this.setVelocity(this.getVelocity().add(movement.multiply(.4)));
+    private void acceptPlayerInput(Vec3d movementInput){
+        float f = MathHelper.sin(this.getYaw() * ((float)Math.PI / 180));
+        float g = MathHelper.cos(this.getYaw() * ((float)Math.PI / 180));
+        Vec3d finalMovement = new Vec3d(movementInput.x * (double)g - movementInput.z * (double)f, movementInput.y, movementInput.z * (double)g + movementInput.x * (double)f);
+        this.setVelocity(this.getVelocity().add(finalMovement.multiply(.05)));
     }
 
 
@@ -112,12 +115,14 @@ public class CedarBoatEntity extends Entity {
     }
 
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer) {
-        float rotationalSpeed = controllingPlayer.sidewaysSpeed * 0.5f;
+        float rotationalSpeed = controllingPlayer.sidewaysSpeed;
         float forwardSpeed = controllingPlayer.forwardSpeed;
         if (forwardSpeed <= 0.0f) {
             forwardSpeed *= 0.25f;
         }
-        return new Vec3d(rotationalSpeed, 0.0, forwardSpeed);
+        this.setYaw(this.getYaw() + -rotationalSpeed);
+        controllingPlayer.setYaw(controllingPlayer.getYaw() + -rotationalSpeed);
+        return new Vec3d(0, 0.0, forwardSpeed);
     }
 
     protected int getMaxPassengers() {
