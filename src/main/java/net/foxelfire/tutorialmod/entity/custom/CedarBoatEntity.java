@@ -2,6 +2,9 @@ package net.foxelfire.tutorialmod.entity.custom;
 
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.joml.Vector3f;
 
@@ -11,12 +14,16 @@ import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
@@ -34,6 +41,16 @@ import net.minecraft.world.event.GameEvent;
 public class CedarBoatEntity extends Entity {
 
     private int lives;
+
+    public final AnimationState frontRowingAnimationState = new AnimationState();
+    public final AnimationState backRowingAnimationState = new AnimationState();
+    public final AnimationState rotatingLeftAnimationState = new AnimationState();
+    public final AnimationState rotatingRightAnimationState = new AnimationState();
+    public final AnimationState wobblingAnimationState = new AnimationState();
+
+    private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
@@ -54,7 +71,6 @@ public class CedarBoatEntity extends Entity {
             this.pushAwayFrom(entity);
         }
     }
-
 
     public Item asItem(){
         return ModItems.CEDAR_BOAT_ITEM;
@@ -122,6 +138,14 @@ public class CedarBoatEntity extends Entity {
         return 4;
     }
 
+    public boolean getPlayer1Inputting(){
+        return this.dataTracker.get(FRONT_PLAYER_INPUTTING);
+    }
+
+    public boolean getPlayer2Inputting(){
+        return this.dataTracker.get(BACK_PLAYER_INPUTTING);
+    }
+
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         return new Vector3f(0.0f, dimensions.height - 0.2f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
@@ -139,7 +163,8 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     protected void initDataTracker() {
-        
+        this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
+        this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
     }
 
     @Override
@@ -179,31 +204,8 @@ public class CedarBoatEntity extends Entity {
         }   
     }
 
-    private void sendC2SMovementInputPacket(PlayerEntity player) {
-        if(this.getWorld().isClient()){
-            ClientPlayerEntity rider = (ClientPlayerEntity)player;
-            float clientYawVelocity = 0;
-            float clientForwardMovement = 0;
-            float inputMultiplier = this.isTouchingWater() ? .5f : .25f;
-            if (rider.input.pressingLeft) {
-                clientYawVelocity -= 1.0f;
-            }
-            if (rider.input.pressingRight) {
-                clientYawVelocity += 1.0f;
-            }
-            if (rider.input.pressingForward) {
-                clientForwardMovement += 0.4f;
-            }
-            if (rider.input.pressingBack) {
-                clientForwardMovement -= 0.05f;
-            }
-            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement*inputMultiplier);
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(this.getId());
-            buf.writeFloat(clientYawVelocity);
-            buf.writeVec3d(velocityInfo);
-            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
-        }
+    private void playAnimations(){
+        
     }
 
     @Override
@@ -215,6 +217,47 @@ public class CedarBoatEntity extends Entity {
         } else if (entity.getBoundingBox().minY <= this.getBoundingBox().minY) {
             super.pushAwayFrom(entity);
         }
+    }
+
+    private void sendC2SMovementInputPacket(PlayerEntity player) {
+        if(this.getWorld().isClient()){
+            ClientPlayerEntity rider = (ClientPlayerEntity)player;
+            float clientYawVelocity = 0;
+            float clientForwardMovement = 0;
+            float inputMultiplier = this.isTouchingWater() ? .5f : .25f;
+            boolean isPlayerInputting = false;
+            if (rider.input.pressingLeft) {
+                clientYawVelocity -= 1.0f;
+                isPlayerInputting = true;
+            }
+            if (rider.input.pressingRight) {
+                clientYawVelocity += 1.0f;
+                isPlayerInputting = true;
+            }
+            if (rider.input.pressingForward) {
+                clientForwardMovement += 0.4f;
+                isPlayerInputting = true;
+            }
+            if (rider.input.pressingBack) {
+                clientForwardMovement -= 0.05f;
+                isPlayerInputting = true;
+            }
+            PacketByteBuf buf = PacketByteBufs.create();
+            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement*inputMultiplier);
+            buf.writeInt(this.getId());
+            buf.writeFloat(clientYawVelocity);
+            buf.writeVec3d(velocityInfo);
+            buf.writeBoolean(isPlayerInputting);
+            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+        }
+    }
+
+    public void setPlayer1Inputting(boolean isRiding){
+        this.dataTracker.set(FRONT_PLAYER_INPUTTING, isRiding);
+    }
+
+    public void setPlayer2Inputting(boolean isRiding){
+        this.dataTracker.set(BACK_PLAYER_INPUTTING, isRiding);
     }
 
     @Override
@@ -230,6 +273,7 @@ public class CedarBoatEntity extends Entity {
                 // instead of a stale one that doesn't know the boat moved somewhere else
             }
         }
+        playAnimations();
         fallAndDrag();
         scheduleVelocityUpdate();
         this.move(MovementType.SELF, this.getVelocity());

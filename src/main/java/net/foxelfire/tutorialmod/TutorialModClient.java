@@ -45,10 +45,12 @@ public class TutorialModClient implements ClientModInitializer{
                 int entityId = buf.readInt();
                 float yawVelocity = buf.readFloat();
                 Vec3d velocity = buf.readVec3d();
+                boolean isPlayerInputting = buf.readBoolean();
                 CedarBoatEntity boat = (CedarBoatEntity)((ServerWorld)(player.getWorld())).getEntityById(entityId);
                 if(boat != null){
                     boat.setYaw(boat.getYaw() + yawVelocity);
                     boat.updateVelocity(1, velocity);
+                    boat.setPlayer1Inputting(isPlayerInputting);
                 }
             });
         });

@@ -1,6 +1,7 @@
 package net.foxelfire.tutorialmod.entity.client;
 
 import net.foxelfire.tutorialmod.TutorialMod;
+import net.foxelfire.tutorialmod.entity.animation.CedarBoatAnimations;
 
 // Made with Blockbench 4.11.1
 // Exported for Minecraft version 1.17+ for Yarn
@@ -89,6 +90,7 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	public void setAngles(CedarBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
+		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, headPitch);
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
