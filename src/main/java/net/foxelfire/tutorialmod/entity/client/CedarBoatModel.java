@@ -91,6 +91,8 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
 		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 1f);
+		this.updateAnimation(entity.rotatingLeftAnimationState, CedarBoatAnimations.rotate_clockwise, ageInTicks, 1f);
+		this.updateAnimation(entity.rotatingRightAnimationState, CedarBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {

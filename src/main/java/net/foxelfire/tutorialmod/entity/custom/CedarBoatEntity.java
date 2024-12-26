@@ -248,6 +248,14 @@ public class CedarBoatEntity extends Entity {
             buf.writeVec3d(velocityInfo);
             buf.writeBoolean(isPlayerInputting);
             ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+            if(clientYawVelocity < 0 && !isPlayerInputting){
+                rotatingLeftAnimationState.startIfNotRunning(age);
+            } else if (clientYawVelocity > 0 && !isPlayerInputting){
+                rotatingRightAnimationState.startIfNotRunning(age);
+            } else {
+                rotatingLeftAnimationState.stop();
+                rotatingRightAnimationState.stop();
+            }
         }
     }
 
@@ -257,6 +265,13 @@ public class CedarBoatEntity extends Entity {
 
     public void setPlayer2Inputting(boolean isRiding){
         this.dataTracker.set(BACK_PLAYER_INPUTTING, isRiding);
+    }
+
+    private void stopAllAnimations(){
+        setPlayer1Inputting(false);
+        setPlayer2Inputting(false);
+        this.rotatingLeftAnimationState.stop();
+        this.rotatingRightAnimationState.stop();
     }
 
     @Override
@@ -272,7 +287,7 @@ public class CedarBoatEntity extends Entity {
                 // instead of a stale one that doesn't know the boat moved somewhere else
             }
         } else {
-            setPlayer1Inputting(false);
+            stopAllAnimations();
         }
         playAnimations();
         fallAndDrag();

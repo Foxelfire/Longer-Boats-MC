@@ -55,7 +55,7 @@ public class CedarBoatAnimations {
 		))
 		.build();
 
-	public static final Animation rotate_counterclockwise = Animation.Builder.create(0.5F)
+	public static final Animation rotate_counterclockwise = Animation.Builder.create(0.5F).looping()
 		.addBoneAnimation("boat", new Transformation(Transformation.Targets.ROTATE, 
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
 			new Keyframe(0.25F, AnimationHelper.createRotationalVector(0.0F, 4.8F, 0.0F), Transformation.Interpolations.LINEAR),
@@ -68,7 +68,7 @@ public class CedarBoatAnimations {
 		))
 		.build();
 
-	public static final Animation rotate_clockwise = Animation.Builder.create(0.5F)
+	public static final Animation rotate_clockwise = Animation.Builder.create(0.5F).looping()
 		.addBoneAnimation("boat", new Transformation(Transformation.Targets.ROTATE, 
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
 			new Keyframe(0.25F, AnimationHelper.createRotationalVector(0.0F, 4.8F, 0.0F), Transformation.Interpolations.LINEAR),
