@@ -27,7 +27,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.GravityField;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -185,6 +184,7 @@ public class CedarBoatEntity extends Entity {
             ClientPlayerEntity rider = (ClientPlayerEntity)player;
             float clientYawVelocity = 0;
             float clientForwardMovement = 0;
+            float inputMultiplier = this.isTouchingWater() ? .5f : .25f;
             if (rider.input.pressingLeft) {
                 clientYawVelocity -= 1.0f;
             }
@@ -192,12 +192,12 @@ public class CedarBoatEntity extends Entity {
                 clientYawVelocity += 1.0f;
             }
             if (rider.input.pressingForward) {
-                clientForwardMovement += 0.04f;
+                clientForwardMovement += 0.4f;
             }
             if (rider.input.pressingBack) {
-                clientForwardMovement -= 0.005f;
+                clientForwardMovement -= 0.05f;
             }
-            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement);
+            Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement*inputMultiplier);
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(this.getId());
             buf.writeFloat(clientYawVelocity);
