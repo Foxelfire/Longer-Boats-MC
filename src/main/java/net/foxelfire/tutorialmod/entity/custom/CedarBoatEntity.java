@@ -2,9 +2,6 @@ package net.foxelfire.tutorialmod.entity.custom;
 
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.joml.Vector3f;
 
@@ -205,7 +202,11 @@ public class CedarBoatEntity extends Entity {
     }
 
     private void playAnimations(){
-        
+        if(this.getPlayer1Inputting()){
+            this.frontRowingAnimationState.startIfNotRunning(this.age);
+        } else if(this.frontRowingAnimationState.isRunning()){
+            frontRowingAnimationState.stop();
+        }
     }
 
     @Override
@@ -228,11 +229,9 @@ public class CedarBoatEntity extends Entity {
             boolean isPlayerInputting = false;
             if (rider.input.pressingLeft) {
                 clientYawVelocity -= 1.0f;
-                isPlayerInputting = true;
             }
             if (rider.input.pressingRight) {
                 clientYawVelocity += 1.0f;
-                isPlayerInputting = true;
             }
             if (rider.input.pressingForward) {
                 clientForwardMovement += 0.4f;
@@ -272,6 +271,8 @@ public class CedarBoatEntity extends Entity {
                 // so that we can receive an accurate movement packet back when we call scheduleVelocityUpdate()
                 // instead of a stale one that doesn't know the boat moved somewhere else
             }
+        } else {
+            setPlayer1Inputting(false);
         }
         playAnimations();
         fallAndDrag();
