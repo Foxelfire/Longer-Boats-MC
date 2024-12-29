@@ -7,10 +7,8 @@ import org.joml.Vector3f;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -222,12 +220,11 @@ public class CedarBoatEntity extends Entity {
 
     private void sendC2SMovementInputPacket(PlayerEntity player) {
         if(this.getWorld().isClient()){
-            ClientPlayerEntity rider = (ClientPlayerEntity)player;
             float clientYawVelocity = 0;
             float clientForwardMovement = 0;
             float inputMultiplier = this.isTouchingWater() ? .5f : .25f;
             boolean isPlayerInputting = false;
-            if (rider.input.pressingLeft) {
+            /*if (player.input.pressingLeft) {
                 clientYawVelocity -= 1.0f;
             }
             if (rider.input.pressingRight) {
@@ -240,7 +237,7 @@ public class CedarBoatEntity extends Entity {
             if (rider.input.pressingBack) {
                 clientForwardMovement -= 0.05f;
                 isPlayerInputting = true;
-            }
+            } */
             PacketByteBuf buf = PacketByteBufs.create();
             Vec3d velocityInfo = new Vec3d(0.0, 0.0, clientForwardMovement*inputMultiplier);
             buf.writeInt(this.getId());
@@ -281,7 +278,7 @@ public class CedarBoatEntity extends Entity {
         acceptNearbyRiders();
         if(this.getFirstPassenger() instanceof PlayerEntity){
             if(this.getWorld().isClient()){
-                sendC2SMovementInputPacket((ClientPlayerEntity)this.getFirstPassenger()); 
+                sendC2SMovementInputPacket((PlayerEntity)this.getFirstPassenger()); 
                 // the server needs to know where we're going before applying other velocity modifiers
                 // so that we can receive an accurate movement packet back when we call scheduleVelocityUpdate()
                 // instead of a stale one that doesn't know the boat moved somewhere else
