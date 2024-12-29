@@ -112,10 +112,7 @@ public class CedarBoatEntity extends Entity {
         float blockSlipperiness = this.getWorld().getBlockState(this.getPosWithYOffset(-1)).getBlock().getSlipperiness();
         float drag = this.isOnGround() ? blockSlipperiness * 0.91f : 0.91f; // magic code stolen from LivingEntity.travel()
         this.setVelocity((float)(this.getVelocity().x*drag), this.getVelocity().y, (float)(this.getVelocity().z*drag));
-        // the above mess is bc we're doing movement both on the client AND the server, and we have to keep them in sync
-        // to reduce movement lag as a fix for normal boat movement being very broken. Since the packets sent
-        // to set the player's speed store their data in floats, any doubles in the server's velocity with eventually cause
-        // issues due to differences in the client and server's rounding causing desyncs
+
     }
 
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer) {
@@ -181,10 +178,14 @@ public class CedarBoatEntity extends Entity {
             this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), this.getSplashSound(), this.getSoundCategory(), 1.0f, 0.8f + 0.4f * this.random.nextFloat(), false);
             this.emitGameEvent(GameEvent.SPLASH, this.getControllingPassenger());
         }
-        Vec3d vec3d = this.getVelocity();
-        float suction = drag ? -0.7f : 0.3f;
-        scheduleVelocityUpdate();
-        this.setVelocity(vec3d.x, suction, vec3d.z);
+        if(!this.getWorld().isClient()){
+            Vec3d vec3d = this.getVelocity();
+            float suction = drag ? -0.3f : 0.3f;
+            scheduleVelocityUpdate();
+            this.setVelocity(vec3d.x, suction, vec3d.z);
+        } else {
+            this.setVelocity(Vec3d.ZERO);
+        }
     }
 
     @Override
@@ -203,10 +204,12 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         checkBlockCollision();
         acceptNearbyRiders();
-        if(this.getFirstPassenger() instanceof PlayerEntity){
-            acceptPlayerInput(this.getControlledMovementInput((PlayerEntity)this.getFirstPassenger()));
+        if(!this.getWorld().isClient()){
+            fallAndDrag();
+            if(this.getFirstPassenger() instanceof PlayerEntity){
+                acceptPlayerInput(this.getControlledMovementInput((PlayerEntity)this.getFirstPassenger()));
+            }
         }
-        fallAndDrag();
         scheduleVelocityUpdate();
         this.move(MovementType.SELF, this.getVelocity());
     }
@@ -218,7 +221,7 @@ public class CedarBoatEntity extends Entity {
     }
 
     protected void reactToHit(DamageSource source){
-        if(this.isLogicalSideForUpdatingMovement() && source.getAttacker() instanceof LivingEntity){
+        if(!this.getWorld().isClient() && source.getAttacker() instanceof LivingEntity){
             this.scheduleVelocityUpdate();
             this.addVelocity(source.getAttacker().getRotationVector().multiply(.6));
         }
