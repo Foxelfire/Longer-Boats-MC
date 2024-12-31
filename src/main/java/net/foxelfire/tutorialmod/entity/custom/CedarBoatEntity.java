@@ -5,23 +5,31 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -29,6 +37,22 @@ import net.minecraft.world.event.GameEvent;
 public class CedarBoatEntity extends Entity {
 
     private int lives;
+    protected int bodyTrackingIncrements;
+    protected double serverX;
+    protected double serverY;
+    protected double serverZ;
+    protected double serverYaw;
+    protected double serverPitch;
+
+    public final AnimationState frontRowingAnimationState = new AnimationState();
+    public final AnimationState backRowingAnimationState = new AnimationState();
+    public final AnimationState rotatingLeftAnimationState = new AnimationState();
+    public final AnimationState rotatingRightAnimationState = new AnimationState();
+    public final AnimationState wobblingAnimationState = new AnimationState();
+
+    private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
@@ -50,13 +74,15 @@ public class CedarBoatEntity extends Entity {
         }
     }
 
-    private void acceptPlayerInput(Vec3d movementInput){
-        float f = MathHelper.sin(this.getYaw() * ((float)Math.PI / 180));
-        float g = MathHelper.cos(this.getYaw() * ((float)Math.PI / 180));
-        Vec3d finalMovement = new Vec3d(movementInput.x * (double)g - movementInput.z * (double)f, movementInput.y, movementInput.z * (double)g + movementInput.x * (double)f);
-        this.setVelocity(this.getVelocity().add(finalMovement.multiply(.05f)));
+    public Vec3d applyMovementInput(Vec3d movementInput, float slipperiness) { // reimplemented from LivingEntity's
+        this.updateVelocity(this.getMovementSpeed(slipperiness), movementInput);
+        this.move(MovementType.SELF, this.getVelocity());
+        Vec3d vec3d = this.getVelocity();
+        if (this.getBlockStateAtPos().isOf(Blocks.POWDER_SNOW)) {
+            vec3d = new Vec3d(vec3d.x, 0.2, vec3d.z);
+        }
+        return vec3d;
     }
-
 
     public Item asItem(){
         return ModItems.CEDAR_BOAT_ITEM;
@@ -93,7 +119,6 @@ public class CedarBoatEntity extends Entity {
             this.kill();
         }
         this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
-        this.reactToHit(source);
         lives--;
         return true;
     }
@@ -102,32 +127,49 @@ public class CedarBoatEntity extends Entity {
         this.dropItem(this.asItem());
     }
 
-    private void fallAndDrag() {
-        if(!this.isOnGround() || this.isSubmergedInWater()){
-            this.setVelocity(this.getVelocity().add(0, -0.04f, 0));
-        }
-        if(this.isTouchingWater() && !this.isSubmergedInWater()){
-            this.setVelocity(this.getVelocity().multiply(1, 0, 1));
-        }
-        float blockSlipperiness = this.getWorld().getBlockState(this.getPosWithYOffset(-1)).getBlock().getSlipperiness();
-        float drag = this.isOnGround() ? blockSlipperiness * 0.91f : 0.91f; // magic code stolen from LivingEntity.travel()
-        this.setVelocity((float)(this.getVelocity().x*drag), this.getVelocity().y, (float)(this.getVelocity().z*drag));
-
+    @Override
+    public double getLerpTargetX() {
+        return this.bodyTrackingIncrements > 0 ? this.serverX : this.getX();
     }
 
-    protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer) {
-        float rotationalSpeed = controllingPlayer.sidewaysSpeed;
-        float forwardSpeed = controllingPlayer.forwardSpeed;
-        if (forwardSpeed <= 0.0f) {
-            forwardSpeed *= 0.25f;
-        }
-        this.setYaw(this.getYaw() + -rotationalSpeed*1.25f);
-        controllingPlayer.setYaw(controllingPlayer.getYaw() + -rotationalSpeed);
-        return new Vec3d(0, 0.0, forwardSpeed);
+    @Override
+    public double getLerpTargetY() {
+        return this.bodyTrackingIncrements > 0 ? this.serverY : this.getY();
+    }
+
+    @Override
+    public double getLerpTargetZ() {
+        return this.bodyTrackingIncrements > 0 ? this.serverZ : this.getZ();
+    }
+
+    @Override
+    public float getLerpTargetPitch() {
+        return this.bodyTrackingIncrements > 0 ? (float)this.serverPitch : this.getPitch();
+    }
+
+    @Override
+    public float getLerpTargetYaw() {
+        return this.bodyTrackingIncrements > 0 ? (float)this.serverYaw : this.getYaw();
     }
 
     protected int getMaxPassengers() {
         return 4;
+    }
+
+    private float getMovementSpeed(double slipperiness){ // reimplemented from LivingEntity's
+        float movementSpeed = !this.isSubmergedInWater() && this.isTouchingWater() ? 0.4f : 0.1f;
+        if (this.isOnGround()) {
+            return (float)(movementSpeed * (0.21600002f / (slipperiness * slipperiness * slipperiness)));
+        }
+        return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
+    }
+
+    public boolean getPlayer1Inputting(){
+        return this.dataTracker.get(FRONT_PLAYER_INPUTTING);
+    }
+
+    public boolean getPlayer2Inputting(){
+        return this.dataTracker.get(BACK_PLAYER_INPUTTING);
     }
 
     @Override
@@ -147,7 +189,8 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     protected void initDataTracker() {
-        
+        this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
+        this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
     }
 
     @Override
@@ -171,20 +214,20 @@ public class CedarBoatEntity extends Entity {
         return true;
     }
 
-    @Override
-    public void onBubbleColumnSurfaceCollision(boolean drag) {
-        this.getWorld().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
-        if (this.random.nextInt(20) == 0) {
-            this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), this.getSplashSound(), this.getSoundCategory(), 1.0f, 0.8f + 0.4f * this.random.nextFloat(), false);
-            this.emitGameEvent(GameEvent.SPLASH, this.getControllingPassenger());
+    private void limitYawValue(){
+        while (this.getYaw() - this.prevYaw < -180.0f) {
+                this.prevYaw -= 360.0f;
+            }
+        while (this.getYaw() - this.prevYaw >= 180.0f) {
+                this.prevYaw += 360.0f;
         }
-        if(!this.getWorld().isClient()){
-            Vec3d vec3d = this.getVelocity();
-            float suction = drag ? -0.3f : 0.3f;
-            scheduleVelocityUpdate();
-            this.setVelocity(vec3d.x, suction, vec3d.z);
-        } else {
-            this.setVelocity(Vec3d.ZERO);
+    }
+
+    private void playAnimations(){
+        if(this.getPlayer1Inputting()){
+            this.frontRowingAnimationState.startIfNotRunning(this.age);
+        } else if(this.frontRowingAnimationState.isRunning()){
+            frontRowingAnimationState.stop();
         }
     }
 
@@ -199,33 +242,132 @@ public class CedarBoatEntity extends Entity {
         }
     }
 
+    private void sendC2SAnimationPacket(boolean isForwardInputting, boolean isRotating){
+        int entityId = this.getId();
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(entityId);
+        buf.writeBoolean(isForwardInputting);
+        buf.writeBoolean(isRotating);
+        ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+    }
+
+    public void setPlayer1Inputting(boolean isRiding){
+        this.dataTracker.set(FRONT_PLAYER_INPUTTING, isRiding);
+    }
+
+    public void setPlayer2Inputting(boolean isRiding){
+        this.dataTracker.set(BACK_PLAYER_INPUTTING, isRiding);
+    }
+
+    private void stopAllAnimations(){
+        setPlayer1Inputting(false);
+        setPlayer2Inputting(false);
+        this.rotatingLeftAnimationState.stop();
+        this.rotatingRightAnimationState.stop();
+    }
+
     @Override
     public void tick(){
         super.tick();
+        if (!this.isRemoved()) {
+            this.tickMovement();
+            this.playAnimations();
+        }
         checkBlockCollision();
         acceptNearbyRiders();
-        if(!this.getWorld().isClient()){
-            fallAndDrag();
-            if(this.getFirstPassenger() instanceof PlayerEntity){
-                acceptPlayerInput(this.getControlledMovementInput((PlayerEntity)this.getFirstPassenger()));
-            }
-        }
-        scheduleVelocityUpdate();
-        this.move(MovementType.SELF, this.getVelocity());
     }
-            
+
+    public void tickMovement(){ // reimplemented from LivingEntity's
+        limitYawValue();
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.bodyTrackingIncrements = 0;
+            this.updateTrackedPosition(this.getX(), this.getY(), this.getZ());
+        }
+        if (this.bodyTrackingIncrements > 0) {
+            this.lerpPosAndRotation(this.bodyTrackingIncrements, this.serverX, this.serverY, this.serverZ, this.serverYaw, this.serverPitch);
+            --this.bodyTrackingIncrements;
+        } else if (!this.canMoveVoluntarily()) {
+            this.setVelocity(this.getVelocity().multiply(0.98));
+        }
+        double velocityX = this.getVelocity().x;
+        double velocityY = this.getVelocity().y;
+        double velocityZ = this.getVelocity().z;
+        if (Math.abs(velocityX) < 0.003) {
+            velocityX = 0.0;
+        }
+        if (Math.abs(velocityY) < 0.003) {
+            velocityY = 0.0;
+        }
+        if (Math.abs(velocityZ) < 0.003) {
+            velocityZ = 0.0;
+        }
+        this.setVelocity(velocityX, velocityY, velocityZ);
+        if(this.getFirstPassenger() instanceof PlayerEntity){
+            travelControlled((PlayerEntity)this.getFirstPassenger());
+        } else {
+            stopAllAnimations();
+        }
+        
+    }
+
+    @SuppressWarnings("deprecation")
+    private void travel(Vec3d movementInput){ // reimplemented from LivingEntity's
+        if (this.isLogicalSideForUpdatingMovement()){
+            double fallingSpeed = 0.08;
+            BlockPos blockUnderUs = this.getVelocityAffectingPos();
+            float slipperiness = this.getWorld().getBlockState(blockUnderUs).getBlock().getSlipperiness();
+            float friction = this.isOnGround() ? slipperiness*0.91f : 0.91f;
+            Vec3d movement = this.applyMovementInput(movementInput, slipperiness);
+            double downwardMovement = movement.y;
+            if(!this.getWorld().isClient() || this.getWorld().isChunkLoaded(blockUnderUs)){ // deprecated?? then why does travel() use it? TODO: switch to newer isChunkLoaded(chunkX, chunkZ)
+                if(!this.hasNoGravity()){
+                    downwardMovement -= fallingSpeed;
+                }
+            } else {
+                downwardMovement = this.getY() > (double)this.getWorld().getBottomY() ? -0.1 : 0.0;
+            }
+            this.setVelocity(movement.x*(double)friction, downwardMovement*0.98, movement.z*(double)friction);
+        }
+    }
+    
+    private void travelControlled(PlayerEntity rider){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
+        boolean isForwardInputting = false;
+        boolean isRotating = false;
+        Vec3d controlledMovementInput = new Vec3d(rider.sidewaysSpeed*0.5f, 0.0, rider.forwardSpeed);
+        if(this.getYaw() != rider.getYaw()){
+            this.setYaw(rider.getYaw());
+            this.prevYaw = this.getYaw();
+            isRotating = true;
+        }
+        if(this.isLogicalSideForUpdatingMovement()){
+            this.travel(controlledMovementInput);
+            if(!controlledMovementInput.equals(Vec3d.ZERO)){
+                isForwardInputting = true;
+            }
+            if(this.getWorld().isClient()){ // always worth checking?
+                sendC2SAnimationPacket(isForwardInputting, isRotating);
+            }
+        } else {
+            this.setVelocity(Vec3d.ZERO);
+            this.tryCheckBlockCollision();
+        }
+    }
+
+    @Override
+    public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps) {
+        this.serverX = x;
+        this.serverY = y;
+        this.serverZ = z;
+        this.serverYaw = yaw;
+        this.serverPitch = pitch;
+        this.bodyTrackingIncrements = interpolationSteps;
+    }
             
     @Override
     protected void readCustomDataFromNbt(NbtCompound var1) {
         
     }
 
-    protected void reactToHit(DamageSource source){
-        if(!this.getWorld().isClient() && source.getAttacker() instanceof LivingEntity){
-            this.scheduleVelocityUpdate();
-            this.addVelocity(source.getAttacker().getRotationVector().multiply(.6));
-        }
-    }
     @Override
     protected void writeCustomDataToNbt(NbtCompound var1) {
         
