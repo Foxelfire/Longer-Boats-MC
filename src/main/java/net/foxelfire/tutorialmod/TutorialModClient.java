@@ -19,7 +19,6 @@ import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
 
 public class TutorialModClient implements ClientModInitializer{
 
@@ -43,13 +42,10 @@ public class TutorialModClient implements ClientModInitializer{
         ServerPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, (server, player, handler, buf, responseSender) -> {
             server.execute(() -> {
                 int entityId = buf.readInt();
-                float yawVelocity = buf.readFloat();
-                Vec3d velocity = buf.readVec3d();
                 boolean isPlayerInputting = buf.readBoolean();
+                boolean isPlayerRotating = buf.readBoolean();
                 CedarBoatEntity boat = (CedarBoatEntity)((ServerWorld)(player.getWorld())).getEntityById(entityId);
                 if(boat != null){
-                    boat.setYaw(boat.getYaw() + yawVelocity);
-                    boat.updateVelocity(1, velocity);
                     boat.setPlayer1Inputting(isPlayerInputting);
                 }
             });

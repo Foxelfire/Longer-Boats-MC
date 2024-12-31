@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
@@ -22,6 +25,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -230,7 +234,7 @@ public class CedarBoatEntity extends Entity {
             frontRowingAnimationState.stop();
         }
     }
-    /* temporary
+
     @Override
     public void pushAwayFrom(Entity entity) {
         if (entity instanceof BoatEntity || entity instanceof CedarBoatEntity) {
@@ -241,7 +245,16 @@ public class CedarBoatEntity extends Entity {
             super.pushAwayFrom(entity);
         }
     }
-    */
+
+    private void sendC2SAnimationPacket(boolean isForwardInputting, boolean isRotating){
+        int entityId = this.getId();
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(entityId);
+        buf.writeBoolean(isForwardInputting);
+        buf.writeBoolean(isRotating);
+        ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+    }
+
     public void setPlayer1Inputting(boolean isRiding){
         this.dataTracker.set(FRONT_PLAYER_INPUTTING, isRiding);
     }
@@ -262,10 +275,10 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         if (!this.isRemoved()) {
             this.tickMovement();
+            this.playAnimations();
         }
         checkBlockCollision();
         acceptNearbyRiders();
-        playAnimations();
     }
 
     public void tickMovement(){ // reimplemented from LivingEntity's
@@ -322,11 +335,22 @@ public class CedarBoatEntity extends Entity {
     }
     
     private void travelControlled(PlayerEntity rider){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
+        boolean isForwardInputting = false;
+        boolean isRotating = false;
         Vec3d controlledMovementInput = new Vec3d(rider.sidewaysSpeed*0.5f, 0.0, rider.forwardSpeed);
-        this.setYaw(rider.getYaw());
-        this.prevYaw = this.getYaw();
+        if(this.getYaw() != rider.getYaw()){
+            this.setYaw(rider.getYaw());
+            this.prevYaw = this.getYaw();
+            isRotating = true;
+        }
         if(this.isLogicalSideForUpdatingMovement()){
             this.travel(controlledMovementInput);
+            if(!controlledMovementInput.equals(Vec3d.ZERO)){
+                isForwardInputting = true;
+            }
+            if(this.getWorld().isClient()){ // always worth checking?
+                sendC2SAnimationPacket(isForwardInputting, isRotating);
+            }
         } else {
             this.setVelocity(Vec3d.ZERO);
             this.tryCheckBlockCollision();
