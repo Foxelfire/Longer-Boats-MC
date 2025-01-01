@@ -119,6 +119,10 @@ public class CedarBoatEntity extends Entity {
             this.kill();
         }
         this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
+        if(source.getAttacker() != null){
+            Vector3f attackVector = source.getAttacker().getMovementDirection().getUnitVector().mul(.6f);
+            this.addVelocity(attackVector.x, attackVector.y, attackVector.z);
+        }
         lives--;
         return true;
     }
@@ -159,7 +163,7 @@ public class CedarBoatEntity extends Entity {
     private float getMovementSpeed(double slipperiness){ // reimplemented from LivingEntity's
         float movementSpeed = !this.isSubmergedInWater() && this.isTouchingWater() ? 0.4f : 0.1f;
         if (this.isOnGround()) {
-            return (float)(movementSpeed * (0.21600002f / (slipperiness * slipperiness * slipperiness)));
+            return (float)(movementSpeed * (0.21600002f / (slipperiness)));
         }
         return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
     }
@@ -243,12 +247,14 @@ public class CedarBoatEntity extends Entity {
     }
 
     private void sendC2SAnimationPacket(boolean isForwardInputting, boolean isRotating){
-        int entityId = this.getId();
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(entityId);
-        buf.writeBoolean(isForwardInputting);
-        buf.writeBoolean(isRotating);
-        ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+        if(this.getWorld().isClient()){
+            int entityId = this.getId();
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeInt(entityId);
+            buf.writeBoolean(isForwardInputting);
+            buf.writeBoolean(isRotating);
+            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
+        }
     }
 
     public void setPlayer1Inputting(boolean isRiding){
@@ -305,23 +311,27 @@ public class CedarBoatEntity extends Entity {
         if(this.getFirstPassenger() instanceof PlayerEntity){
             travelControlled((PlayerEntity)this.getFirstPassenger());
         } else {
+            this.travel(this.getVelocity()); // gravity and stuff
             stopAllAnimations();
         }
-        
     }
 
     @SuppressWarnings("deprecation")
     private void travel(Vec3d movementInput){ // reimplemented from LivingEntity's
         if (this.isLogicalSideForUpdatingMovement()){
-            double fallingSpeed = 0.08;
+            double fallingSpeed = 0.04;
             BlockPos blockUnderUs = this.getVelocityAffectingPos();
             float slipperiness = this.getWorld().getBlockState(blockUnderUs).getBlock().getSlipperiness();
-            float friction = this.isOnGround() ? slipperiness*0.91f : 0.91f;
+            float friction = this.isOnGround() ? slipperiness : 0.91f;
             Vec3d movement = this.applyMovementInput(movementInput, slipperiness);
             double downwardMovement = movement.y;
             if(!this.getWorld().isClient() || this.getWorld().isChunkLoaded(blockUnderUs)){ // deprecated?? then why does travel() use it? TODO: switch to newer isChunkLoaded(chunkX, chunkZ)
-                if(!this.hasNoGravity()){
+                if(!this.hasNoGravity() && !this.isTouchingWater()){
                     downwardMovement -= fallingSpeed;
+                } else if(this.isSubmergedInWater()){
+                    downwardMovement = fallingSpeed;
+                } else if(this.isTouchingWater()){
+                    downwardMovement = 0;
                 }
             } else {
                 downwardMovement = this.getY() > (double)this.getWorld().getBottomY() ? -0.1 : 0.0;

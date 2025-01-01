@@ -30,7 +30,7 @@ public class CedarBoatRenderer extends EntityRenderer<CedarBoatEntity>{
     public void render(CedarBoatEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
         matrixStack.push();
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.getLayer(TEXTURE));
-        matrixStack.translate(0.0f, 1.44f, 0.0f);
+        matrixStack.translate(0.0f, 1.5f, 0.0f);
         matrixStack.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(180.0f));
         float newYaw = (float)(entity.getYaw()*(Math.PI/180.0f));
         model.setAngles(entity, 0, 0, entity.age, newYaw, entity.getPitch());

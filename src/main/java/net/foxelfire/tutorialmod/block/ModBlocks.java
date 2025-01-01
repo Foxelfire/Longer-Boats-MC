@@ -55,7 +55,7 @@ public class ModBlocks {
     public static final Block CEDAR_PLANKS = registerBlock("cedar_planks", new Block(FabricBlockSettings.copyOf(Blocks.SPRUCE_PLANKS).strength(4.5f)));
     public static final Block CEDAR_LEAVES = registerBlock("cedar_leaves", new LeavesBlock(FabricBlockSettings.copyOf(Blocks.SPRUCE_LEAVES).nonOpaque()));
 
-    public static final Block CEDAR_SAPLING = registerBlock("cedar_sapling", new Block(FabricBlockSettings.copyOf(Blocks.SPRUCE_SAPLING))); // TODO: make this a sapling
+    public static final Block CEDAR_SAPLING = registerBlock("cedar_sapling", new Block(FabricBlockSettings.copyOf(Blocks.SPRUCE_SAPLING)));
 
     public static final Block DEWFRUIT_CROP = Registry.register(Registries.BLOCK, new Identifier(TutorialMod.MOD_ID, "dewfruit_crop"), new DewfruitCropBlock(FabricBlockSettings.copyOf(Blocks.BEETROOTS)));
     public static final Block CLOVER_FLOWER = registerBlock("clover_flower", new FlowerBlock(StatusEffects.LUCK, 25, FabricBlockSettings.copyOf(Blocks.ALLIUM).nonOpaque().noCollision()));
