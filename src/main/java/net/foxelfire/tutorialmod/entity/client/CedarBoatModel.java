@@ -90,7 +90,8 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	public void setAngles(CedarBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
-		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 1f);
+		this.updateAnimation(entity.wobblingAnimationState, CedarBoatAnimations.wobble, ageInTicks, 2f);
+		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 2f);
 		this.updateAnimation(entity.rotatingLeftAnimationState, CedarBoatAnimations.rotate_clockwise, ageInTicks, 1f);
 		this.updateAnimation(entity.rotatingRightAnimationState, CedarBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
 	}

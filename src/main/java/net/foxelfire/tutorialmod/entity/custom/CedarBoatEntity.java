@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
@@ -39,6 +40,7 @@ public class CedarBoatEntity extends Entity {
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
+    protected int wobbleTimer = 20;
 
     public final AnimationState frontRowingAnimationState = new AnimationState();
     public final AnimationState backRowingAnimationState = new AnimationState();
@@ -48,6 +50,7 @@ public class CedarBoatEntity extends Entity {
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
@@ -101,6 +104,7 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
+        setShouldWobble(true);
         if(this.isInvulnerableTo(source)){
             return false;
         }
@@ -172,6 +176,10 @@ public class CedarBoatEntity extends Entity {
         return this.dataTracker.get(BACK_PLAYER_INPUTTING);
     }
 
+    public boolean getShouldWobble(){
+        return this.dataTracker.get(SHOULD_WOBBLE);
+    }
+
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         return new Vector3f(0.0f, dimensions.height - 0.2f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
@@ -191,6 +199,7 @@ public class CedarBoatEntity extends Entity {
     protected void initDataTracker() {
         this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
         this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
+        this.dataTracker.startTracking(SHOULD_WOBBLE, false);
     }
 
     @Override
@@ -268,6 +277,11 @@ public class CedarBoatEntity extends Entity {
         this.dataTracker.set(BACK_PLAYER_INPUTTING, isRiding);
     }
 
+    public void setShouldWobble(boolean shouldWobble){
+        this.dataTracker.set(SHOULD_WOBBLE, shouldWobble);
+        TutorialMod.LOGGER.info("Should Wobble: " + getShouldWobble());
+    }
+
     private void stopAllAnimations(){
         setPlayer1Inputting(false);
         setPlayer2Inputting(false);
@@ -280,6 +294,7 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         if (!this.isRemoved()) {
             this.tickMovement();
+            wobble();
         }
         checkBlockCollision();
         acceptNearbyRiders();
@@ -363,6 +378,21 @@ public class CedarBoatEntity extends Entity {
         this.serverYaw = yaw;
         this.serverPitch = pitch;
         this.bodyTrackingIncrements = interpolationSteps;
+    }
+
+    private void wobble(){
+        if(getShouldWobble()){
+            TutorialMod.LOGGER.info("Wobble Timer: " + wobbleTimer + ",  time wobbling: " + wobblingAnimationState.getTimeRunning() + ", isWobbling: " + wobblingAnimationState.isRunning() + ", btw am i the client? " + this.getWorld().isClient());
+            wobblingAnimationState.startIfNotRunning(this.age);
+            wobbleTimer--;
+            if(wobbleTimer <= 0){
+                setShouldWobble(false);
+            }
+        } else {
+            TutorialMod.LOGGER.info("Hi there, i'm stopping your animation!");
+            wobblingAnimationState.stop();
+            wobbleTimer = 20;
+        }
     }
             
     @Override
