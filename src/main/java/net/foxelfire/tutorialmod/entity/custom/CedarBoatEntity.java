@@ -5,10 +5,7 @@ import java.util.List;
 
 import org.joml.Vector3f;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.foxelfire.tutorialmod.item.ModItems;
-import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
@@ -25,7 +22,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -227,11 +223,29 @@ public class CedarBoatEntity extends Entity {
         }
     }
 
-    private void playAnimations(){
+    private void playPlayerAnimations(Vec3d controlledMovementInput){
         if(this.getPlayer1Inputting()){
             this.frontRowingAnimationState.startIfNotRunning(this.age);
         } else if(this.frontRowingAnimationState.isRunning()){
             frontRowingAnimationState.stop();
+        }
+        if(controlledMovementInput.getX() < 0){
+            if(!this.getPlayer1Inputting()){
+                rotatingRightAnimationState.startIfNotRunning(this.age);
+            } else {
+                rotatingRightAnimationState.stop();
+            }
+            this.setYaw(this.getYaw()+1);
+            rotatingLeftAnimationState.stop();
+        } else if(controlledMovementInput.getX() > 0){
+            if(!this.getPlayer1Inputting()){
+                rotatingLeftAnimationState.startIfNotRunning(this.age);
+            }
+            rotatingRightAnimationState.stop();
+            this.setYaw(this.getYaw()-1);
+        } else {
+            rotatingLeftAnimationState.stop();
+            rotatingRightAnimationState.stop();
         }
     }
 
@@ -243,17 +257,6 @@ public class CedarBoatEntity extends Entity {
             }
         } else if (entity.getBoundingBox().minY <= this.getBoundingBox().minY) {
             super.pushAwayFrom(entity);
-        }
-    }
-
-    private void sendC2SAnimationPacket(boolean isForwardInputting, boolean isRotating){
-        if(this.getWorld().isClient()){
-            int entityId = this.getId();
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(entityId);
-            buf.writeBoolean(isForwardInputting);
-            buf.writeBoolean(isRotating);
-            ClientPlayNetworking.send(ModNetworkingConstants.BOAT_MOVEMENT_PACKET_ID, buf);
         }
     }
 
@@ -277,7 +280,6 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         if (!this.isRemoved()) {
             this.tickMovement();
-            this.playAnimations();
         }
         checkBlockCollision();
         acceptNearbyRiders();
@@ -341,22 +343,12 @@ public class CedarBoatEntity extends Entity {
     }
     
     private void travelControlled(PlayerEntity rider){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
-        boolean isForwardInputting = false;
-        boolean isRotating = false;
         Vec3d controlledMovementInput = new Vec3d(rider.sidewaysSpeed*0.5f, 0.0, rider.forwardSpeed);
-        if(this.getYaw() != rider.getYaw()){
-            this.setYaw(rider.getYaw());
-            this.prevYaw = this.getYaw();
-            isRotating = true;
-        }
+        this.playPlayerAnimations(controlledMovementInput);
         if(this.isLogicalSideForUpdatingMovement()){
+            controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
             this.travel(controlledMovementInput);
-            if(!controlledMovementInput.equals(Vec3d.ZERO)){
-                isForwardInputting = true;
-            }
-            if(this.getWorld().isClient()){ // always worth checking?
-                sendC2SAnimationPacket(isForwardInputting, isRotating);
-            }
+            setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
         } else {
             this.setVelocity(Vec3d.ZERO);
             this.tryCheckBlockCollision();
