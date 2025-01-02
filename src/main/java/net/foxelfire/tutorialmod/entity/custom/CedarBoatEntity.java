@@ -294,7 +294,9 @@ public class CedarBoatEntity extends Entity {
         super.tick();
         if (!this.isRemoved()) {
             this.tickMovement();
-            wobble();
+            if(this.getWorld().isClient()){
+                wobble();
+            }
         }
         checkBlockCollision();
         acceptNearbyRiders();
@@ -387,10 +389,13 @@ public class CedarBoatEntity extends Entity {
             wobbleTimer--;
             if(wobbleTimer <= 0){
                 setShouldWobble(false);
+                return;
             }
         } else {
-            TutorialMod.LOGGER.info("Hi there, i'm stopping your animation!");
-            wobblingAnimationState.stop();
+            if(wobblingAnimationState.isRunning()){
+                TutorialMod.LOGGER.info("Hi there, i'm stopping your animation!");
+                wobblingAnimationState.stop();
+            }
             wobbleTimer = 20;
         }
     }
