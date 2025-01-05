@@ -9,31 +9,15 @@ import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.entity.client.CedarBoatModel;
 import net.foxelfire.tutorialmod.entity.client.CedarBoatRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
-import net.foxelfire.tutorialmod.entity.client.PorcupineModel;
-import net.foxelfire.tutorialmod.entity.client.PorcupineRenderer;
-import net.foxelfire.tutorialmod.screen.ElementExtractorScreen;
-import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 
 public class TutorialModClient implements ClientModInitializer{
 
     @Override
     public void onInitializeClient() {
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.PYRITE_DOOR, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.PYRITE_TRAPDOOR, RenderLayer.getCutout());
-
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.DEWFRUIT_CROP, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CEDAR_LEAVES, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CEDAR_SAPLING, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CLOVER_FLOWER, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.POTTED_CLOVER, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CLOVER, RenderLayer.getCutout());
-
-        EntityRendererRegistry.register(ModEntities.PORCUPINE, PorcupineRenderer::new);
         EntityRendererRegistry.register(ModEntities.CEDAR_BOAT, CedarBoatRenderer::new);
-        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.PORCUPINE, PorcupineModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.CEDAR_BOAT, CedarBoatModel::getTexturedModelData);
-        HandledScreens.register(ModScreenHandlers.ELEMENT_EXTRACTOR_SCREEN_HANDLER, ElementExtractorScreen::new);
     }
 }

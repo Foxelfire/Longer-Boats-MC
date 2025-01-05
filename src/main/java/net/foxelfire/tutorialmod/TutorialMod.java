@@ -4,15 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
-import net.foxelfire.tutorialmod.block.entity.ModBlockEntities;
-import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.item.ModItems;
-import net.foxelfire.tutorialmod.recipe.ModRecipes;
-import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
-import net.foxelfire.tutorialmod.util.ModCustomTrades;
-import net.foxelfire.tutorialmod.util.ModLootTableModifiers;
-import net.foxelfire.tutorialmod.villager.ModVillagers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +25,7 @@ public class TutorialMod implements ModInitializer {
 		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();
 		FuelItems.registerFuelInstances();
-		ModLootTableModifiers.modifyLootTables();
-		ModCustomTrades.registerCustomTrades();
-		ModVillagers.registerVillagers();
 		ModSounds.registerSounds();
-		ModEntities.registerModEntities();
-		ModBlockEntities.registerBlockEntities();
-		ModScreenHandlers.registerScreenHandlers();
-		ModRecipes.registerRecipes();
 
 		StrippableBlockRegistry.register(ModBlocks.CEDAR_WOOD, ModBlocks.STRIPPED_CEDAR_WOOD);
 		StrippableBlockRegistry.register(ModBlocks.CEDAR_LOG, ModBlocks.STRIPPED_CEDAR_LOG);
