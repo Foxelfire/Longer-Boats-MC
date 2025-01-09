@@ -13,5 +13,5 @@ import net.minecraft.util.Identifier;
 public class ModEntities {
     public static final EntityType<CedarBoatEntity> CEDAR_BOAT = Registry.register(Registries.ENTITY_TYPE, new Identifier(TutorialMod.MOD_ID, "cedar_boat"),
     FabricEntityTypeBuilder.create(SpawnGroup.MISC, CedarBoatEntity::new)
-    .dimensions(EntityDimensions.fixed(2.0f, 0.5f)).build());
+    .dimensions(EntityDimensions.fixed(2.5f, 0.5f)).build());
 }

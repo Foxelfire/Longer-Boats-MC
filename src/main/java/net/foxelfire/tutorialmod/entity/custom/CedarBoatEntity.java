@@ -22,11 +22,14 @@ import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -206,6 +209,19 @@ public class CedarBoatEntity extends Entity {
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player.shouldCancelInteraction()) {
             return ActionResult.PASS;
+        }
+        if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
+            BlockHitResult interactionLocation = (BlockHitResult)player.raycast(2, 1, true);
+            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67)){
+                TutorialMod.LOGGER.info("Seat 4"); 
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67)){ 
+                TutorialMod.LOGGER.info("Seat 1"); 
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67)){ 
+                TutorialMod.LOGGER.info("Seat 2"); 
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67)){
+                TutorialMod.LOGGER.info("Seat 3"); 
+            }
+            return ActionResult.SUCCESS;
         }
         if (!this.getWorld().isClient()) {
             return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
