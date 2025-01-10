@@ -189,7 +189,7 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height - 0.2f, 0.6f + this.getPassengerList().indexOf(passenger)*-0.75f);
+        return new Vector3f(0.0f, dimensions.height - 0.2f, 1.2f + this.getPassengerList().indexOf(passenger)*-1f);
     }
 
     @Override
