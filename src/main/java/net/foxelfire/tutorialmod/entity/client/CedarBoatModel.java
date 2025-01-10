@@ -15,7 +15,6 @@ import net.minecraft.client.util.math.MatrixStack;
 
 // Made with Blockbench 4.11.2
 // Exported for Minecraft version 1.17+ for Yarn
-// Paste this class into your mod and generate all required imports
 // @author Foxelfire
 @SuppressWarnings("unused")
 public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityModel<T> {
@@ -31,10 +30,10 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	private final ModelPart paddle_back_right;
 	private final ModelPart paddle_back_left;
 	private final ModelPart chests;
+	private final ModelPart seat_0_chest;
 	private final ModelPart seat_1_chest;
 	private final ModelPart seat_2_chest;
 	private final ModelPart seat_3_chest;
-	private final ModelPart seat_4_chest;
 	public CedarBoatModel(ModelPart root) {
 		this.boat = root.getChild("boat");
 		this.front = this.boat.getChild("front");
@@ -48,10 +47,10 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 		this.paddle_back_right = this.paddles.getChild("paddle_back_right");
 		this.paddle_back_left = this.paddles.getChild("paddle_back_left");
 		this.chests = this.boat.getChild("chests");
+		this.seat_0_chest = this.chests.getChild("seat_0_chest");
 		this.seat_1_chest = this.chests.getChild("seat_1_chest");
 		this.seat_2_chest = this.chests.getChild("seat_2_chest");
 		this.seat_3_chest = this.chests.getChild("seat_3_chest");
-		this.seat_4_chest = this.chests.getChild("seat_4_chest");
 	}
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
@@ -89,16 +88,16 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 
 		ModelPartData chests = boat.addChild("chests", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_1_chest = chests.addChild("seat_1_chest", ModelPartBuilder.create().uv(200, 0).cuboid(-7.0F, -18.0F, -29.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
+		ModelPartData seat_0_chest = chests.addChild("seat_0_chest", ModelPartBuilder.create().uv(200, 0).cuboid(-7.0F, -18.0F, -29.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
 		.uv(250, 0).cuboid(-1.0F, -15.0F, -30.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_2_chest = chests.addChild("seat_2_chest", ModelPartBuilder.create().uv(250, 0).cuboid(-1.0F, -15.0F, -14.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
+		ModelPartData seat_1_chest = chests.addChild("seat_1_chest", ModelPartBuilder.create().uv(250, 0).cuboid(-1.0F, -15.0F, -14.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
 		.uv(200, 0).cuboid(-7.0F, -18.0F, -13.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_3_chest = chests.addChild("seat_3_chest", ModelPartBuilder.create().uv(250, 0).cuboid(-1.0F, -15.0F, 2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
+		ModelPartData seat_2_chest = chests.addChild("seat_2_chest", ModelPartBuilder.create().uv(250, 0).cuboid(-1.0F, -15.0F, 2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
 		.uv(200, 0).cuboid(-7.0F, -18.0F, 3.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_4_chest = chests.addChild("seat_4_chest", ModelPartBuilder.create().uv(200, 0).cuboid(-7.0F, -18.0F, 3.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
+		ModelPartData seat_3_chest = chests.addChild("seat_3_chest", ModelPartBuilder.create().uv(200, 0).cuboid(-7.0F, -18.0F, 3.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
 		.uv(250, 0).cuboid(-1.0F, -15.0F, 2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 16.0F));
 		return TexturedModelData.of(modelData, 256, 64);
 	}
@@ -111,10 +110,10 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 2f);
 		this.updateAnimation(entity.rotatingLeftAnimationState, CedarBoatAnimations.rotate_clockwise, ageInTicks, 1f);
 		this.updateAnimation(entity.rotatingRightAnimationState, CedarBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
-		this.seat_1_chest.visible = false;
-		this.seat_2_chest.visible = false;
-		this.seat_3_chest.visible = false;
-		this.seat_4_chest.visible = false;
+		this.seat_0_chest.visible = entity.isChestPresent(0);
+		this.seat_1_chest.visible = entity.isChestPresent(1);
+		this.seat_2_chest.visible = entity.isChestPresent(2);
+		this.seat_3_chest.visible = entity.isChestPresent(3);
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {

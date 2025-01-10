@@ -22,6 +22,7 @@ import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
@@ -54,10 +55,10 @@ public class CedarBoatEntity extends Entity {
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SEAT_4_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
@@ -207,6 +208,10 @@ public class CedarBoatEntity extends Entity {
         this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
         this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
         this.dataTracker.startTracking(SHOULD_WOBBLE, false);
+        this.dataTracker.startTracking(SEAT_0_CHEST, false);
+        this.dataTracker.startTracking(SEAT_1_CHEST, false);
+        this.dataTracker.startTracking(SEAT_2_CHEST, false);
+        this.dataTracker.startTracking(SEAT_3_CHEST, false);
     }
 
     @Override
@@ -214,23 +219,45 @@ public class CedarBoatEntity extends Entity {
         if (player.shouldCancelInteraction()) {
             return ActionResult.PASS;
         }
+        BlockHitResult interactionLocation = (BlockHitResult)player.raycast(2, 1, true);
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
-            BlockHitResult interactionLocation = (BlockHitResult)player.raycast(2, 1, true);
-            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67)){
-                TutorialMod.LOGGER.info("Seat 4"); 
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67)){ 
-                TutorialMod.LOGGER.info("Seat 1"); 
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67)){ 
-                TutorialMod.LOGGER.info("Seat 2"); 
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67)){
-                TutorialMod.LOGGER.info("Seat 3"); 
-            }
-            return ActionResult.SUCCESS;
-        }
-        if (!this.getWorld().isClient()) {
+            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.isChestPresent(3)){ // 4th chest
+                this.dataTracker.set(SEAT_3_CHEST, true);
+                player.getStackInHand(hand).decrement(1);
+                TutorialMod.LOGGER.info("3");
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.isChestPresent(0)){ //1st chest
+                this.dataTracker.set(SEAT_0_CHEST, true);
+                player.getStackInHand(hand).decrement(1);
+                TutorialMod.LOGGER.info("0");
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.isChestPresent(1)){ // 2nd chest
+                this.dataTracker.set(SEAT_1_CHEST, true); 
+                player.getStackInHand(hand).decrement(1);
+                TutorialMod.LOGGER.info("1");
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.isChestPresent(2)){ // 3rd chest
+                this.dataTracker.set(SEAT_2_CHEST, true);
+                player.getStackInHand(hand).decrement(1);
+                TutorialMod.LOGGER.info("2");
+            } 
+        } else if (!this.getWorld().isClient()) {
             return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
         }
         return ActionResult.SUCCESS;
+    }
+
+    public boolean isChestPresent(int seatIndex){
+        switch (seatIndex) {
+            case 0:
+                return this.dataTracker.get(SEAT_0_CHEST);
+            case 1:
+                return this.dataTracker.get(SEAT_1_CHEST);
+            case 2:
+                return this.dataTracker.get(SEAT_2_CHEST);
+            case 3:
+                return this.dataTracker.get(SEAT_3_CHEST);
+            default:
+                TutorialMod.LOGGER.error("Tried to check a nonexistent long boat seat index!");
+                return false;
+        }
     }
 
     @Override
@@ -241,6 +268,20 @@ public class CedarBoatEntity extends Entity {
     @Override
     public boolean isPushable() {
         return true;
+    }
+
+    @Override
+    public void kill(){
+        int chests = 0;
+        for(int i = 0; i < 4; i++){
+            if(this.isChestPresent(i)){
+                chests++;
+            }
+        }
+        if(chests > 0 && chests < 5){
+            dropStack(new ItemStack(Items.CHEST, chests));
+        }
+       super.kill();
     }
 
     private void limitYawValue(){
@@ -371,6 +412,7 @@ public class CedarBoatEntity extends Entity {
                     downwardMovement = fallingSpeed;
                 } else if(this.isTouchingWater()){
                     downwardMovement = 0;
+                    movement.add(movement.x*2, 0, 0);
                 }
             } else {
                 downwardMovement = this.getY() > (double)this.getWorld().getBottomY() ? -0.1 : 0.0;
