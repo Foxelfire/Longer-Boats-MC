@@ -1,6 +1,7 @@
 package net.foxelfire.tutorialmod.entity.custom;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector3f;
@@ -44,6 +45,7 @@ public class CedarBoatEntity extends Entity {
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
+    protected ArrayList<Float> seatList;
     protected int wobbleTimer = 20;
 
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -51,6 +53,7 @@ public class CedarBoatEntity extends Entity {
     public final AnimationState rotatingLeftAnimationState = new AnimationState();
     public final AnimationState rotatingRightAnimationState = new AnimationState();
     public final AnimationState wobblingAnimationState = new AnimationState();
+    private static final List<Float> positions = List.of(1.2f, .2f, -.8f, -1.8f); // all four passenger z positions
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -65,9 +68,10 @@ public class CedarBoatEntity extends Entity {
         super(entityType, world);
         this.intersectionChecked = true;
         this.lives = 6;
+        this.seatList = new ArrayList<Float>(positions); // done separately from positions itself bc chests can remove seats
     }
 
-    private void acceptNearbyRiders() {
+    private void acceptOrRejectRiders() {
         List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox().expand(0.15f, 0.1, 1.0f), EntityPredicates.canBePushedBy(this));
         for(Entity entity : list){
             if (!this.getWorld().isClient() && !(this.getControllingPassenger() instanceof PlayerEntity)
@@ -78,6 +82,10 @@ public class CedarBoatEntity extends Entity {
                 continue;
             }
             this.pushAwayFrom(entity);
+        }
+        if(this.getPassengerList().size() > this.getMaxPassengers()){ // someone got in, but a chest has stolen their seat! Kick them out before we start indexing our passenger list out of bounds!
+            Entity passenger = this.getPassengerList().get(this.getMaxPassengers());
+            passenger.stopRiding();
         }
     }
 
@@ -165,7 +173,7 @@ public class CedarBoatEntity extends Entity {
     }
 
     protected int getMaxPassengers() {
-        return 4;
+        return seatList.size(); // there can only be as many passengers as seats for them to sit in - bc some seats may be taken up by chests
     }
 
     private float getMovementSpeed(double slipperiness){ // reimplemented from LivingEntity's
@@ -190,7 +198,7 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height - 0.2f, 1.2f + this.getPassengerList().indexOf(passenger)*-1f);
+        return new Vector3f(0.0f, 0.3f, this.seatList.get(this.getPassengerList().indexOf(passenger)));
     }
 
     @Override
@@ -224,20 +232,24 @@ public class CedarBoatEntity extends Entity {
             if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.isChestPresent(3)){ // 4th chest
                 this.dataTracker.set(SEAT_3_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
+                this.seatList.remove(-1.8f); // 4th seat, removing by raw values instead of indices bc those can change if more than one chest is present
                 TutorialMod.LOGGER.info("3");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.isChestPresent(0)){ //1st chest
                 this.dataTracker.set(SEAT_0_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
+                this.seatList.remove(1.2f);
                 TutorialMod.LOGGER.info("0");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.isChestPresent(1)){ // 2nd chest
-                this.dataTracker.set(SEAT_1_CHEST, true); 
+                this.dataTracker.set(SEAT_1_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
+                this.seatList.remove(.2f);
                 TutorialMod.LOGGER.info("1");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.isChestPresent(2)){ // 3rd chest
                 this.dataTracker.set(SEAT_2_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
+                this.seatList.remove(-.8f);
                 TutorialMod.LOGGER.info("2");
-            } 
+            }
         } else if (!this.getWorld().isClient()) {
             return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
         }
@@ -360,7 +372,7 @@ public class CedarBoatEntity extends Entity {
             }
         }
         checkBlockCollision();
-        acceptNearbyRiders();
+        acceptOrRejectRiders();
     }
 
     public void tickMovement(){ // reimplemented from LivingEntity's
