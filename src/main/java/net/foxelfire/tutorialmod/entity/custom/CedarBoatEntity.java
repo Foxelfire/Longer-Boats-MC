@@ -233,22 +233,18 @@ public class CedarBoatEntity extends Entity {
                 this.dataTracker.set(SEAT_3_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(-1.8f); // 4th seat, removing by raw values instead of indices bc those can change if more than one chest is present
-                TutorialMod.LOGGER.info("3");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.isChestPresent(0)){ //1st chest
                 this.dataTracker.set(SEAT_0_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(1.2f);
-                TutorialMod.LOGGER.info("0");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.isChestPresent(1)){ // 2nd chest
                 this.dataTracker.set(SEAT_1_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(.2f);
-                TutorialMod.LOGGER.info("1");
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.isChestPresent(2)){ // 3rd chest
                 this.dataTracker.set(SEAT_2_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(-.8f);
-                TutorialMod.LOGGER.info("2");
             }
         } else if (!this.getWorld().isClient()) {
             return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
