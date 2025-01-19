@@ -110,10 +110,10 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 2f);
 		this.updateAnimation(entity.rotatingLeftAnimationState, CedarBoatAnimations.rotate_clockwise, ageInTicks, 1f);
 		this.updateAnimation(entity.rotatingRightAnimationState, CedarBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
-		this.seat_0_chest.visible = entity.isChestPresent(0);
-		this.seat_1_chest.visible = entity.isChestPresent(1);
-		this.seat_2_chest.visible = entity.isChestPresent(2);
-		this.seat_3_chest.visible = entity.isChestPresent(3);
+		this.seat_0_chest.visible = entity.getChestPresent(0);
+		this.seat_1_chest.visible = entity.getChestPresent(1);
+		this.seat_2_chest.visible = entity.getChestPresent(2);
+		this.seat_3_chest.visible = entity.getChestPresent(3);
 	}
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {

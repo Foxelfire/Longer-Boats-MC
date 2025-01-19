@@ -15,20 +15,26 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.RideableInventory;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -36,7 +42,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class CedarBoatEntity extends Entity {
+public class CedarBoatEntity extends Entity implements RideableInventory,
+VehicleInventory{
 
     private int lives;
     protected int bodyTrackingIncrements;
@@ -46,6 +53,7 @@ public class CedarBoatEntity extends Entity {
     protected double serverYaw;
     protected double serverPitch;
     protected ArrayList<Float> seatList;
+    protected DefaultedList<ItemStack> inventory;
     protected int wobbleTimer = 20;
 
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -68,7 +76,7 @@ public class CedarBoatEntity extends Entity {
         super(entityType, world);
         this.intersectionChecked = true;
         this.lives = 6;
-        this.seatList = new ArrayList<Float>(positions); // done separately from positions itself bc chests can remove seats
+        this.seatList = new ArrayList<Float>(positions); // done separately from positions itself bc chests can remove seats, so it can't be final
     }
 
     private void acceptOrRejectRiders() {
@@ -147,6 +155,22 @@ public class CedarBoatEntity extends Entity {
         this.dropItem(this.asItem());
     }
 
+    public boolean getChestPresent(int seatIndex){
+        switch (seatIndex) {
+            case 0:
+                return this.dataTracker.get(SEAT_0_CHEST);
+            case 1:
+                return this.dataTracker.get(SEAT_1_CHEST);
+            case 2:
+                return this.dataTracker.get(SEAT_2_CHEST);
+            case 3:
+                return this.dataTracker.get(SEAT_3_CHEST);
+            default:
+                TutorialMod.LOGGER.error("Tried to check a nonexistent long boat seat index!");
+                return false;
+        }
+    }
+    
     @Override
     public double getLerpTargetX() {
         return this.bodyTrackingIncrements > 0 ? this.serverX : this.getX();
@@ -182,6 +206,16 @@ public class CedarBoatEntity extends Entity {
             return (float)(movementSpeed * (0.21600002f / (slipperiness)));
         }
         return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
+    }
+
+    protected int getNumberOfChests(){
+        int chests = 0;
+        for(int i = 0; i < 4; i++){
+            if(this.getChestPresent(i)){
+                chests++;
+            }
+        }
+        return chests;
     }
 
     public boolean getPlayer1Inputting(){
@@ -222,6 +256,20 @@ public class CedarBoatEntity extends Entity {
         this.dataTracker.startTracking(SEAT_3_CHEST, false);
     }
 
+    protected void incrementInventorySize(){
+        int chestNum = this.getNumberOfChests();
+        DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(chestNum*27, ItemStack.EMPTY);
+        if(chestNum > 0){ // checks if our current inventory has been initialized yet
+            DefaultedList<ItemStack> savedInventory = this.getInventory();
+            for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
+                if(savedInventory.get(i) != null){
+                    newInventory.set(i, savedInventory.get(i));
+                }
+            }
+        }
+        this.inventory = newInventory;
+    }
+
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player.shouldCancelInteraction()) {
@@ -229,19 +277,19 @@ public class CedarBoatEntity extends Entity {
         }
         BlockHitResult interactionLocation = (BlockHitResult)player.raycast(2, 1, true);
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
-            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.isChestPresent(3)){ // 4th chest
+            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.getChestPresent(3)){ // 4th chest
                 this.dataTracker.set(SEAT_3_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(-1.8f); // 4th seat, removing by raw values instead of indices bc those can change if more than one chest is present
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.isChestPresent(0)){ //1st chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.getChestPresent(0)){ //1st chest
                 this.dataTracker.set(SEAT_0_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(1.2f);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.isChestPresent(1)){ // 2nd chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.getChestPresent(1)){ // 2nd chest
                 this.dataTracker.set(SEAT_1_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(.2f);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.isChestPresent(2)){ // 3rd chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.getChestPresent(2)){ // 3rd chest
                 this.dataTracker.set(SEAT_2_CHEST, true);
                 player.getStackInHand(hand).decrement(1);
                 this.seatList.remove(-.8f);
@@ -250,22 +298,6 @@ public class CedarBoatEntity extends Entity {
             return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
         }
         return ActionResult.SUCCESS;
-    }
-
-    public boolean isChestPresent(int seatIndex){
-        switch (seatIndex) {
-            case 0:
-                return this.dataTracker.get(SEAT_0_CHEST);
-            case 1:
-                return this.dataTracker.get(SEAT_1_CHEST);
-            case 2:
-                return this.dataTracker.get(SEAT_2_CHEST);
-            case 3:
-                return this.dataTracker.get(SEAT_3_CHEST);
-            default:
-                TutorialMod.LOGGER.error("Tried to check a nonexistent long boat seat index!");
-                return false;
-        }
     }
 
     @Override
@@ -280,12 +312,7 @@ public class CedarBoatEntity extends Entity {
 
     @Override
     public void kill(){
-        int chests = 0;
-        for(int i = 0; i < 4; i++){
-            if(this.isChestPresent(i)){
-                chests++;
-            }
-        }
+        int chests = this.getNumberOfChests();
         if(chests > 0 && chests < 5){
             dropStack(new ItemStack(Items.CHEST, chests));
         }
@@ -335,6 +362,21 @@ public class CedarBoatEntity extends Entity {
             }
         } else if (entity.getBoundingBox().minY <= this.getBoundingBox().minY) {
             super.pushAwayFrom(entity);
+        }
+    }
+
+    public void setChestPresent(int index, boolean present){
+        switch (index) {
+            case 0:
+                this.dataTracker.set(SEAT_0_CHEST, present);
+            case 1:
+                this.dataTracker.set(SEAT_1_CHEST, present);
+            case 2:
+                this.dataTracker.set(SEAT_2_CHEST, present);
+            case 3:
+                this.dataTracker.set(SEAT_3_CHEST, present);
+            default:
+                TutorialMod.LOGGER.error("Tried to set a nonexistent long boat seat index!");
         }
     }
 
@@ -478,6 +520,109 @@ public class CedarBoatEntity extends Entity {
     @Override
     protected void writeCustomDataToNbt(NbtCompound var1) {
         
+    }
+    /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
+     * overwrote from the defaults, and continuing with the ones we had to implement ourselves.
+     * I have sectioned them off from our other methods for better organization. If we had any good organization to begin with.
+     */
+    @Override
+    public boolean canPlayerAccess(PlayerEntity player) {
+        return !this.isRemoved() && this.getPos().isInRange(player.getPos(), 8.0) && this.getNumberOfChests() > 0;
+    }
+
+    @Override
+    public int size() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'size'");
+    }
+
+    @Override
+    public ItemStack getStack(int var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getStack'");
+    }
+
+    @Override
+    public ItemStack removeStack(int var1, int var2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeStack'");
+    }
+
+    @Override
+    public ItemStack removeStack(int var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeStack'");
+    }
+
+    @Override
+    public void setStack(int var1, ItemStack var2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setStack'");
+    }
+
+    @Override
+    public void markDirty() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'markDirty'");
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'canPlayerUse'");
+    }
+
+    @Override
+    public void clear() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'clear'");
+    }
+
+    @Override
+    public ScreenHandler createMenu(int var1, PlayerInventory var2, PlayerEntity var3) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createMenu'");
+    }
+
+    @Override
+    public Identifier getLootTableId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLootTableId'");
+    }
+
+    @Override
+    public void setLootTableId(Identifier var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setLootTableId'");
+    }
+
+    @Override
+    public long getLootTableSeed() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLootTableSeed'");
+    }
+
+    @Override
+    public void setLootTableSeed(long var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setLootTableSeed'");
+    }
+
+    @Override
+    public DefaultedList<ItemStack> getInventory() {
+        return this.inventory;
+    }
+
+    @Override
+    public void resetInventory() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'resetInventory'");
+    }
+
+    @Override
+    public void openInventory(PlayerEntity var1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'openInventory'");
     }
 
 }
