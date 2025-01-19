@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class TutorialMod implements ModInitializer {
 		ModBlocks.registerModBlocks();
 		FuelItems.registerFuelInstances();
 		ModSounds.registerSounds();
+		ModScreenHandlers.registerScreenHandlers();
 
 		StrippableBlockRegistry.register(ModBlocks.CEDAR_WOOD, ModBlocks.STRIPPED_CEDAR_WOOD);
 		StrippableBlockRegistry.register(ModBlocks.CEDAR_LOG, ModBlocks.STRIPPED_CEDAR_LOG);

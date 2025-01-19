@@ -7,8 +7,10 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
@@ -31,8 +33,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -45,7 +49,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 public class CedarBoatEntity extends Entity implements RideableInventory,
-VehicleInventory{
+VehicleInventory, ExtendedScreenHandlerFactory{
 
     private int lives;
     @Nullable
@@ -604,9 +608,9 @@ VehicleInventory{
 
     @Override
     @Nullable
-    public ScreenHandler createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
         if (this.lootTableId == null || !playerEntity.isSpectator()) {
-            //TODO return our screen handler
+            return new CedarBoatScreenHandler(syncId, playerInventory, this);
         }
         return null;
     }
@@ -644,11 +648,16 @@ VehicleInventory{
 
     @Override
     public void openInventory(PlayerEntity player) {
-        player.openHandledScreen(this);
+        player.openHandledScreen((ExtendedScreenHandlerFactory)this);
         if (!player.getWorld().isClient) {
             this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
             PiglinBrain.onGuardedBlockInteracted(player, true);
         }
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        
     }
 
 }
