@@ -603,9 +603,12 @@ VehicleInventory{
     }
 
     @Override
-    public ScreenHandler createMenu(int var1, PlayerInventory var2, PlayerEntity var3) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createMenu'");
+    @Nullable
+    public ScreenHandler createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+        if (this.lootTableId == null || !playerEntity.isSpectator()) {
+            //TODO return our screen handler
+        }
+        return null;
     }
 
     @Override
@@ -641,7 +644,7 @@ VehicleInventory{
 
     @Override
     public void openInventory(PlayerEntity player) {
-        // TODO Create Screen
+        player.openHandledScreen(this);
         if (!player.getWorld().isClient) {
             this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
             PiglinBrain.onGuardedBlockInteracted(player, true);
