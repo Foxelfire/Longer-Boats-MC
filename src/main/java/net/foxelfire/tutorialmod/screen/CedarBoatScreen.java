@@ -21,8 +21,11 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
     @Override
     protected void init(){
         super.init();
-        titleX = 32;
-        titleY = 5;
+        titleX = 4;
+        titleY = -12;
+        playerInventoryTitleX-=4;
+        playerInventoryTitleY+=6;
+        backgroundHeight+=32;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         RenderSystem.setShaderColor(1f,1f,1f,1f);
         RenderSystem.setShaderTexture(0, TEXTURE); // breaking news: menus are shaders
         int x = (width - backgroundWidth) / 2;
-        int y = (height - backgroundHeight) / 2;
+        int y = (height - backgroundHeight)/2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight); // u and v (the 2 zeroes) are offsets
     }
 

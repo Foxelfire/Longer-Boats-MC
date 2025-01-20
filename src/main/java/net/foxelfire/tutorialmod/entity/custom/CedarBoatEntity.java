@@ -648,10 +648,12 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     public void openInventory(PlayerEntity player) {
-        player.openHandledScreen((ExtendedScreenHandlerFactory)this);
-        if (!player.getWorld().isClient) {
-            this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
-            PiglinBrain.onGuardedBlockInteracted(player, true);
+        if(this.getNumberOfChests() > 0){
+            player.openHandledScreen((ExtendedScreenHandlerFactory)this);
+            if (!player.getWorld().isClient) {
+                this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
+                PiglinBrain.onGuardedBlockInteracted(player, true);
+            }
         }
     }
 
