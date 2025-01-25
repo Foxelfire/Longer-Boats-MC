@@ -21,7 +21,6 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
-        //checkSize((Inventory)entity, 4);
         this.inventory = (Inventory)entity;
         this.entity = (CedarBoatEntity)entity;
         inventory.onOpen(inventory.player);

@@ -2,7 +2,10 @@ package net.foxelfire.tutorialmod.entity.custom;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -62,6 +65,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverYaw;
     protected double serverPitch;
     protected ArrayList<Float> seatList;
+    private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
     protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(0, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
@@ -84,9 +88,15 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
+        TutorialMod.LOGGER.info("Creating...");
         this.intersectionChecked = true;
         this.lives = 6;
         this.seatList = new ArrayList<Float>(positions); // done separately from positions itself bc chests can remove seats, so it can't be final
+        int i = 0;
+        for (float position : positions) {
+            seatIndexesToPositions.put(i, position);
+            i++;
+        }
     }
 
     private void acceptOrRejectRiders() {
@@ -133,7 +143,12 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
         setChestPresent(seatIndex, true);
-        player.getStackInHand(hand).decrement(1);
+        float position = seatIndexesToPositions.get(seatIndex);
+        TutorialMod.LOGGER.info("Float: " + position);
+        seatList.remove(position);
+        if(player != null && hand != null){
+            player.getStackInHand(hand).decrement(1);
+        }
         updateInventorySize();
     }
 
@@ -299,19 +314,15 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
             if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.getChestPresent(3)){ // 4th chest
                 TutorialMod.LOGGER.info("Slot 3");
-                this.seatList.remove(-1.8f); // this removal is put here instead of in chestSeatAt() bc it caused a client-server desync there??? Very confused
                 chestSeatAt(3, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.getChestPresent(0)){ //1st chest
                 TutorialMod.LOGGER.info("Slot 0");
-                this.seatList.remove(1.2f);
                 chestSeatAt(0, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.getChestPresent(1)){ // 2nd chest
                 TutorialMod.LOGGER.info("Slot 1");
-                this.seatList.remove(-.8f);
                 chestSeatAt(1, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.getChestPresent(2)){ // 3rd chest
                 TutorialMod.LOGGER.info("Slot 2");
-                this.seatList.remove(.2f);
                 chestSeatAt(2, player, hand);
             }
         } else if (!this.getWorld().isClient()) {
@@ -537,13 +548,27 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     }
             
     @Override
-    protected void readCustomDataFromNbt(NbtCompound var1) {
-        
+    protected void readCustomDataFromNbt(NbtCompound nbt) {
+        if(nbt.getBoolean("Seat0Chested")){
+            this.chestSeatAt(0, null, null);
+        }
+        if(nbt.getBoolean("Seat1Chested")){
+            this.chestSeatAt(1, null, null);
+        }
+        if(nbt.getBoolean("Seat2Chested")){
+            this.chestSeatAt(2, null, null);
+        }
+        if(nbt.getBoolean("Seat3Chested")){
+            this.chestSeatAt(3, null, null);
+        }
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound var1) {
-        
+    protected void writeCustomDataToNbt(NbtCompound nbt) {
+        nbt.putBoolean("Seat0Chested", this.getChestPresent(0));
+        nbt.putBoolean("Seat1Chested", this.getChestPresent(1));
+        nbt.putBoolean("Seat2Chested", this.getChestPresent(2));
+        nbt.putBoolean("Seat3Chested", this.getChestPresent(3));
     }
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
      * overwrote from the defaults, and continuing with the ones we had to implement ourselves.
