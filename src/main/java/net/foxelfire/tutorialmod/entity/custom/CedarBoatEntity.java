@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -64,12 +65,11 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    protected ArrayList<Float> seatList;
+    protected boolean[] chestedAt = new boolean[4];
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
     protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(0, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
-
     public final AnimationState frontRowingAnimationState = new AnimationState();
     public final AnimationState backRowingAnimationState = new AnimationState();
     public final AnimationState rotatingLeftAnimationState = new AnimationState();
@@ -80,7 +80,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN); // no array or list data tracking? Mojang whyyy
     private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -91,11 +91,8 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         TutorialMod.LOGGER.info("Creating...");
         this.intersectionChecked = true;
         this.lives = 6;
-        this.seatList = new ArrayList<Float>(positions); // done separately from positions itself bc chests can remove seats, so it can't be final
-        int i = 0;
-        for (float position : positions) {
-            seatIndexesToPositions.put(i, position);
-            i++;
+        for (int i = 0; i < 4; i++){
+            seatIndexesToPositions.put(i, positions.get(i));
         }
     }
 
@@ -133,7 +130,11 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     protected boolean canAddPassenger(Entity passenger) {
-        return this.getPassengerList().size() <= 4;
+        return this.getPassengerList().size() < this.getMaxPassengers();
+    }
+
+    protected boolean canAddPassenger() {
+        return this.getPassengerList().size() < this.getMaxPassengers();
     }
 
     @Override
@@ -143,9 +144,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
         setChestPresent(seatIndex, true);
-        float position = seatIndexesToPositions.get(seatIndex);
-        TutorialMod.LOGGER.info("Float: " + position);
-        seatList.remove(position);
         if(player != null && hand != null){
             player.getStackInHand(hand).decrement(1);
         }
@@ -228,7 +226,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     }
 
     protected int getMaxPassengers() {
-        return seatList.size(); // there can only be as many passengers as seats for them to sit in - bc some seats may be taken up by chests
+        return 4 - getNumberOfChests(); // there can only be as many passengers as seats for them to sit in - bc some seats may be taken up by chests
     }
 
     private float getMovementSpeed(double slipperiness){ // reimplemented from LivingEntity's
@@ -239,14 +237,27 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
     }
 
-    protected int getNumberOfChests(){
-        int chests = 0;
+    protected Optional<Integer> getFirstAvailableSeat(Entity passenger){
+        ArrayList<Integer> nonChestedSeats = new ArrayList<>();
         for(int i = 0; i < 4; i++){
-            if(this.getChestPresent(i)){
-                chests++;
+            if(!this.chestedAt[i]){
+                nonChestedSeats.add(i);
             }
         }
-        return chests;
+        if(this.getPassengerList().indexOf(passenger) != -1){
+            return Optional.of(nonChestedSeats.get(this.getPassengerList().indexOf(passenger)));
+        }
+        return Optional.empty();
+    }
+
+    protected int getNumberOfChests(){
+        int num = 0;
+        for(int i = 0; i < 4; i++){
+            if(this.chestedAt[i]){
+                num++;
+            }
+        }
+        return num;
     }
 
     public boolean getPlayer1Inputting(){
@@ -263,7 +274,11 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, 0.3f, this.seatList.get(this.getPassengerList().indexOf(passenger)));
+        float zPosition = 0.0f;
+        if(!this.getFirstAvailableSeat(passenger).isEmpty()){
+            zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
+        }
+        return new Vector3f(0.0f, 0.3f, zPosition);
     }
 
     @Override
@@ -312,16 +327,16 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
         BlockHitResult interactionLocation = (BlockHitResult)player.raycast(3, 1, true);
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
-            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.getChestPresent(3)){ // 4th chest
+            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.chestedAt[3]){
                 TutorialMod.LOGGER.info("Slot 3");
                 chestSeatAt(3, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.getChestPresent(0)){ //1st chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.chestedAt[0]){
                 TutorialMod.LOGGER.info("Slot 0");
                 chestSeatAt(0, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.getChestPresent(1)){ // 2nd chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.chestedAt[1]){
                 TutorialMod.LOGGER.info("Slot 1");
                 chestSeatAt(1, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.getChestPresent(2)){ // 3rd chest
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.chestedAt[2]){
                 TutorialMod.LOGGER.info("Slot 2");
                 chestSeatAt(2, player, hand);
             }
@@ -438,6 +453,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     @Override
     public void tick(){
         super.tick();
+        for(int i = 0; i < this.chestedAt.length; i++){
+            this.chestedAt[i] = this.getChestPresent(i);
+        }
         if (!this.isRemoved()) {
             this.tickMovement();
             if(this.getWorld().isClient()){
@@ -549,26 +567,19 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {
-        if(nbt.getBoolean("Seat0Chested")){
-            this.chestSeatAt(0, null, null);
-        }
-        if(nbt.getBoolean("Seat1Chested")){
-            this.chestSeatAt(1, null, null);
-        }
-        if(nbt.getBoolean("Seat2Chested")){
-            this.chestSeatAt(2, null, null);
-        }
-        if(nbt.getBoolean("Seat3Chested")){
-            this.chestSeatAt(3, null, null);
+        int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
+        for(int i = 0; i < 4; i++){
+            this.setChestPresent(i, badNBTFormattedArray[i] == 1);
         }
     }
 
     @Override
     protected void writeCustomDataToNbt(NbtCompound nbt) {
-        nbt.putBoolean("Seat0Chested", this.getChestPresent(0));
-        nbt.putBoolean("Seat1Chested", this.getChestPresent(1));
-        nbt.putBoolean("Seat2Chested", this.getChestPresent(2));
-        nbt.putBoolean("Seat3Chested", this.getChestPresent(3));
+        int[] badNBTFormattedArray = new int[4];
+        for(int i = 0; i < 4; i++){
+            badNBTFormattedArray[i] = this.chestedAt[i] == true ? 1 : 0;
+        }
+        nbt.putIntArray("ChestsInAllSeats", badNBTFormattedArray);
     }
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
      * overwrote from the defaults, and continuing with the ones we had to implement ourselves.
