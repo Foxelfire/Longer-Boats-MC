@@ -2,6 +2,8 @@ package net.foxelfire.tutorialmod.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -10,6 +12,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+@Environment(value=EnvType.CLIENT)
 public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
 
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_tab.png");

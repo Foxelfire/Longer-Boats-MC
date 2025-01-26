@@ -200,6 +200,19 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
     }
 
+    protected Optional<Integer> getFirstAvailableSeat(Entity passenger){
+        ArrayList<Integer> nonChestedSeats = new ArrayList<>();
+        for(int i = 0; i < 4; i++){
+            if(!this.chestedAt[i]){
+                nonChestedSeats.add(i);
+            }
+        }
+        if(this.getPassengerList().indexOf(passenger) != -1){
+            return Optional.of(nonChestedSeats.get(this.getPassengerList().indexOf(passenger)));
+        }
+        return Optional.empty();
+    }
+
     @Override
     public double getLerpTargetX() {
         return this.bodyTrackingIncrements > 0 ? this.serverX : this.getX();
@@ -237,19 +250,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
     }
 
-    protected Optional<Integer> getFirstAvailableSeat(Entity passenger){
-        ArrayList<Integer> nonChestedSeats = new ArrayList<>();
-        for(int i = 0; i < 4; i++){
-            if(!this.chestedAt[i]){
-                nonChestedSeats.add(i);
-            }
-        }
-        if(this.getPassengerList().indexOf(passenger) != -1){
-            return Optional.of(nonChestedSeats.get(this.getPassengerList().indexOf(passenger)));
-        }
-        return Optional.empty();
-    }
-
     protected int getNumberOfChests(){
         int num = 0;
         for(int i = 0; i < 4; i++){
@@ -258,6 +258,17 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             }
         }
         return num;
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
+        float zPosition = 0.0f;
+        if(!this.getFirstAvailableSeat(passenger).isEmpty()){
+            zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
+        } else if(zPosition == 0.0f){
+            passenger.stopRiding();
+        }
+        return new Vector3f(0.0f, 0.3f, zPosition);
     }
 
     public boolean getPlayer1Inputting(){
@@ -270,15 +281,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     public boolean getShouldWobble(){
         return this.dataTracker.get(SHOULD_WOBBLE);
-    }
-
-    @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        float zPosition = 0.0f;
-        if(!this.getFirstAvailableSeat(passenger).isEmpty()){
-            zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
-        }
-        return new Vector3f(0.0f, 0.3f, zPosition);
     }
 
     @Override
@@ -300,24 +302,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         this.dataTracker.startTracking(SEAT_1_CHEST, false);
         this.dataTracker.startTracking(SEAT_2_CHEST, false);
         this.dataTracker.startTracking(SEAT_3_CHEST, false);
-    }
-
-    protected void updateInventorySize(){
-        if(!this.inventoryDirty){
-            inventoryDirty = true;
-            int chestNum = this.getNumberOfChests();
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(chestNum*27, ItemStack.EMPTY);
-            if(chestNum > 0){ // checks if our current inventory has slots yet
-                DefaultedList<ItemStack> savedInventory = this.getInventory();
-                for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
-                    if(savedInventory.get(i) != null){
-                        newInventory.set(i, savedInventory.get(i));
-                    }
-                }
-            }
-            this.inventory = newInventory;
-            inventoryDirty = false;
-        }
     }
 
     @Override
@@ -534,6 +518,24 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         } else {
             this.setVelocity(Vec3d.ZERO);
             this.tryCheckBlockCollision();
+        }
+    }
+
+    protected void updateInventorySize(){
+        if(!this.inventoryDirty){
+            inventoryDirty = true;
+            int chestNum = this.getNumberOfChests();
+            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(chestNum*27, ItemStack.EMPTY);
+            if(chestNum > 0){ // checks if our current inventory has slots yet
+                DefaultedList<ItemStack> savedInventory = this.getInventory();
+                for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
+                    if(savedInventory.get(i) != null){
+                        newInventory.set(i, savedInventory.get(i));
+                    }
+                }
+            }
+            this.inventory = newInventory;
+            inventoryDirty = false;
         }
     }
 
