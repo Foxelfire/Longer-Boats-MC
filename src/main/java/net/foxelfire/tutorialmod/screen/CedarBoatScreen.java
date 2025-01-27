@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
     public NewTabWidget previous;
     public NewTabWidget next;
+    public int currentTab = 1;
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_tab.png");
 
     public CedarBoatScreen(CedarBoatScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -34,12 +35,20 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         int x = (width - backgroundWidth) / 2 + 55;
         int y = (height - backgroundHeight)/2 + 16;
         previous = NewTabWidget.builder(Text.literal("Previous Tab"), true, button -> {
+            if(currentTab != 1){
+                currentTab--;
+                handler.switchTab(currentTab);
+            }
             TutorialMod.LOGGER.info("Previous Tab Button was pressed!");
         })
         .dimensions(x, y, 24, 24)
         .tooltip(Tooltip.of(Text.literal("Previous Tab Button")))
         .build();
         next = NewTabWidget.builder(Text.literal("Next Tab"), false, button -> {
+            if(currentTab != handler.entity.getNumberOfChests()){
+                currentTab++;
+                handler.switchTab(currentTab);
+            }
             TutorialMod.LOGGER.info("Next Tab Button was pressed!");
         })
         .dimensions((int)(x*1.25), y, 24, 24)
@@ -59,9 +68,11 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight); // u and v (the 2 zeroes) are offsets
     }
 
+    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta){
         renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
+        context.drawText(textRenderer, currentTab + " / " + handler.entity.getNumberOfChests(), (int)(((width - backgroundWidth) / 2 + 50)*1.125), (height - backgroundHeight)/2 + 22, 0x303030, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
     } 
 }

@@ -67,7 +67,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverPitch;
     protected boolean[] chestedAt = new boolean[4];
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
-    protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(0, ItemStack.EMPTY);
+    protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -250,7 +250,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         return this.getControllingPassenger() instanceof PlayerEntity ? movementSpeed * 0.1f : 0.02f;
     }
 
-    protected int getNumberOfChests(){
+    public int getNumberOfChests(){
         int num = 0;
         for(int i = 0; i < 4; i++){
             if(this.chestedAt[i]){
@@ -518,7 +518,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         } else {
             this.setVelocity(Vec3d.ZERO);
             this.tryCheckBlockCollision();
-        }
+        }  
     }
 
     protected void updateInventorySize(){
@@ -573,6 +573,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         for(int i = 0; i < 4; i++){
             this.setChestPresent(i, badNBTFormattedArray[i] == 1);
         }
+        updateInventorySize();
     }
 
     @Override

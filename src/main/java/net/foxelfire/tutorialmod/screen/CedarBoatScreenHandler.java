@@ -1,10 +1,14 @@
 package net.foxelfire.tutorialmod.screen;
 
+import java.util.ArrayList;
+
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
@@ -12,7 +16,8 @@ import net.minecraft.screen.slot.Slot;
 
 public class CedarBoatScreenHandler extends ScreenHandler{
 
-    private Inventory inventory;
+    private Inventory currentInventory;
+    private ArrayList<Inventory> tabs;
     public final CedarBoatEntity entity;
 
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
@@ -21,9 +26,30 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
-        this.inventory = (Inventory)entity;
         this.entity = (CedarBoatEntity)entity;
+        this.tabs = new ArrayList<>();
+        partitionInventoryList();
+        this.currentInventory = tabs.get(0);
+        this.tabs = new ArrayList<>(this.entity.getNumberOfChests());
         inventory.onOpen(inventory.player);
+    }
+
+    private void partitionInventoryList(){
+        for(int i = 0; i < entity.getNumberOfChests(); i++){
+            Inventory splitInventory = new SimpleInventory(27);
+            for(int j = 0; j < 26; j++){
+                splitInventory.setStack(j, entity.getInventory().get(j*(i+1)));
+            }
+            tabs.add(splitInventory);
+        }
+    }
+
+    public void switchTab(int index){
+        if(index > tabs.size()){
+            TutorialMod.LOGGER.error("Indexed an inventory tab outside of current inventory!");
+            return;
+        }
+        this.currentInventory = tabs.get(index);
     }
     
     @Override
@@ -33,11 +59,11 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         if (slot != null && slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
-            if (invSlot < this.inventory.size()) {
-                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+            if (invSlot < this.currentInventory.size()) {
+                if (!this.insertItem(originalStack, this.currentInventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
+            } else if (!this.insertItem(originalStack, 0, this.currentInventory.size(), false)) {
                 return ItemStack.EMPTY;
             }
 
@@ -54,7 +80,7 @@ public class CedarBoatScreenHandler extends ScreenHandler{
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.inventory.canPlayerUse(player);
+        return this.currentInventory.canPlayerUse(player);
     }
 
 }
