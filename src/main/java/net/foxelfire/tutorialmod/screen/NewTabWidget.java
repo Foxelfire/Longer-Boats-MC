@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ButtonTextures;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget.NarrationSupplier;
@@ -18,7 +17,8 @@ import net.minecraft.util.Identifier;
 @Environment(value=EnvType.CLIENT)
 public class NewTabWidget extends ClickableWidget {
 
-    private static final ButtonTextures TEXTURES = new ButtonTextures(new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_buttons"), new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_selected_buttons"));
+    private static final Identifier TEXTURE_NORMAL = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_buttons.png");
+    private static final Identifier TEXTURE_HOVERED = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_selected_buttons.png");
     protected static final NarrationSupplier DEFAULT_NARRATION_SUPPLIER = textSupplier -> (MutableText)textSupplier.get();
     protected final NarrationSupplier narrationSupplier;
     protected final PressAction onPress;
@@ -31,6 +31,10 @@ public class NewTabWidget extends ClickableWidget {
         this.isLeft = isLeft;
     }
 
+    public static Builder builder(Text message, boolean isLeft, PressAction onPress) {
+        return new Builder(message, isLeft, onPress);
+    }
+
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.onPress.onPress(this);
@@ -41,7 +45,8 @@ public class NewTabWidget extends ClickableWidget {
         context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        context.drawTexture(TEXTURES.get(true, this.isHovered()), this.getX(), this.getY(), 0, this.isLeft ? 0 : 17, this.getWidth(), this.getHeight());
+        context.drawTexture(this.isHovered() ? TEXTURE_HOVERED : TEXTURE_NORMAL, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0, this.isLeft ? 0 : 16, 16, 16, 16, 32);
+        // So, despite everything else in MC's texture system that standardizes larger y values as further downward, the v param of drawTexture does NOT work this way. It's -16, not 16.
         context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 

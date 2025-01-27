@@ -7,6 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
@@ -14,7 +15,8 @@ import net.minecraft.util.Identifier;
 
 @Environment(value=EnvType.CLIENT)
 public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
-
+    public NewTabWidget previous;
+    public NewTabWidget next;
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_tab.png");
 
     public CedarBoatScreen(CedarBoatScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -29,6 +31,22 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         playerInventoryTitleX-=4;
         playerInventoryTitleY+=6;
         backgroundHeight+=32;
+        int x = (width - backgroundWidth) / 2 + 55;
+        int y = (height - backgroundHeight)/2 + 16;
+        previous = NewTabWidget.builder(Text.literal("Previous Tab"), true, button -> {
+            TutorialMod.LOGGER.info("Previous Tab Button was pressed!");
+        })
+        .dimensions(x, y, 24, 24)
+        .tooltip(Tooltip.of(Text.literal("Previous Tab Button")))
+        .build();
+        next = NewTabWidget.builder(Text.literal("Next Tab"), false, button -> {
+            TutorialMod.LOGGER.info("Next Tab Button was pressed!");
+        })
+        .dimensions((int)(x*1.25), y, 24, 24)
+        .tooltip(Tooltip.of(Text.literal("Next Tab Button")))
+        .build();
+        addDrawableChild(previous);
+        addDrawableChild(next);
     }
 
     @Override
