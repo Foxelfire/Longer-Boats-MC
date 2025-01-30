@@ -7,7 +7,6 @@ import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -16,8 +15,8 @@ import net.minecraft.screen.slot.Slot;
 
 public class CedarBoatScreenHandler extends ScreenHandler{
 
-    private Inventory currentInventory;
-    private ArrayList<Inventory> tabs;
+    private SimpleInventory currentInventory;
+    private ArrayList<SimpleInventory> tabs;
     public final CedarBoatEntity entity;
 
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
@@ -27,33 +26,57 @@ public class CedarBoatScreenHandler extends ScreenHandler{
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
         this.entity = (CedarBoatEntity)entity;
-        this.tabs = new ArrayList<>();
-        partitionInventoryList();
-        this.currentInventory = tabs.get(0);
         this.tabs = new ArrayList<>(this.entity.getNumberOfChests());
+        partitionInventoryList();
+        addPlayerInventory(inventory);
+        this.switchTab(1);
         inventory.onOpen(inventory.player);
     }
 
     private void partitionInventoryList(){
+        entity.resetInventory();
         for(int i = 0; i < entity.getNumberOfChests(); i++){
-            Inventory splitInventory = new SimpleInventory(27);
+            SimpleInventory splitInventory = new SimpleInventory(entity.size());
             for(int j = 0; j < 26; j++){
-                splitInventory.setStack(j, entity.getInventory().get(j*(i+1)));
+                TutorialMod.LOGGER.info("Adding Stack Index: " + (j + 26*i));
+                splitInventory.setStack(j, entity.getInventory().get(j + 26*i));
             }
             tabs.add(splitInventory);
         }
     }
 
-    public void switchTab(int index){
-        if(index > tabs.size()){
-            TutorialMod.LOGGER.error("Indexed an inventory tab outside of current inventory!");
+    public void switchTab(int number){
+        number-=1; // accounting for zero-indexing
+        if(number >= tabs.size()){
+            TutorialMod.LOGGER.error("SimpleInventory index " + number + " is outside the bounds of the inventory tabs " + tabs.size());
             return;
         }
-        this.currentInventory = tabs.get(index);
+        this.currentInventory = tabs.get(number);
+        fillCurrentTab(currentInventory);
+    }
+
+    private void addPlayerInventory(PlayerInventory playerInventory) {
+        for (int i = 0; i < 3; ++i) {
+            for (int l = 0; l < 9; ++l) { // these magic numbers are precalculated
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 89 + i * 18));
+            }
+        } // hotbar
+        for(int i = 0; i < 9; ++i){ 
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 147));
+        }
+    }
+
+    private void fillCurrentTab(SimpleInventory inventory){
+        for (int i = 0; i < 3; ++i) {
+            for (int l = 0; l < 9; ++l) { // same precalculated offsets from rows and columns, just moved up a bit
+                this.addSlot(new Slot(inventory, l + i * 9 + 36, 8 + l * 18, 23 + i * 18));
+            }
+        }
     }
     
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
+        /*
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
         if (slot != null && slot.hasStack()) {
@@ -75,7 +98,8 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         }
 
         return newStack;
-
+        */
+        return ItemStack.EMPTY;
     }
 
     @Override

@@ -67,7 +67,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverPitch;
     protected boolean[] chestedAt = new boolean[4];
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
-    protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
+    protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(0);
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -142,12 +142,30 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         return !this.isRemoved();
     }
 
+    protected void changeInvSizeDuringGameplay(){
+        if(!this.inventoryDirty){
+            inventoryDirty = true;
+            int chestNum = this.getNumberOfChests();
+            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+            if(chestNum > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
+                DefaultedList<ItemStack> savedInventory = this.getInventory();
+                for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
+                    if(savedInventory.get(i) != null){
+                        newInventory.set(i, savedInventory.get(i));
+                    }
+                }
+            }
+            this.inventory = newInventory;
+            inventoryDirty = false;
+        }
+    }
+
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
         setChestPresent(seatIndex, true);
         if(player != null && hand != null){
             player.getStackInHand(hand).decrement(1);
         }
-        updateInventorySize();
+        changeInvSizeDuringGameplay();
     }
 
     @Override
@@ -521,24 +539,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }  
     }
 
-    protected void updateInventorySize(){
-        if(!this.inventoryDirty){
-            inventoryDirty = true;
-            int chestNum = this.getNumberOfChests();
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(chestNum*27, ItemStack.EMPTY);
-            if(chestNum > 0){ // checks if our current inventory has slots yet
-                DefaultedList<ItemStack> savedInventory = this.getInventory();
-                for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
-                    if(savedInventory.get(i) != null){
-                        newInventory.set(i, savedInventory.get(i));
-                    }
-                }
-            }
-            this.inventory = newInventory;
-            inventoryDirty = false;
-        }
-    }
-
     @Override
     public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps) {
         this.serverX = x;
@@ -573,7 +573,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         for(int i = 0; i < 4; i++){
             this.setChestPresent(i, badNBTFormattedArray[i] == 1);
         }
-        updateInventorySize();
+        if(getNumberOfChests() > 0){
+            readInventoryFromNbt(nbt);
+        }
     }
 
     @Override
@@ -583,6 +585,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             badNBTFormattedArray[i] = this.chestedAt[i] == true ? 1 : 0;
         }
         nbt.putIntArray("ChestsInAllSeats", badNBTFormattedArray);
+        if(getNumberOfChests() > 0){
+            writeInventoryToNbt(nbt);
+        }
     }
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
      * overwrote from the defaults, and continuing with the ones we had to implement ourselves.
