@@ -67,7 +67,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverPitch;
     protected boolean[] chestedAt = new boolean[4];
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
-    protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(0);
+    protected DefaultedList<ItemStack> inventory;
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -94,6 +94,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         for (int i = 0; i < 4; i++){
             seatIndexesToPositions.put(i, positions.get(i));
         }
+        this.inventory = DefaultedList.ofSize(this.getNumberOfChests()*27, ItemStack.EMPTY);
     }
 
     private void acceptOrRejectRiders() {
@@ -146,7 +147,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         if(!this.inventoryDirty){
             inventoryDirty = true;
             int chestNum = this.getNumberOfChests();
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.getNumberOfChests()*27, ItemStack.EMPTY);
             if(chestNum > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
                 DefaultedList<ItemStack> savedInventory = this.getInventory();
                 for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
@@ -413,6 +414,31 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
     }
 
+    public void setActiveInventory(int tab){
+        // this method splits up our inventory into what the screen handler would use as tabs, pushes the tab the player is currently on to the front,
+        // and rebuilds our inventory with that tab's 27 items at the front so the screen handler always reads the correct item in the slot, regardless of the current tab.
+        // this is necessary because instances of Slot are always final, so we can't change what index in our inventory the Slot points to once we make it, but we CAN change
+        // what ItemStack that specific inventory index points to depending on what tab is open, because our inventory itself is not final. Hacky and stinky code? Yes,
+        // this involves using lists of lists, so obviously it's bad code. Does it work and is it easier than creating a whole new Slot class by reverse-engineering? Also yes.
+        TutorialMod.LOGGER.info("Setting Tab!");
+        ArrayList<DefaultedList<ItemStack>> tabs = new ArrayList<>();
+        for(int i = 0; i < this.getNumberOfChests(); i++){
+            DefaultedList<ItemStack> subInventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
+            for(int j = 0; j < 26; j++){
+                subInventory.set(j, this.getInventoryStack(j));
+            }
+            tabs.add(subInventory);
+        }
+        DefaultedList<ItemStack> activeInventory = tabs.get(tab);
+        tabs.remove(activeInventory);
+        tabs.add(0, activeInventory);
+        DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size());
+        for (DefaultedList<ItemStack> subInventory : tabs) {
+            newInventory.addAll(subInventory);
+        }
+        this.inventory = newInventory;
+    }
+
     public void setChestPresent(int index, boolean present){
         switch (index) {
             case 0:
@@ -464,6 +490,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
                 wobble();
             }
         }
+        changeInvSizeDuringGameplay();
         checkBlockCollision();
         acceptOrRejectRiders();
     }
@@ -571,7 +598,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected void readCustomDataFromNbt(NbtCompound nbt) {
         int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
         for(int i = 0; i < 4; i++){
-            this.setChestPresent(i, badNBTFormattedArray[i] == 1);
+            this.setChestPresent(i, badNBTFormattedArray[i] > 0);
         }
         if(getNumberOfChests() > 0){
             readInventoryFromNbt(nbt);
@@ -600,6 +627,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     public int size() {
+        TutorialMod.LOGGER.info("Expected Inventory Size: " + this.getNumberOfChests()*27);
         return this.getNumberOfChests()*27;
     }
 
@@ -687,7 +715,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     public void resetInventory() {
-        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        this.inventory = DefaultedList.ofSize(this.getNumberOfChests()*27, ItemStack.EMPTY);
     }
 
     @Override

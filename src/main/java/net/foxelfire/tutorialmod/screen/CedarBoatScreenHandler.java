@@ -1,7 +1,5 @@
 package net.foxelfire.tutorialmod.screen;
 
-import java.util.ArrayList;
-
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
@@ -15,9 +13,9 @@ import net.minecraft.screen.slot.Slot;
 
 public class CedarBoatScreenHandler extends ScreenHandler{
 
-    private SimpleInventory currentInventory;
-    private ArrayList<SimpleInventory> tabs;
+    private SimpleInventory frontendInventory = new SimpleInventory(27);
     public final CedarBoatEntity entity;
+    
 
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
         this(syncId, inventory, inventory.player.getVehicle());
@@ -26,33 +24,19 @@ public class CedarBoatScreenHandler extends ScreenHandler{
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
         this.entity = (CedarBoatEntity)entity;
-        this.tabs = new ArrayList<>(this.entity.getNumberOfChests());
-        partitionInventoryList();
+        addScreenInventory(frontendInventory);
         addPlayerInventory(inventory);
         this.switchTab(1);
         inventory.onOpen(inventory.player);
     }
 
-    private void partitionInventoryList(){
-        entity.resetInventory();
-        for(int i = 0; i < entity.getNumberOfChests(); i++){
-            SimpleInventory splitInventory = new SimpleInventory(entity.size());
-            for(int j = 0; j < 26; j++){
-                TutorialMod.LOGGER.info("Adding Stack Index: " + (j + 26*i));
-                splitInventory.setStack(j, entity.getInventory().get(j + 26*i));
-            }
-            tabs.add(splitInventory);
-        }
-    }
-
     public void switchTab(int number){
         number-=1; // accounting for zero-indexing
-        if(number >= tabs.size()){
-            TutorialMod.LOGGER.error("SimpleInventory index " + number + " is outside the bounds of the inventory tabs " + tabs.size());
+        if(number >= entity.getNumberOfChests()){
+            TutorialMod.LOGGER.error("SimpleInventory index " + number + " is outside the bounds of the inventory tabs " + entity.getNumberOfChests());
             return;
         }
-        this.currentInventory = tabs.get(number);
-        fillCurrentTab(currentInventory);
+        entity.setActiveInventory(number);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
@@ -66,27 +50,27 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         }
     }
 
-    private void fillCurrentTab(SimpleInventory inventory){
+    private void addScreenInventory(SimpleInventory inventory){
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) { // same precalculated offsets from rows and columns, just moved up a bit
-                this.addSlot(new Slot(inventory, l + i * 9 + 36, 8 + l * 18, 23 + i * 18));
+                this.addSlot(new Slot(inventory, l + i * 9, 8 + l * 18, 23 + i * 18));
+                TutorialMod.LOGGER.info("slot id: " + (l + i * 9));
             }
         }
     }
     
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        /*
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
         if (slot != null && slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
-            if (invSlot < this.currentInventory.size()) {
-                if (!this.insertItem(originalStack, this.currentInventory.size(), this.slots.size(), true)) {
+            if (invSlot < this.frontendInventory.size()) {
+                if (!this.insertItem(originalStack, this.frontendInventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(originalStack, 0, this.currentInventory.size(), false)) {
+            } else if (!this.insertItem(originalStack, 0, this.frontendInventory.size(), false)) {
                 return ItemStack.EMPTY;
             }
 
@@ -98,13 +82,12 @@ public class CedarBoatScreenHandler extends ScreenHandler{
         }
 
         return newStack;
-        */
-        return ItemStack.EMPTY;
+       // return ItemStack.EMPTY;
     }
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.currentInventory.canPlayerUse(player);
+        return this.frontendInventory.canPlayerUse(player);
     }
 
 }
