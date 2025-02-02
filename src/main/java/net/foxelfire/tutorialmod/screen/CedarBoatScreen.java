@@ -36,8 +36,9 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         int y = (height - backgroundHeight)/2 + 16;
         previous = NewTabWidget.builder(Text.literal("Previous Tab"), true, button -> {
             if(currentTab != 1){
-                currentTab--;
-                handler.switchTab(currentTab);
+                int newTab = currentTab - 1;
+                handler.switchTab(currentTab, newTab);
+                currentTab = newTab;
             }
             TutorialMod.LOGGER.info("Previous Tab Button was pressed!");
         })
@@ -46,8 +47,9 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
         .build();
         next = NewTabWidget.builder(Text.literal("Next Tab"), false, button -> {
             if(currentTab != handler.entity.getNumberOfChests()){
-                currentTab++;
-                handler.switchTab(currentTab);
+                int newTab = currentTab + 1;
+                handler.switchTab(currentTab, newTab);
+                currentTab = newTab;
             }
             TutorialMod.LOGGER.info("Next Tab Button was pressed!");
         })

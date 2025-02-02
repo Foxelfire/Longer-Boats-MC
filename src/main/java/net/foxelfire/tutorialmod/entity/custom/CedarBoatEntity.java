@@ -11,10 +11,13 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
+import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
@@ -33,11 +36,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf.PacketWriter;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -414,12 +419,19 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
     }
 
-    public void setActiveInventory(int tab){
-        // this method splits up our inventory into what the screen handler would use as tabs, pushes the tab the player is currently on to the front,
+    public void saveActiveInventory(int newTab){
+
+        // all the inventory manip is failing here bc we're only calling this on the client... time to look into other options!
+        /*int inventoryRegionTabOffset = prevTab*9;
+        for(int i = 0; i < inventory.size(); i++){
+            this.setStack((i + inventoryRegionTabOffset), inventory.getStack(i));
+        }
+        TutorialMod.LOGGER.info("Inventory contents: " + this.getInventory().toString() + "Yours " + this.getWorld().isClient() + "ly, the client."); */
+        // this section of the method splits up our inventory into what the screen handler would use as tabs, pushes the tab the player is currently on to the front,
         // and rebuilds our inventory with that tab's 27 items at the front so the screen handler always reads the correct item in the slot, regardless of the current tab.
         // this is necessary because instances of Slot are always final, so we can't change what index in our inventory the Slot points to once we make it, but we CAN change
         // what ItemStack that specific inventory index points to depending on what tab is open, because our inventory itself is not final. Hacky and stinky code? Yes,
-        // this involves using lists of lists, so obviously it's bad code. Does it work and is it easier than creating a whole new Slot class by reverse-engineering? Also yes.
+        // this involves using lists of lists, so obviously it's bad code. Is it easier than creating a whole new Slot class by reverse-engineering? Also yes.
         TutorialMod.LOGGER.info("Setting Tab!");
         ArrayList<DefaultedList<ItemStack>> tabs = new ArrayList<>();
         for(int i = 0; i < this.getNumberOfChests(); i++){
@@ -429,7 +441,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             }
             tabs.add(subInventory);
         }
-        DefaultedList<ItemStack> activeInventory = tabs.get(tab);
+        DefaultedList<ItemStack> activeInventory = tabs.get(newTab);
         tabs.remove(activeInventory);
         tabs.add(0, activeInventory);
         DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size());
@@ -437,6 +449,35 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             newInventory.addAll(subInventory);
         }
         this.inventory = newInventory;
+    }
+
+    public void sendC2SInventoryPacket(int prevTab, int newTab, PlayerEntity user, SimpleInventory inventory){
+        int inventoryRegionTabOffset = prevTab*9;
+        for(int i = 0; i < inventory.size(); i++){
+            this.setStack((i + inventoryRegionTabOffset), inventory.getStack(i));
+        }
+        TutorialMod.LOGGER.info("Inventory contents: " + this.getInventory().toString() + "Yours " + this.getWorld().isClient() + "ly, the client.");
+        if(this.getWorld().isClient()){
+            ArrayList<ItemStack> contents = new ArrayList<>(inventory.size());
+            for(int i = 0; i < inventory.size(); i++){
+                contents.add(i, inventory.getStack(i));
+            }
+            PacketByteBuf packet = PacketByteBufs.create();
+            PacketByteBuf.PacketWriter<ItemStack> writer = new PacketWriter<ItemStack>() {
+                // writeCollection() takes a packet writer as the second argument, so I had to make my own.
+                // if there are any default PacketWriters for ItemStacks in the MC source waiting to be put here, please replace my homebrewed writer with the vanilla one.
+                @Override
+                public void accept(PacketByteBuf buf, ItemStack stack) {
+                    buf.writeItemStack(stack);
+                }
+                
+            };
+            packet.writeInt(prevTab);
+            packet.writeInt(newTab);
+            packet.writeInt(this.getId());
+            packet.writeCollection(contents, writer);
+            ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_SYNCING_PACKET_ID, packet);
+        }
     }
 
     public void setChestPresent(int index, boolean present){
