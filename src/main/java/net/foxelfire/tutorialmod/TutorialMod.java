@@ -1,22 +1,12 @@
 package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
-import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.PacketByteBuf.PacketReader;
-import java.util.ArrayList;
-
-import java.util.function.IntFunction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,31 +37,5 @@ public class TutorialMod implements ModInitializer {
 		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.CEDAR_WOOD, new FlammableBlockRegistry.Entry(5, 5));
 		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.STRIPPED_CEDAR_LOG, new FlammableBlockRegistry.Entry(5, 5));
 		FlammableBlockRegistry.getDefaultInstance().add(ModBlocks.STRIPPED_CEDAR_WOOD, new FlammableBlockRegistry.Entry(5, 5));
-
-		ServerPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_SYNCING_PACKET_ID, (server, player, handler, buf, responseSender) -> {
-			int previousTab = buf.readInt();
-			int newTab = buf.readInt();
-			int id = buf.readInt();
-			IntFunction<ArrayList<ItemStack>> collectionFactory = new IntFunction<ArrayList<ItemStack>>() {
-				@Override
-				public ArrayList<ItemStack> apply(int value) {
-					return new ArrayList<ItemStack>(value);
-				}
-			};
-			PacketByteBuf.PacketReader<ItemStack> stackReader = new PacketReader<ItemStack>() {
-				@Override
-				public ItemStack apply(PacketByteBuf buf) {
-					return buf.readItemStack();
-				}
-			};
-			ArrayList<ItemStack> inventoryOfPreviousTab = buf.readCollection(collectionFactory, stackReader);
-			int inventoryRegionTabOffset = previousTab*9;
-			CedarBoatEntity entity = (CedarBoatEntity)player.getWorld().getEntityById(id);
-			for(int i = 0; i < inventoryOfPreviousTab.size(); i++){
-				entity.setStack((i + inventoryRegionTabOffset), inventoryOfPreviousTab.get(i));
-			}
-			entity.saveActiveInventory(newTab);
-			TutorialMod.LOGGER.info("Inventory contents: " + entity.getInventory().toString());
-		});
 	}
 }
