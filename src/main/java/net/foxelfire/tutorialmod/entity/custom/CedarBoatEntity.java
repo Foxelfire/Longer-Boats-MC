@@ -66,7 +66,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    protected boolean[] chestedAt = new boolean[4];
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
     protected DefaultedList<ItemStack> inventory;
     protected boolean inventoryDirty = false; 
@@ -146,9 +145,8 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected void changeInvSizeDuringGameplay(){
         if(!this.inventoryDirty){
             inventoryDirty = true;
-            int chestNum = this.getNumberOfChests();
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.getNumberOfChests()*27, ItemStack.EMPTY);
-            if(chestNum > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
+            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+            if(this.getNumberOfChests() > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
                 DefaultedList<ItemStack> savedInventory = this.getInventory();
                 for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
                     if(savedInventory.get(i) != null){
@@ -222,7 +220,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected Optional<Integer> getFirstAvailableSeat(Entity passenger){
         ArrayList<Integer> nonChestedSeats = new ArrayList<>();
         for(int i = 0; i < 4; i++){
-            if(!this.chestedAt[i]){
+            if(!this.getChestPresent(i)){
                 nonChestedSeats.add(i);
             }
         }
@@ -236,9 +234,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         if(index >= this.getInventory().size()/27){
             throw new ArrayIndexOutOfBoundsException("Requested Tab index of the CedarBoatEntity's inventory does not exist: Index "+ index +" is out of bounds for the number of tabs currently added, " + this.getNumberOfChests());
         }
-        DefaultedList<ItemStack> tab = DefaultedList.ofSize(27);
+        DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
         for(int i = 0; i < 26; i++){
-            tab.set(i, this.getInventoryStack(i+(26*index)));
+            tab.set(i, this.inventory.get(i+(26*index)));
         }
         return tab;
     }
@@ -283,7 +281,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     public int getNumberOfChests(){
         int num = 0;
         for(int i = 0; i < 4; i++){
-            if(this.chestedAt[i]){
+            if(this.getChestPresent(i)){
                 num++;
             }
         }
@@ -341,16 +339,16 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
         BlockHitResult interactionLocation = (BlockHitResult)player.raycast(3, 1, true);
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
-            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.chestedAt[3]){
+            if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.getChestPresent(3)){
                 TutorialMod.LOGGER.info("Slot 3");
                 chestSeatAt(3, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.chestedAt[0]){
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.getChestPresent(0)){
                 TutorialMod.LOGGER.info("Slot 0");
                 chestSeatAt(0, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.chestedAt[1]){
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.getChestPresent(1)){
                 TutorialMod.LOGGER.info("Slot 1");
                 chestSeatAt(1, player, hand);
-            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.chestedAt[2]){
+            } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.getChestPresent(2)){
                 TutorialMod.LOGGER.info("Slot 2");
                 chestSeatAt(2, player, hand);
             }
@@ -467,16 +465,13 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     @Override
     public void tick(){
         super.tick();
-        for(int i = 0; i < this.chestedAt.length; i++){
-            this.chestedAt[i] = this.getChestPresent(i);
-        }
         if (!this.isRemoved()) {
             this.tickMovement();
             if(this.getWorld().isClient()){
                 wobble();
             }
         }
-        changeInvSizeDuringGameplay();
+        //changeInvSizeDuringGameplay();
         checkBlockCollision();
         acceptOrRejectRiders();
     }
@@ -591,7 +586,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
             }
         }
         DefaultedList<ItemStack> inventory = DefaultedList.ofSize(27*earlyChestChecker, ItemStack.EMPTY);
-        if(inventory.size() > 0){
+        if(earlyChestChecker > 0){
             Inventories.readNbt(nbt, inventory);
             this.inventory = inventory;
         }
@@ -601,7 +596,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected void writeCustomDataToNbt(NbtCompound nbt) {
         int[] badNBTFormattedArray = new int[4];
         for(int i = 0; i < 4; i++){
-            badNBTFormattedArray[i] = this.chestedAt[i] == true ? 1 : 0;
+            badNBTFormattedArray[i] = (this.getChestPresent(i) == true ? 1 : 0);
         }
         nbt.putIntArray("ChestsInAllSeats", badNBTFormattedArray);
         if(getNumberOfChests() > 0){
@@ -723,9 +718,6 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         
-    }
-
-    public class CedarBoatScreenHandler {
     }
 
 }

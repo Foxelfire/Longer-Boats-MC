@@ -71,8 +71,8 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
          * list is final) and re-adding slots to it. The vanilla creative inventory does the exact same thing to handle its tab buttons, so I copied and adapted that
          * logic to fit here.
         */
-        handler.slots.clear();
         DefaultedList<ItemStack> inventoryStacks = handler.entity.getInventoryTabAt(tab);
+        handler.slots.clear();
         handler.itemList = inventoryStacks;
         for(int i = 0; i < 26; i++){
             int heightMultiplier = (int)(i/9);
@@ -81,7 +81,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
             handler.slots.add(slot);
         }
         handler.addPlayerInventory(handler.playerInventory);
-        currentTab = tab;
+        currentTab = tab+1;
     }
 
     @Override
@@ -127,6 +127,8 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
         public void switchTab(int number){
             number-=1; // accounting for zero-indexing
             if(number >= entity.getNumberOfChests() || number < 0){
+                TutorialMod.LOGGER.info("Tab number too big/small! Only good tabs are: 0, 1, 2 and your tab is: " + number);
+                TutorialMod.LOGGER.info("Entity's chest number: " + entity.getNumberOfChests());
                 return;
             }
             setSelectedTab(number, this);
