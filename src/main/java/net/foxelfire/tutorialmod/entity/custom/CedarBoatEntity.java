@@ -33,7 +33,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.VehicleInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -54,7 +53,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 public class CedarBoatEntity extends Entity implements RideableInventory,
-VehicleInventory, ExtendedScreenHandlerFactory{
+VehicleInventory, ExtendedScreenHandlerFactory {
 
     private int lives;
     @Nullable
@@ -67,7 +66,19 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     protected double serverYaw;
     protected double serverPitch;
     private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
-    protected DefaultedList<ItemStack> inventory;
+    /* ooh, the inventory size is a doozy. So we don't actually know the inventory size until we read our inventory
+     * from NBT, because our size can change based on our amounts of chests, data which is stored through NBT. That task of reading NBT is done server-side,
+     * and the server's files always run before the client's. this.size() doesn't actually work until all our chest-related tracked data is already tracked, defined, and set,
+     * because its logic dependent on how many chests in total we have, which when the server is initially loading this file, will not have been tracked and initialized(?) yet.
+     * This checks if our tracked data is already set, which will be true on the client since the server has already loaded this file, but false on the server itself. So basically, the server
+     * gets this fake size of 27 while this entity's tracked data is being waited on, to keep it up and running until we can calculate the real size when the server calls
+     * readCustomDataFromNBT(), sets the proper tracked data values for itself, calls resetInventory() referencing our newly changed this.size() return value, and fixes everything.
+     * And the client just gets this.size() directly, since the server has already properly fixed that method's logic for us, so it can be ran safely without checking for
+     * tracked data values that don't exist yet. This check is dependent on if the tracked data is already loaded rather than if this is the client, in case the two run their files in
+     * the opposite order for whatever reason, and also just to be more resilient against vanilla minecraft changes/quirks/edge cases.
+     */
+    protected int inventorySize = this.dataTracker.containsKey(SEAT_0_CHEST) ? this.size() : 27;
+    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
     protected int wobbleTimer = 20;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -89,6 +100,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
         TutorialMod.LOGGER.info("Creating...");
+        if(this.getWorld().isClient()){
+            TutorialMod.LOGGER.info("Size: " + this.size());
+        }
         this.intersectionChecked = true;
         this.lives = 6;
         for (int i = 0; i < 4; i++){
@@ -231,12 +245,9 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     }
 
     public DefaultedList<ItemStack> getInventoryTabAt(int index){
-        if(index >= this.getInventory().size()/27){
-            throw new ArrayIndexOutOfBoundsException("Requested Tab index of the CedarBoatEntity's inventory does not exist: Index "+ index +" is out of bounds for the number of tabs currently added, " + this.getNumberOfChests());
-        }
         DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
         for(int i = 0; i < 26; i++){
-            tab.set(i, this.inventory.get(i+(26*index)));
+            tab.set(i, this.getInventory().get(i+(26*index)));
         }
         return tab;
     }
@@ -465,6 +476,11 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     @Override
     public void tick(){
         super.tick();
+        /*if(this.getInventory() != null){
+            TutorialMod.LOGGER.info(this.getWorld().isClient() + "ly the client: " + "Our current inventory size is " + this.size() + "Here's what's in it: " + this.getInventory().toString());
+        } else {
+            TutorialMod.LOGGER.info(this.getWorld().isClient() + "ly the client: " + "Our inventory is null");
+        } */
         if (!this.isRemoved()) {
             this.tickMovement();
             if(this.getWorld().isClient()){
@@ -576,19 +592,14 @@ VehicleInventory, ExtendedScreenHandlerFactory{
     }
             
     @Override
+    // We're always on the server here.
     protected void readCustomDataFromNbt(NbtCompound nbt) {
         int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
-        int earlyChestChecker = 0;
         for(int i = 0; i < 4; i++){
             this.setChestPresent(i, badNBTFormattedArray[i] > 0);
-            if(badNBTFormattedArray[i] > 0){
-                earlyChestChecker++;
-            }
         }
-        DefaultedList<ItemStack> inventory = DefaultedList.ofSize(27*earlyChestChecker, ItemStack.EMPTY);
-        if(earlyChestChecker > 0){
-            Inventories.readNbt(nbt, inventory);
-            this.inventory = inventory;
+        if(this.getNumberOfChests() > 0){
+            this.readInventoryFromNbt(nbt);
         }
     }
 
@@ -600,7 +611,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
         }
         nbt.putIntArray("ChestsInAllSeats", badNBTFormattedArray);
         if(getNumberOfChests() > 0){
-            writeInventoryToNbt(nbt);
+            this.writeInventoryToNbt(nbt);
         }
     }
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
@@ -701,7 +712,7 @@ VehicleInventory, ExtendedScreenHandlerFactory{
 
     @Override
     public void resetInventory() {
-        this.inventory = DefaultedList.ofSize(this.getNumberOfChests()*27, ItemStack.EMPTY);
+        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
     }
 
     @Override
