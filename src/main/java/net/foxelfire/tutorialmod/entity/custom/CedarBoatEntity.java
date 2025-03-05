@@ -11,10 +11,13 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.CedarBoatScreen;
+import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
@@ -33,6 +36,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -100,9 +104,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
         TutorialMod.LOGGER.info("Creating...");
-        if(this.getWorld().isClient()){
-            TutorialMod.LOGGER.info("Size: " + this.size());
-        }
         this.intersectionChecked = true;
         this.lives = 6;
         for (int i = 0; i < 4; i++){
@@ -246,7 +247,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     public DefaultedList<ItemStack> getInventoryTabAt(int index){
         DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
-        for(int i = 0; i < 26; i++){
+        for(int i = 0; i < 26; i++){ // crash stage 1 happens immediately after first iteration
             tab.set(i, this.getInventory().get(i+(26*index)));
         }
         return tab;
@@ -397,6 +398,12 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         }
     }
 
+    @Override
+    public void onStartedTrackingBy(ServerPlayerEntity player){
+        super.onStartedTrackingBy(player);
+        this.sendS2CInventoryPacket(this.inventory);
+    }
+
     private void playPlayerAnimations(Vec3d controlledMovementInput){
         if(this.getPlayer1Inputting()){
             this.frontRowingAnimationState.startIfNotRunning(this.age);
@@ -476,11 +483,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     @Override
     public void tick(){
         super.tick();
-        /*if(this.getInventory() != null){
-            TutorialMod.LOGGER.info(this.getWorld().isClient() + "ly the client: " + "Our current inventory size is " + this.size() + "Here's what's in it: " + this.getInventory().toString());
-        } else {
-            TutorialMod.LOGGER.info(this.getWorld().isClient() + "ly the client: " + "Our inventory is null");
-        } */
         if (!this.isRemoved()) {
             this.tickMovement();
             if(this.getWorld().isClient()){
@@ -710,6 +712,10 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         return this.inventory;
     }
 
+    public void setInventory(DefaultedList<ItemStack> inventory){
+        this.inventory = inventory;
+    }
+
     @Override
     public void resetInventory() {
         this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
@@ -731,4 +737,25 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         
     }
 
+    /* The following methods are for inventory-related methods that are not in the interface. */
+
+    public void readInventoryFromNbt(NbtCompound nbt){
+        this.resetInventory();
+        /* the below line was previously in an if-else supposed to support pre-generated boats with loot tables
+           in VehicleInventory.readInventoryFromNbt. we don't need to support these (yet) so we can just send it directly to the reader.
+           TODO: get some loot table support for this thing */
+        Inventories.readNbt(nbt, this.getInventory());
+    }
+
+    private void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory){
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(inventory.size());
+        for (ItemStack item : inventory) {
+            buf.writeItemStack(item);
+        }
+        buf.writeInt(this.getId());
+        for (PlayerEntity player : this.getWorld().getPlayers()) {
+            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.INVENTORY_SYNCING_PACKET_ID, buf);
+        }
+    }
 }
