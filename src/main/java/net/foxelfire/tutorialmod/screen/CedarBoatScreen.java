@@ -62,6 +62,11 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
         addDrawableChild(previous);
         addDrawableChild(next);
     }
+
+    protected static void savePreviousInventoryData(CedarBoatScreenHandler handler, int tab){
+        DefaultedList<ItemStack> previousStacks = INVENTORY.stacks;
+        handler.entity.sendC2SInventoryPacket(previousStacks, tab);
+    }
     
     protected static void setSelectedTab(int tab, CedarBoatScreenHandler handler){
         /* Okay, so when you add a slot, the slot does something strange (caching or smth along those lines) to the index of the inventory the slot is linked to
@@ -72,16 +77,17 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
          * logic to fit here.
         */
         DefaultedList<ItemStack> inventoryStacks = handler.entity.getInventoryTabAt(tab);
-        handler.slots.clear();
         handler.itemList = inventoryStacks;
+        handler.slots.clear();
+        handler.addPlayerInventory(handler.playerInventory);
         for(int i = 0; i < 26; i++){
             int heightMultiplier = (int)(i/9);
             int xMultiplier = i % 9;
             Slot slot = new Slot(INVENTORY, i, 8 + xMultiplier * 18, 23 + heightMultiplier*18);
-            handler.slots.add(slot);
+            handler.addSlotPublicWrapper(slot);
         }
-        handler.addPlayerInventory(handler.playerInventory);
-        currentTab = tab+1;
+        currentTab = tab+1; // another zero-indexing thing
+        handler.addDisplayArea();
     }
 
     @Override
@@ -119,9 +125,12 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
             this.entity = (CedarBoatEntity)entity;
             this.player = inventory.player;
             this.playerInventory = inventory;
-            this.switchTab(1);
-            addDisplayArea();
+            setSelectedTab(0, this);
             inventory.onOpen(inventory.player);
+        }
+
+        public void addSlotPublicWrapper(Slot slot){
+            this.addSlot(slot);
         }
 
         public void switchTab(int number){
@@ -131,6 +140,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
                 TutorialMod.LOGGER.info("Entity's chest number: " + entity.getNumberOfChests());
                 return;
             }
+            savePreviousInventoryData(this, number);
             setSelectedTab(number, this);
         }
 

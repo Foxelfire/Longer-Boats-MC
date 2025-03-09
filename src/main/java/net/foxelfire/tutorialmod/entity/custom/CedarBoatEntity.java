@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -247,7 +248,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     public DefaultedList<ItemStack> getInventoryTabAt(int index){
         DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
-        for(int i = 0; i < 26; i++){ // crash stage 1 happens immediately after first iteration
+        for(int i = 0; i < 26; i++){
             tab.set(i, this.getInventory().get(i+(26*index)));
         }
         return tab;
@@ -747,7 +748,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         Inventories.readNbt(nbt, this.getInventory());
     }
 
-    private void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory){
+    public void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory){
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeByte(inventory.size());
         for (ItemStack item : inventory) {
@@ -755,7 +756,18 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         }
         buf.writeInt(this.getId());
         for (PlayerEntity player : this.getWorld().getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.INVENTORY_SYNCING_PACKET_ID, buf);
+            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, buf);
         }
+    }
+
+    public void sendC2SInventoryPacket(DefaultedList<ItemStack> inventory, int tab){
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(inventory.size());
+        for (ItemStack item : inventory) {
+            buf.writeItemStack(item);
+        }
+        buf.writeInt(this.getId());
+        buf.writeInt(tab);
+        ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
     }
 }

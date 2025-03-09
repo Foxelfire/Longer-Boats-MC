@@ -28,7 +28,7 @@ public class TutorialModClient implements ClientModInitializer{
         EntityRendererRegistry.register(ModEntities.CEDAR_BOAT, CedarBoatRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.CEDAR_BOAT, CedarBoatModel::getTexturedModelData);
         HandledScreens.register(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, CedarBoatScreen::new);
-        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_SYNCING_PACKET_ID, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, (client, handler, buf, responseSender) -> {
             client.execute(() -> {
                 byte invSize = buf.readByte();
                 DefaultedList<ItemStack> invContents = DefaultedList.of();
@@ -37,7 +37,7 @@ public class TutorialModClient implements ClientModInitializer{
                 }
                 int entityID = buf.readInt();
                 CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
-                TutorialMod.LOGGER.info("Entity's inventory:" + entity.getInventory());
+                TutorialMod.LOGGER.info("Entity's inventory on client packet receive:" + entity.getInventory().toString());
                 entity.setInventory(invContents);
             });
         });
