@@ -52,9 +52,9 @@ public class TutorialMod implements ModInitializer {
 				}
 				int entityID = buf.readInt();
 				CedarBoatEntity entity = (CedarBoatEntity)player.getWorld().getEntityById(entityID);
-				int tabOffset = buf.readInt() * 27;
+				int tabOffset = buf.readInt();
                 for(int i = 0; i < invSize; i++){
-					entity.getInventory().set(i + tabOffset, invContents.get(i));
+					entity.getInventory().set(i + tabOffset*27, invContents.get(i));
 				}
 				entity.sendS2CInventoryPacket(entity.getInventory());
 			});

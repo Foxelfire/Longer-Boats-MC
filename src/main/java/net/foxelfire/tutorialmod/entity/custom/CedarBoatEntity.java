@@ -248,8 +248,8 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     public DefaultedList<ItemStack> getInventoryTabAt(int index){
         DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
-        for(int i = 0; i < 26; i++){
-            tab.set(i, this.getInventory().get(i+(26*index)));
+        for(int i = 0; i < 27; i++){
+            tab.set(i, this.getInventory().get(i+(27*index)));
         }
         return tab;
     }

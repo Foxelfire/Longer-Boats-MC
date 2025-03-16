@@ -28,7 +28,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
     public NewTabWidget next;
     public DefaultedList<ItemStack> tabInventory;
     static final SimpleInventory INVENTORY = new SimpleInventory(27);
-    private static int currentTab = 1;
+    private static int currentTab = 0;
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_tab.png");
 
     public CedarBoatScreen(CedarBoatScreen.CedarBoatScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -63,12 +63,12 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
         addDrawableChild(next);
     }
 
-    protected static void savePreviousInventoryData(CedarBoatScreenHandler handler, int tab){
+    protected static void saveEntityInventory(CedarBoatScreenHandler handler, int tab){
         DefaultedList<ItemStack> previousStacks = INVENTORY.stacks;
         handler.entity.sendC2SInventoryPacket(previousStacks, tab);
     }
     
-    protected static void setSelectedTab(int tab, CedarBoatScreenHandler handler){
+    protected static void manageEntityInventory(int tab, CedarBoatScreenHandler handler){
         /* Okay, so when you add a slot, the slot does something strange (caching or smth along those lines) to the index of the inventory the slot is linked to
          * that locks that index into never being able to change. This causes it to never update what item is in that index of the inventory
          * unless it's been removed. So in order to make slots reflect the new inventory contents if a button is pressed to move to a new section of
@@ -76,18 +76,19 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
          * list is final) and re-adding slots to it. The vanilla creative inventory does the exact same thing to handle its tab buttons, so I copied and adapted that
          * logic to fit here.
         */
+        TutorialMod.LOGGER.info("Pulling from tab: " + tab);
         DefaultedList<ItemStack> inventoryStacks = handler.entity.getInventoryTabAt(tab);
         handler.itemList = inventoryStacks;
         handler.slots.clear();
         handler.addPlayerInventory(handler.playerInventory);
-        for(int i = 0; i < 26; i++){
+        for(int i = 0; i < 27; i++){
             int heightMultiplier = (int)(i/9);
             int xMultiplier = i % 9;
             Slot slot = new Slot(INVENTORY, i, 8 + xMultiplier * 18, 23 + heightMultiplier*18);
             handler.addSlotPublicWrapper(slot);
         }
-        currentTab = tab+1; // another zero-indexing thing
         handler.addDisplayArea();
+        currentTab = tab;
     }
 
     @Override
@@ -104,7 +105,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
     public void render(DrawContext context, int mouseX, int mouseY, float delta){
         renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
-        context.drawText(textRenderer, currentTab + " / " + handler.entity.getNumberOfChests(), (int)(((width - backgroundWidth) / 2 + 50)*1.125), (height - backgroundHeight)/2 + 22, 0x303030, false);
+        context.drawText(textRenderer, (currentTab+1) + " / " + handler.entity.getNumberOfChests(), (int)(((width - backgroundWidth) / 2 + 50)*1.125), (height - backgroundHeight)/2 + 22, 0x303030, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
     } 
 
@@ -125,7 +126,7 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
             this.entity = (CedarBoatEntity)entity;
             this.player = inventory.player;
             this.playerInventory = inventory;
-            setSelectedTab(0, this);
+            manageEntityInventory(0, this);
             inventory.onOpen(inventory.player);
         }
 
@@ -133,15 +134,14 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
             this.addSlot(slot);
         }
 
-        public void switchTab(int number){
-            number-=1; // accounting for zero-indexing
-            if(number >= entity.getNumberOfChests() || number < 0){
-                TutorialMod.LOGGER.info("Tab number too big/small! Only good tabs are: 0, 1, 2 and your tab is: " + number);
+        public void switchTab(int tabIndex){
+            if(tabIndex >= entity.getNumberOfChests() || tabIndex < 0){
+                TutorialMod.LOGGER.info("Tab number too big/small! Only good tabs are: 0, 1, 2 and your tab is: " + tabIndex);
                 TutorialMod.LOGGER.info("Entity's chest number: " + entity.getNumberOfChests());
                 return;
             }
-            savePreviousInventoryData(this, number);
-            setSelectedTab(number, this);
+            saveEntityInventory(this, currentTab);
+            manageEntityInventory(tabIndex, this);
         }
 
         private void addPlayerInventory(PlayerInventory playerInventory) {
@@ -156,9 +156,16 @@ public class CedarBoatScreen extends HandledScreen<CedarBoatScreen.CedarBoatScre
         }
 
         private void addDisplayArea(){
-            for(int i = 0; i < 26; i++){
+            for(int i = 0; i < 27; i++){
                 INVENTORY.setStack(i, this.itemList.get(i));
             }
+        }
+
+        @Override
+        public void onClosed(PlayerEntity player){
+            saveEntityInventory(this, currentTab);
+            manageEntityInventory(0, this);
+            super.onClosed(player);
         }
       
         @Override
