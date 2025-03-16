@@ -37,9 +37,7 @@ public class TutorialModClient implements ClientModInitializer{
                 }
                 int entityID = buf.readInt();
                 CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
-                TutorialMod.LOGGER.info("Entity's inventory on client-side packet receive:" + entity.getInventory().toString());
                 entity.setInventory(invContents);
-                TutorialMod.LOGGER.info("Entity's inventory post-set:" + entity.getInventory().toString());
             });
         });
     }

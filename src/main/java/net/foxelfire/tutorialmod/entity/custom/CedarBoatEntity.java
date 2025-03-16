@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
-import net.foxelfire.tutorialmod.screen.CedarBoatScreen;
+import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
@@ -682,7 +682,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     @Nullable
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
         if (this.lootTableId == null || !playerEntity.isSpectator()) {
-            return new CedarBoatScreen.CedarBoatScreenHandler(syncId, playerInventory, this);
+            return new CedarBoatScreenHandler(syncId, playerInventory, this);
         }
         return null;
     }
