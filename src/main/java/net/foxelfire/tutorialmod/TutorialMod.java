@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.foxelfire.tutorialmod.item.ModItems;
+import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.sound.ModSounds;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
@@ -56,7 +57,9 @@ public class TutorialMod implements ModInitializer {
                 for(int i = 0; i < invSize; i++){
 					entity.getInventory().set(i + tabOffset*27, invContents.get(i));
 				}
-				entity.sendS2CInventoryPacket(entity.getInventory());
+				int nextTab = buf.readInt();
+				entity.sendS2CInventoryPacket(entity.getInventory(), true, nextTab);
+				CedarBoatScreenHandler.manageActiveEntityInventory(nextTab);
 			});
 		});
 	}

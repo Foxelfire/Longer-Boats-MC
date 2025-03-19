@@ -20,6 +20,7 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     public int currentTab = 0;
     static final SimpleInventory INVENTORY = new SimpleInventory(27);
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
+    protected static CedarBoatScreenHandler activeHandler;
     
 
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
@@ -33,14 +34,14 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         this.playerInventory = inventory;
         manageEntityInventory(0);
         inventory.onOpen(inventory.player);
+        activeHandler = this;
     }
 
     public void switchTab(int tabIndex){
         if(tabIndex >= entity.getNumberOfChests() || tabIndex < 0){
             return;
         }
-        saveEntityInventory(currentTab);
-        manageEntityInventory(tabIndex);
+        saveEntityInventory(currentTab, tabIndex);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
@@ -56,8 +57,7 @@ public class CedarBoatScreenHandler extends ScreenHandler {
 
     @Override
     public void onClosed(PlayerEntity player){
-        saveEntityInventory(currentTab);
-        manageEntityInventory(0);
+        saveEntityInventory(currentTab, 0);
         super.onClosed(player);
     }
 
@@ -98,10 +98,10 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         return INVENTORY.canPlayerUse(player);
     }
 
-    protected void saveEntityInventory(int tab){
+    protected void saveEntityInventory(int prevTab, int tab){
         if(player.getWorld().isClient()){
             DefaultedList<ItemStack> previousStacks = INVENTORY.stacks;
-            this.entity.sendC2SInventoryPacket(previousStacks, tab);
+            this.entity.sendC2SInventoryPacket(previousStacks, prevTab, tab);
         }
     }
     
@@ -128,6 +128,30 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         }
         addDisplayArea();
         currentTab = tab;
+    }
+
+    public static void manageActiveEntityInventory(int tab){
+        /* This method is a version of manageEntityInventory without any references to this so it can be called statically. 
+         * This is needed so that the chain of back-and-forth client-to-server-to-client packets that saveEntityInventory initiates can
+         * figure out which screen handler it needs to manage the inventory of. Switching tabs is done this stinky way for a couple
+         * of reasons. Firstly because packet sending, unsurprisingly, runs asynchronously, so just calling the normal manageEntityInventory with
+         * saveEntityInventory's second argument in this file reads the wrong entity inventory in getInventoryTabAt() on multiplayer worlds, which can cause
+         * a lot of bugs, possibly including an item duplication glitch. Secondly because all of the ways to reach the currently active screen
+         * handler from the client.execute lambda, like the player's current screen handler, sadly don't return the instance we want, at least not
+         * in a form that we're able to cast to the correct type. I don't know why and I don't want to know why.
+         */
+        DefaultedList<ItemStack> inventoryStacks = activeHandler.entity.getInventoryTabAt(tab);
+        activeHandler.itemList = inventoryStacks;
+        activeHandler.slots.clear();
+        activeHandler.addPlayerInventory(activeHandler.playerInventory);
+        for(int i = 0; i < 27; i++){
+            int heightMultiplier = (int)(i/9);
+            int xMultiplier = i % 9;
+            Slot slot = new Slot(INVENTORY, i, 8 + xMultiplier * 18, 23 + heightMultiplier*18);
+            activeHandler.addSlot(slot);
+        }
+        activeHandler.addDisplayArea();
+        activeHandler.currentTab = tab;
     }
 
     private void addDisplayArea(){

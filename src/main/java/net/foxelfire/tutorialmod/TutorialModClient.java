@@ -12,6 +12,7 @@ import net.foxelfire.tutorialmod.entity.client.CedarBoatRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.foxelfire.tutorialmod.screen.CedarBoatScreen;
+import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -36,8 +37,14 @@ public class TutorialModClient implements ClientModInitializer{
                     invContents.add(i, buf.readItemStack()); // scary!
                 }
                 int entityID = buf.readInt();
+                boolean inScreen = buf.readBoolean();
                 CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
                 entity.setInventory(invContents);
+                if(inScreen){
+                    int nextTab = buf.readInt();
+                    int tabToManage = nextTab == -1 ? 0 : nextTab;
+                    CedarBoatScreenHandler.manageActiveEntityInventory(tabToManage);
+                }
             });
         });
     }

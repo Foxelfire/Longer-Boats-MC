@@ -402,7 +402,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     @Override
     public void onStartedTrackingBy(ServerPlayerEntity player){
         super.onStartedTrackingBy(player);
-        this.sendS2CInventoryPacket(this.inventory);
+        this.sendS2CInventoryPacket(this.inventory, false, -1);
     }
 
     private void playPlayerAnimations(Vec3d controlledMovementInput){
@@ -748,13 +748,15 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         Inventories.readNbt(nbt, this.getInventory());
     }
 
-    public void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory){
+    public void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory, boolean inScreen, int nextTab){
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeByte(inventory.size());
         for (ItemStack item : inventory) {
             buf.writeItemStack(item);
         }
         buf.writeInt(this.getId());
+        buf.writeBoolean(inScreen);
+        buf.writeInt(nextTab);
         for (PlayerEntity player : this.getWorld().getPlayers()) {
             ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, buf);
         }
@@ -767,6 +769,19 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             buf.writeItemStack(item);
         }
         buf.writeInt(this.getId());
+        buf.writeInt(tab);
+        buf.writeInt(-1);
+        ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
+    }
+
+    public void sendC2SInventoryPacket(DefaultedList<ItemStack> inventory, int prevTab, int tab){
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(inventory.size());
+        for (ItemStack item : inventory) {
+            buf.writeItemStack(item);
+        }
+        buf.writeInt(this.getId());
+        buf.writeInt(prevTab);
         buf.writeInt(tab);
         ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
     }
