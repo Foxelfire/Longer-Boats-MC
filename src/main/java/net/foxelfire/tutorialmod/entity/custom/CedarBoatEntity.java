@@ -490,7 +490,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
                 wobble();
             }
         }
-        //changeInvSizeDuringGameplay();
         checkBlockCollision();
         acceptOrRejectRiders();
     }
@@ -537,7 +536,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             float friction = this.isOnGround() ? slipperiness : 0.91f;
             Vec3d movement = this.applyMovementInput(movementInput, slipperiness);
             double downwardMovement = movement.y;
-            if(!this.getWorld().isClient() || this.getWorld().isChunkLoaded(blockUnderUs)){ // deprecated?? then why does travel() use it? TODO: switch to newer isChunkLoaded(chunkX, chunkZ)
+            if(!this.getWorld().isClient() || this.getWorld().isChunkLoaded(blockUnderUs)){ // deprecated?? then why does travel() use it? we'll have to switch to newer isChunkLoaded(chunkX, chunkZ) sometime
                 if(!this.hasNoGravity() && !this.isTouchingWater()){
                     downwardMovement -= fallingSpeed;
                 } else if(this.isSubmergedInWater()){
