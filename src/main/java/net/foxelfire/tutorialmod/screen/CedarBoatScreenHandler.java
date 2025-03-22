@@ -1,5 +1,7 @@
 package net.foxelfire.tutorialmod.screen;
 
+import java.util.List;
+
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,8 +21,14 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     public final PlayerInventory playerInventory;
     public int currentTab = 0;
     static final SimpleInventory INVENTORY = new SimpleInventory(27);
+    private final DefaultedList<ItemStack> trackedStacks = DefaultedList.of();
+    private final DefaultedList<ItemStack> previousTrackedStacks = DefaultedList.of();
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
     protected static CedarBoatScreenHandler activeHandler;
+    @SuppressWarnings("unused")
+    private ItemStack cursorStack = ItemStack.EMPTY;
+    @SuppressWarnings("unused")
+    private int revision;
     
 
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
@@ -94,6 +102,27 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     }
 
     @Override
+    public void updateSlotStacks(int revision, List<ItemStack> stacks, ItemStack cursorStack) {
+        for (int i = 0; i < stacks.size(); ++i) {
+            if(i >= 63){ // this is just a band-aid solution to get this method to cursor stack assignment, until I can fix the problem of the "stacks"
+                // list passed into this thing increasing by 63 everytime the client packet listener calls this method due to some server-side stuff before packet sending.
+                break;
+            }
+            this.getSlot(i).setStackNoCallbacks(stacks.get(i));
+        }
+        this.setCursorStack(cursorStack.copy());
+        this.revision = revision;
+    }
+
+    protected static void clearStacks(DefaultedList<ItemStack> stacks){
+        // removing from defaulted lists is usually unsupported, but these ones have an ArrayList delegate so we're fine
+        for (int i = 0; i < stacks.size(); i++){
+            stacks.remove(i);
+        }
+    }
+
+
+    @Override
     public boolean canUse(PlayerEntity player) {
         return INVENTORY.canPlayerUse(player);
     }
@@ -116,6 +145,8 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         DefaultedList<ItemStack> inventoryStacks = this.entity.getInventoryTabAt(tab);
         this.itemList = inventoryStacks;
         this.slots.clear();
+        clearStacks(this.trackedStacks);
+        clearStacks(this.previousTrackedStacks);
         this.addPlayerInventory(this.playerInventory);
         for(int i = 0; i < 27; i++){
             int heightMultiplier = (int)(i/9);
@@ -143,6 +174,8 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         DefaultedList<ItemStack> inventoryStacks = activeHandler.entity.getInventoryTabAt(tab);
         activeHandler.itemList = inventoryStacks;
         activeHandler.slots.clear();
+        clearStacks(activeHandler.trackedStacks);
+        clearStacks(activeHandler.previousTrackedStacks);
         activeHandler.addPlayerInventory(activeHandler.playerInventory);
         for(int i = 0; i < 27; i++){
             int heightMultiplier = (int)(i/9);
