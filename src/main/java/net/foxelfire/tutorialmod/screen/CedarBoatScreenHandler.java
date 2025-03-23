@@ -2,6 +2,7 @@ package net.foxelfire.tutorialmod.screen;
 
 import java.util.List;
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +25,7 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     private final DefaultedList<ItemStack> trackedStacks = DefaultedList.of();
     private final DefaultedList<ItemStack> previousTrackedStacks = DefaultedList.of();
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
-    protected static CedarBoatScreenHandler activeHandler;
+    public static CedarBoatScreenHandler activeHandler;
     @SuppressWarnings("unused")
     private ItemStack cursorStack = ItemStack.EMPTY;
     @SuppressWarnings("unused")
@@ -37,10 +38,11 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
+        TutorialMod.LOGGER.info("Hello! Here's the active handler: " + activeHandler);
         this.entity = (CedarBoatEntity)entity;
         this.player = inventory.player;
         this.playerInventory = inventory;
-        manageEntityInventory(0);
+        saveEntityInventory(currentTab, currentTab);
         inventory.onOpen(inventory.player);
         activeHandler = this;
     }
@@ -66,6 +68,7 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     @Override
     public void onClosed(PlayerEntity player){
         saveEntityInventory(currentTab, 0);
+        entity.setHasScreen(false);
         super.onClosed(player);
     }
 
@@ -171,18 +174,9 @@ public class CedarBoatScreenHandler extends ScreenHandler {
          * handler from the client.execute lambda, like the player's current screen handler, sadly don't return the instance we want, at least not
          * in a form that we're able to cast to the correct type. I don't know why and I don't want to know why.
          */
-
-        /* also, there's an error executing the client task that calls this method if activeHandler = null, which can happen if a player is trying to open the inventory
-        while another player already has it open on a multiplayer world. I don't want to spend my time handling what happens if this is the
-        case, even though most of the item saving logic (other than the edge case of a player being on a non-first tab when the other player opens it)
-        already works if you just add an if(activeHandler == null){ return; } below this comment. But the problem with that is that any way of trying to
-        properly account for activeHandler == null in this code, whether in this file or in the client or server packet receivers, makes it so that two players 
-        can access the inventory at once and runs the risk of that edge case causing an item duplication glitch. Somehow, the only time I can get the behaviour I want
-        of locking player 2 out of the screen when player 1 already has it active is if I just let the game throw this error and therefore delegate to Minecraft's normal 
-        client task scheduler's runtime exception handling. Then gameplay resumes as normal and nothing weird happens. Therefore, I have done no error handling for that case,
-        because any handling I add causes actual gameplay problems. If someone else can find a way to stop MC from printing that error in the server console, or even better, more gracefully
-        handle that null pointer case by like, stopping the entire chain of server and client on packet receive runnables from running at all if it's null
-        without causing any adverse effects on Minecraft's thread system, that'd be great. */
+        if(activeHandler == null){
+            return;
+        }
         DefaultedList<ItemStack> inventoryStacks = activeHandler.entity.getInventoryTabAt(tab);
         activeHandler.itemList = inventoryStacks;
         activeHandler.slots.clear();

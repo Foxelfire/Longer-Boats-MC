@@ -100,6 +100,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> HAS_SCREEN = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
@@ -252,6 +253,10 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         return Optional.empty();
     }
 
+    public boolean getHasScreen(){
+        return this.dataTracker.get(HAS_SCREEN);
+    }
+
     public DefaultedList<ItemStack> getInventoryTabAt(int index){
         DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
         for(int i = 0; i < 27; i++){
@@ -366,6 +371,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         this.dataTracker.startTracking(SEAT_1_CHEST, false);
         this.dataTracker.startTracking(SEAT_2_CHEST, false);
         this.dataTracker.startTracking(SEAT_3_CHEST, false);
+        this.dataTracker.startTracking(HAS_SCREEN, false);
     }
 
     @Override
@@ -490,6 +496,10 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     public void setPlayer2Inputting(boolean isRiding){
         this.dataTracker.set(BACK_PLAYER_INPUTTING, isRiding);
+    }
+
+    public void setHasScreen(boolean hasScreen){
+        this.dataTracker.set(HAS_SCREEN, hasScreen);
     }
 
     public void setShouldWobble(boolean shouldWobble){
@@ -723,7 +733,8 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     @Override
     @Nullable
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-        if (this.lootTableId == null || !playerEntity.isSpectator()) {
+        if (this.lootTableId == null || !playerEntity.isSpectator() && !this.dataTracker.get(HAS_SCREEN)) {
+            this.setHasScreen(true);
             return new CedarBoatScreenHandler(syncId, playerInventory, this);
         }
         return null;
@@ -766,7 +777,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     @Override
     public void openInventory(PlayerEntity player) {
-        if(this.getNumberOfChests() > 0){
+        if(this.getNumberOfChests() > 0 && !this.getHasScreen()){
             player.openHandledScreen((ExtendedScreenHandlerFactory)this);
             if (!player.getWorld().isClient) {
                 this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
