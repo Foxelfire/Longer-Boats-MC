@@ -594,7 +594,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
         Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
         this.playPlayerAnimations(controlledMovementInput);
-        if(this.isLogicalSideForUpdatingMovement()){
+        if(this.getWorld().isClient()){
             controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
             this.travel(controlledMovementInput);
             setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);

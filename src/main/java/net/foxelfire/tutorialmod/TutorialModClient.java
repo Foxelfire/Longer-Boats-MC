@@ -39,7 +39,9 @@ public class TutorialModClient implements ClientModInitializer{
                 int entityID = buf.readInt();
                 boolean inScreen = buf.readBoolean();
                 CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
-                entity.setInventory(invContents);
+                if(entity != null){
+                    entity.setInventory(invContents);
+                }
                 if(inScreen){
                     int nextTab = buf.readInt();
                     int tabToManage = nextTab == -1 ? 0 : nextTab;

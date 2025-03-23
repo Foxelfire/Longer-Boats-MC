@@ -2,7 +2,6 @@ package net.foxelfire.tutorialmod.screen;
 
 import java.util.List;
 
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,7 +37,6 @@ public class CedarBoatScreenHandler extends ScreenHandler {
         
     public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
-        TutorialMod.LOGGER.info("Hello! Here's the active handler: " + activeHandler);
         this.entity = (CedarBoatEntity)entity;
         this.player = inventory.player;
         this.playerInventory = inventory;
