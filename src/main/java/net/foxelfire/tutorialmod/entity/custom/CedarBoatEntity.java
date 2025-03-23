@@ -217,6 +217,12 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         this.dropItem(this.asItem());
     }
 
+    @Nullable
+    @Override
+    public LivingEntity getControllingPassenger(){
+        return (LivingEntity)this.getFirstPassenger();
+    }
+
     public boolean getChestPresent(int seatIndex){
         switch (seatIndex) {
             case 0:
@@ -322,6 +328,23 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     public boolean getShouldWobble(){
         return this.dataTracker.get(SHOULD_WOBBLE);
+    }
+
+    @Nullable
+    public Entity getSecondaryControllingPassenger(){
+        if(this.getNumberOfChests() == 4){
+            return this.getPassengerList().get(2);
+        }
+        if(this.getChestPresent(2)){
+            return null;
+        }
+        int indexIn = 2;
+        for(int i = 0; i < 3; i++){
+            if(this.getChestPresent(i)){
+                indexIn--;
+            }
+        }
+        return this.getPassengerList().size() > indexIn ? this.getPassengerList().get(indexIn) : null;
     }
 
     @Override
@@ -519,8 +542,14 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             velocityZ = 0.0;
         }
         this.setVelocity(velocityX, velocityY, velocityZ);
-        if(this.getFirstPassenger() instanceof PlayerEntity){
-            travelControlled((PlayerEntity)this.getFirstPassenger());
+        if(this.getControllingPassenger() instanceof PlayerEntity){
+            if(this.getSecondaryControllingPassenger() instanceof PlayerEntity && this.getSecondaryControllingPassenger() != this.getControllingPassenger()){
+                travelControlled((PlayerEntity)this.getControllingPassenger(), (PlayerEntity)this.getSecondaryControllingPassenger());
+            } else {
+                travelControlled((PlayerEntity)this.getFirstPassenger(), null);
+            }
+        } else if(this.getSecondaryControllingPassenger() instanceof PlayerEntity){ // yeah i don't think this can ever happen, but i'll check for it
+            travelControlled(null, (PlayerEntity)this.getSecondaryControllingPassenger());
         } else {
             this.travel(this.getVelocity()); // gravity and stuff
             stopAllAnimations();
@@ -552,8 +581,8 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         }
     }
     
-    private void travelControlled(PlayerEntity rider){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
-        Vec3d controlledMovementInput = new Vec3d(rider.sidewaysSpeed*0.5f, 0.0, rider.forwardSpeed);
+    private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
+        Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
         this.playPlayerAnimations(controlledMovementInput);
         if(this.isLogicalSideForUpdatingMovement()){
             controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
@@ -563,6 +592,20 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             this.setVelocity(Vec3d.ZERO);
             this.tryCheckBlockCollision();
         }  
+    }
+
+    private Vec3d travelSpeedCalc(@Nullable PlayerEntity pOne, @Nullable PlayerEntity pTwo){
+        float sidewaysSpeed = 0.0f;
+        float forwardSpeed = 0.0f;
+        if(pOne != null){
+            forwardSpeed+=pOne.forwardSpeed;
+            sidewaysSpeed+=pOne.sidewaysSpeed;
+        }
+        if(pTwo != null){
+            forwardSpeed+=pTwo.forwardSpeed;
+            sidewaysSpeed+=pTwo.sidewaysSpeed;
+        }
+        return new Vec3d(sidewaysSpeed, 0, forwardSpeed);
     }
 
     @Override
