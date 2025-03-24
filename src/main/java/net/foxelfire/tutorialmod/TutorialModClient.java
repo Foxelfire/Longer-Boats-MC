@@ -50,11 +50,15 @@ public class TutorialModClient implements ClientModInitializer{
     ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, (client, handler, buf, responseSender) -> {
             Vec3d controlledMovementInput = buf.readVec3d();
             int entityID = buf.readInt();
-            LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
-            entity.travel(controlledMovementInput);
-            controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
-            entity.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
-            entity.playPlayerAnimations(controlledMovementInput);
+            if(handler.getWorld() != null){
+                LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
+                if(entity != null){
+                    entity.travel(controlledMovementInput);
+                    controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
+                    entity.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
+                    entity.playPlayerAnimations(controlledMovementInput);
+                }
+            }
         });
     }
 }

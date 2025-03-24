@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.collection.DefaultedList;
 
 public class LongBoatScreenHandler extends ScreenHandler {
@@ -68,13 +67,6 @@ public class LongBoatScreenHandler extends ScreenHandler {
         saveEntityInventory(currentTab, 0);
         entity.setHasScreen(false);
         super.onClosed(player);
-    }
-
-    @Override
-    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        if(!player.getWorld().isClient()){ // was trying random things to fix this weird cursor stack bug, and wrapping this method in a server check somehow worked?! Can someone tell me why this works?
-            super.onSlotClick(slotIndex, button, actionType, player);
-        }
     }
   
     @Override
