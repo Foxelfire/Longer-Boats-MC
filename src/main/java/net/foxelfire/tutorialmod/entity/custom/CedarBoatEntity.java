@@ -101,7 +101,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> HAS_SCREEN = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    //player 2 is useless fn but will do smth. TODO: make a second player able to input boat movement commands (and evaluate the sum of the first player's request and theirs)
     
     public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
         super(entityType, world);
@@ -796,8 +795,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public void readInventoryFromNbt(NbtCompound nbt){
         this.resetInventory();
         /* the below line was previously in an if-else supposed to support pre-generated boats with loot tables
-           in VehicleInventory.readInventoryFromNbt. we don't need to support these (yet) so we can just send it directly to the reader.
-           TODO: get some loot table support for this thing */
+           in VehicleInventory.readInventoryFromNbt. we don't need to support these (yet) so we can just send it directly to the reader. */
         Inventories.readNbt(nbt, this.getInventory());
     }
 
