@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tutorialmod:block/cedar_sapling"
+    "layer0": "tutorialmod:item/long_boat"
   }
 }

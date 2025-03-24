@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "tutorialmod:block/cedar_leaves_distance_5"
-  }
-}

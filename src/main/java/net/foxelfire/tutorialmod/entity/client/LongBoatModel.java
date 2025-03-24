@@ -1,7 +1,7 @@
 package net.foxelfire.tutorialmod.entity.client;
 
-import net.foxelfire.tutorialmod.entity.animation.CedarBoatAnimations;
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
+import net.foxelfire.tutorialmod.entity.animation.LongBoatAnimations;
+import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
@@ -17,7 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 // Exported for Minecraft version 1.17+ for Yarn
 // @author Foxelfire
 @SuppressWarnings("unused")
-public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityModel<T> {
+public class LongBoatModel<T extends LongBoatEntity> extends SinglePartEntityModel<T> {
 	private final ModelPart boat;
 	private final ModelPart front;
 	private final ModelPart base;
@@ -34,7 +34,7 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	private final ModelPart seat_1_chest;
 	private final ModelPart seat_2_chest;
 	private final ModelPart seat_3_chest;
-	public CedarBoatModel(ModelPart root) {
+	public LongBoatModel(ModelPart root) {
 		this.boat = root.getChild("boat");
 		this.front = this.boat.getChild("front");
 		this.base = this.front.getChild("base");
@@ -103,13 +103,13 @@ public class CedarBoatModel<T extends CedarBoatEntity> extends SinglePartEntityM
 	}
 
 	@Override
-	public void setAngles(CedarBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setAngles(LongBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
-		this.updateAnimation(entity.wobblingAnimationState, CedarBoatAnimations.wobble, ageInTicks, 2f);
-		this.updateAnimation(entity.frontRowingAnimationState, CedarBoatAnimations.rowing_front, ageInTicks, 2f);
-		this.updateAnimation(entity.rotatingLeftAnimationState, CedarBoatAnimations.rotate_clockwise, ageInTicks, 1f);
-		this.updateAnimation(entity.rotatingRightAnimationState, CedarBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
+		this.updateAnimation(entity.wobblingAnimationState, LongBoatAnimations.wobble, ageInTicks, 2f);
+		this.updateAnimation(entity.frontRowingAnimationState, LongBoatAnimations.rowing_front, ageInTicks, 2f);
+		this.updateAnimation(entity.rotatingLeftAnimationState, LongBoatAnimations.rotate_clockwise, ageInTicks, 1f);
+		this.updateAnimation(entity.rotatingRightAnimationState, LongBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
 		this.seat_0_chest.visible = entity.getChestPresent(0);
 		this.seat_1_chest.visible = entity.getChestPresent(1);
 		this.seat_2_chest.visible = entity.getChestPresent(2);

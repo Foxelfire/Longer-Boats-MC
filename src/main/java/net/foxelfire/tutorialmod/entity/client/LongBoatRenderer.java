@@ -1,7 +1,7 @@
 package net.foxelfire.tutorialmod.entity.client;
 
 import net.foxelfire.tutorialmod.TutorialMod;
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -11,23 +11,23 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
-public class CedarBoatRenderer extends EntityRenderer<CedarBoatEntity>{
-    private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/entity/cedar_boat.png");
-    private CedarBoatModel<CedarBoatEntity> model;
+public class LongBoatRenderer extends EntityRenderer<LongBoatEntity>{
+    private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/entity/long_boat.png");
+    private LongBoatModel<LongBoatEntity> model;
 
-    public CedarBoatRenderer(Context ctx) {
+    public LongBoatRenderer(Context ctx) {
         super(ctx);
-        this.model = new CedarBoatModel<CedarBoatEntity>(ctx.getPart(ModModelLayers.CEDAR_BOAT));
+        this.model = new LongBoatModel<LongBoatEntity>(ctx.getPart(ModModelLayers.LONG_BOAT));
         this.shadowRadius = 0.8f;
     }
 
     @Override
-    public Identifier getTexture(CedarBoatEntity var1) {
+    public Identifier getTexture(LongBoatEntity var1) {
         return TEXTURE;
     }
     // need to fix something? check out BoatEntityRenderer and maybe that whole type hierarchy
     @Override
-    public void render(CedarBoatEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
+    public void render(LongBoatEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
         matrixStack.push();
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.getLayer(TEXTURE));
         matrixStack.translate(0.0f, 1.5f, 0.0f);

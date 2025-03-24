@@ -1,10 +1,4 @@
 {
-    "block.tutorialmod.cedar_planks":"Cedar Planks",
-    "block.tutorialmod.cedar_leaves":"Cedar Leaves",
-    "block.tutorialmod.cedar_log":"Cedar Log",
-    "block.tutorialmod.cedar_wood":"Cedar Wood",
-    "block.tutorialmod.stripped_cedar_log":"Stripped Cedar Log",
-    "block.tutorialmod.stripped_cedar_wood":"Stripped Cedar Wood",
-    "item.tutorialmod.cedar_boat_item": "Cedar Boat",
-    "entity.tutorialmod.cedar_boat": "Cedar Chest Boat"
+    "item.tutorialmod.long_boat_item": "Long Boat",
+    "entity.tutorialmod.long_boat": "Long Boat"
 }

@@ -11,7 +11,7 @@ import net.minecraft.client.render.entity.animation.Transformation;
  * Exported for Minecraft version 1.19 or later with Yarn mappings
  * @author Foxelfire
  */
-public class CedarBoatAnimations {
+public class LongBoatAnimations {
 	public static final Animation rowing_front = Animation.Builder.create(2.0F).looping()
 		.addBoneAnimation("paddle_right", new Transformation(Transformation.Targets.ROTATE, 
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),

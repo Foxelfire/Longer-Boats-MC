@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.item.ModItems;
-import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
+import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AnimationState;
@@ -57,7 +57,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class CedarBoatEntity extends Entity implements RideableInventory,
+public class LongBoatEntity extends Entity implements RideableInventory,
 VehicleInventory, ExtendedScreenHandlerFactory {
 
     private int lives;
@@ -93,18 +93,17 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public final AnimationState wobblingAnimationState = new AnimationState();
     private static final List<Float> positions = List.of(1.2f, .2f, -.8f, -1.8f); // all four passenger z positions
 
-    private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN); // no array or list data tracking? Mojang whyyy
-    private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> HAS_SCREEN = DataTracker.registerData(CedarBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN); // no array or list data tracking? Mojang whyyy
+    private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> SEAT_3_CHEST = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> HAS_SCREEN = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     
-    public CedarBoatEntity(EntityType<? extends CedarBoatEntity> entityType, World world) {
+    public LongBoatEntity(EntityType<? extends LongBoatEntity> entityType, World world) {
         super(entityType, world);
-        TutorialMod.LOGGER.info("Creating...");
         this.intersectionChecked = true;
         this.lives = 6;
         for (int i = 0; i < 4; i++){
@@ -141,7 +140,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     }
 
     public Item asItem(){
-        return ModItems.CEDAR_BOAT_ITEM;
+        return ModItems.LONG_BOAT_ITEM;
     }
 
     @Override
@@ -461,7 +460,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
 
     @Override
     public void pushAwayFrom(Entity entity) {
-        if (entity instanceof BoatEntity || entity instanceof CedarBoatEntity) {
+        if (entity instanceof BoatEntity || entity instanceof LongBoatEntity) {
             if (entity.getBoundingBox().minY < this.getBoundingBox().maxY) {
                 super.pushAwayFrom(entity);
             }
@@ -734,7 +733,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
         if (this.lootTableId == null || !playerEntity.isSpectator() && !this.dataTracker.get(HAS_SCREEN)) {
             this.setHasScreen(true);
-            return new CedarBoatScreenHandler(syncId, playerInventory, this);
+            return new LongBoatScreenHandler(syncId, playerInventory, this);
         }
         return null;
     }

@@ -16,13 +16,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 @Environment(EnvType.CLIENT)
-public class CedarBoatScreen extends HandledScreen<CedarBoatScreenHandler>{
+public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
     public NewTabWidget previous;
     public NewTabWidget next;
     public DefaultedList<ItemStack> tabInventory;
     private static final Identifier TEXTURE = new Identifier(TutorialMod.MOD_ID, "textures/gui/boat_tab.png");
 
-    public CedarBoatScreen(CedarBoatScreenHandler handler, PlayerInventory inventory, Text title) {
+    public LongBoatScreen(LongBoatScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
     }
 

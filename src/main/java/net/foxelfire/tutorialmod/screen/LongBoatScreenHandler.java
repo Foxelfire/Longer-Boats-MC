@@ -2,7 +2,7 @@ package net.foxelfire.tutorialmod.screen;
 
 import java.util.List;
 
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,9 +14,9 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.collection.DefaultedList;
 
-public class CedarBoatScreenHandler extends ScreenHandler {
+public class LongBoatScreenHandler extends ScreenHandler {
 
-    public final CedarBoatEntity entity;
+    public final LongBoatEntity entity;
     public final PlayerEntity player;
     public final PlayerInventory playerInventory;
     public int currentTab = 0;
@@ -24,20 +24,20 @@ public class CedarBoatScreenHandler extends ScreenHandler {
     private final DefaultedList<ItemStack> trackedStacks = DefaultedList.of();
     private final DefaultedList<ItemStack> previousTrackedStacks = DefaultedList.of();
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
-    public static CedarBoatScreenHandler activeHandler;
+    public static LongBoatScreenHandler activeHandler;
     @SuppressWarnings("unused")
     private ItemStack cursorStack = ItemStack.EMPTY;
     @SuppressWarnings("unused")
     private int revision;
     
 
-    public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
+    public LongBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
         this(syncId, inventory, inventory.player.getVehicle());
     }
         
-    public CedarBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
-        super(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, syncId);
-        this.entity = (CedarBoatEntity)entity;
+    public LongBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
+        super(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, syncId);
+        this.entity = (LongBoatEntity)entity;
         this.player = inventory.player;
         this.playerInventory = inventory;
         saveEntityInventory(currentTab, currentTab);

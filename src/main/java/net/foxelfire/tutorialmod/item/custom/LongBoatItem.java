@@ -1,6 +1,6 @@
 package net.foxelfire.tutorialmod.item.custom;
 
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -18,10 +18,10 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class CedarBoatItem extends Item{
+public class LongBoatItem extends Item{
 
-    private EntityType<? extends CedarBoatEntity> type;
-    public CedarBoatItem(EntityType<? extends CedarBoatEntity> type, Settings settings) {
+    private EntityType<? extends LongBoatEntity> type;
+    public LongBoatItem(EntityType<? extends LongBoatEntity> type, Settings settings) {
         super(settings);
         this.type = type;
     }

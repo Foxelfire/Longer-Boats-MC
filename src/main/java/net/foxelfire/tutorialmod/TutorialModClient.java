@@ -5,18 +5,16 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.foxelfire.tutorialmod.block.ModBlocks;
 import net.foxelfire.tutorialmod.entity.ModEntities;
-import net.foxelfire.tutorialmod.entity.client.CedarBoatModel;
-import net.foxelfire.tutorialmod.entity.client.CedarBoatRenderer;
+import net.foxelfire.tutorialmod.entity.client.LongBoatModel;
+import net.foxelfire.tutorialmod.entity.client.LongBoatRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
-import net.foxelfire.tutorialmod.entity.custom.CedarBoatEntity;
-import net.foxelfire.tutorialmod.screen.CedarBoatScreen;
-import net.foxelfire.tutorialmod.screen.CedarBoatScreenHandler;
+import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.screen.LongBoatScreen;
+import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
@@ -25,11 +23,10 @@ public class TutorialModClient implements ClientModInitializer{
 
     @Override
     public void onInitializeClient() {
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CEDAR_LEAVES, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CEDAR_SAPLING, RenderLayer.getCutout());
-        EntityRendererRegistry.register(ModEntities.CEDAR_BOAT, CedarBoatRenderer::new);
-        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.CEDAR_BOAT, CedarBoatModel::getTexturedModelData);
-        HandledScreens.register(ModScreenHandlers.CEDAR_BOAT_SCREEN_HANDLER, CedarBoatScreen::new);
+        EntityRendererRegistry.register(ModEntities.LONG_BOAT, LongBoatRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LONG_BOAT, LongBoatModel::getTexturedModelData);
+        HandledScreens.register(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, LongBoatScreen::new);
+        
         ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, (client, handler, buf, responseSender) -> {
             client.execute(() -> {
                 byte invSize = buf.readByte();
@@ -39,21 +36,21 @@ public class TutorialModClient implements ClientModInitializer{
                 }
                 int entityID = buf.readInt();
                 boolean inScreen = buf.readBoolean();
-                CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
+                LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
                 if(entity != null){
                     entity.setInventory(invContents);
                 }
                 if(inScreen){
                     int nextTab = buf.readInt();
                     int tabToManage = nextTab == -1 ? 0 : nextTab;
-                    CedarBoatScreenHandler.manageActiveEntityInventory(tabToManage);
+                    LongBoatScreenHandler.manageActiveEntityInventory(tabToManage);
                 }
             });
         });
     ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, (client, handler, buf, responseSender) -> {
             Vec3d controlledMovementInput = buf.readVec3d();
             int entityID = buf.readInt();
-            CedarBoatEntity entity = (CedarBoatEntity)handler.getWorld().getEntityById(entityID);
+            LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
             entity.travel(controlledMovementInput);
             controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
             entity.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
