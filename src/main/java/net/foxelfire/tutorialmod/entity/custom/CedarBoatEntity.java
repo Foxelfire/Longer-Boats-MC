@@ -434,7 +434,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         this.sendS2CInventoryPacket(this.inventory, false, -1);
     }
 
-    private void playPlayerAnimations(Vec3d controlledMovementInput){
+    public void playPlayerAnimations(Vec3d controlledMovementInput){
         if(this.getPlayer1Inputting()){
             this.frontRowingAnimationState.startIfNotRunning(this.age);
         } else if(this.frontRowingAnimationState.isRunning()){
@@ -514,6 +514,11 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         this.rotatingRightAnimationState.stop();
     }
 
+    public void stopServerMovement(){
+        this.setVelocity(Vec3d.ZERO);
+        this.tryCheckBlockCollision();
+    }
+
     @Override
     public void tick(){
         super.tick();
@@ -567,7 +572,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     }
 
     @SuppressWarnings("deprecation")
-    private void travel(Vec3d movementInput){ // reimplemented from LivingEntity's
+    public void travel(Vec3d movementInput){ // reimplemented from LivingEntity's
         if (this.isLogicalSideForUpdatingMovement()){
             double fallingSpeed = 0.04;
             BlockPos blockUnderUs = this.getVelocityAffectingPos();
@@ -592,16 +597,11 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     }
     
     private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
-        Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
-        this.playPlayerAnimations(controlledMovementInput);
-        if(this.getWorld().isClient()){
-            controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
-            this.travel(controlledMovementInput);
-            setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
-        } else {
-            this.setVelocity(Vec3d.ZERO);
-            this.tryCheckBlockCollision();
-        }  
+        if(!this.getWorld().isClient()){
+            Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
+            this.sendS2CMovementPacket(controlledMovementInput);
+            this.stopServerMovement();
+        }
     }
 
     private Vec3d travelSpeedCalc(@Nullable PlayerEntity pOne, @Nullable PlayerEntity pTwo){
@@ -615,7 +615,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             forwardSpeed+=pTwo.forwardSpeed;
             sidewaysSpeed+=pTwo.sidewaysSpeed;
         }
-        return new Vec3d(sidewaysSpeed, 0, forwardSpeed);
+        return new Vec3d(sidewaysSpeed*0.5, 0, forwardSpeed);
     }
 
     @Override
@@ -791,7 +791,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         
     }
 
-    /* The following methods are for inventory-related methods that are not in the interface. */
+    /* The following methods are for inventory-related methods that are not in the interface and packet sending methods. */
 
     public void readInventoryFromNbt(NbtCompound nbt){
         this.resetInventory();
@@ -837,5 +837,14 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         buf.writeInt(prevTab);
         buf.writeInt(tab);
         ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
+    }
+
+    public void sendS2CMovementPacket(Vec3d movementInput){
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeVec3d(movementInput);
+        buf.writeInt(this.getId());
+        for(PlayerEntity player : this.getWorld().getPlayers()){
+            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
+        }
     }
 }
