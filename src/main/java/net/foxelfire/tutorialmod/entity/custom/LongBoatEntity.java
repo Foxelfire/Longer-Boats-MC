@@ -595,10 +595,17 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     }
     
     private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
-        if(!this.getWorld().isClient()){
-            Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
-            this.sendS2CMovementPacket(controlledMovementInput);
+        if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
+            this.sendS2CMovementValuesPacket(riderOne, riderTwo);
             this.stopServerMovement();
+        } else if(this.isLogicalSideForUpdatingMovement()){
+            Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
+            this.travel(controlledMovementInput);
+            controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
+            this.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
+            this.playPlayerAnimations(controlledMovementInput);
+        } else {
+            TutorialMod.LOGGER.info("Null players! First Passenger: " + riderOne + "Second passenger: " + riderTwo);
         }
     }
 
@@ -836,12 +843,11 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
     }
 
-    public void sendS2CMovementPacket(Vec3d movementInput){
+    public void sendS2CMovementValuesPacket(PlayerEntity recipient, PlayerEntity otherPlayer){
         PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeVec3d(movementInput);
-        buf.writeInt(this.getId());
-        for(PlayerEntity player : this.getWorld().getPlayers()){
-            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
-        }
+        buf.writeInt(otherPlayer.getId());
+        buf.writeFloat(otherPlayer.forwardSpeed);
+        buf.writeFloat(otherPlayer.sidewaysSpeed);
+        ServerPlayNetworking.send((ServerPlayerEntity)recipient, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
     }
 }

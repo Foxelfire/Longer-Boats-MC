@@ -1,7 +1,6 @@
 package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -15,9 +14,9 @@ import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.Vec3d;
 
 public class TutorialModClient implements ClientModInitializer{
 
@@ -48,15 +47,16 @@ public class TutorialModClient implements ClientModInitializer{
             });
         });
     ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, (client, handler, buf, responseSender) -> {
-            Vec3d controlledMovementInput = buf.readVec3d();
-            int entityID = buf.readInt();
-            if(handler.getWorld() != null){
-                LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
-                if(entity != null){
-                    entity.travel(controlledMovementInput);
-                    controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
-                    entity.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
-                    entity.playPlayerAnimations(controlledMovementInput);
+            int playerID = buf.readInt();
+            float forwardSpeed = buf.readFloat();
+            float sidewaysSpeed = buf.readFloat();
+            if(handler != null){
+                PlayerEntity otherPlayer = (PlayerEntity)handler.getWorld().getEntityById(playerID);
+                TutorialMod.LOGGER.info("Player's null? " + (otherPlayer == null));
+                if(otherPlayer != null){
+                    TutorialMod.LOGGER.info("Other Player: " + otherPlayer.getName());
+                    otherPlayer.forwardSpeed = forwardSpeed;
+                    otherPlayer.sidewaysSpeed = sidewaysSpeed;
                 }
             }
         });

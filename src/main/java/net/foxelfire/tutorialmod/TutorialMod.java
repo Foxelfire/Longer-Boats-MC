@@ -2,8 +2,6 @@ package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
