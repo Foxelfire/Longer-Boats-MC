@@ -38,23 +38,6 @@ public class LongBoatAnimations {
 		))
 		.build();
 
-	public static final Animation wobble = Animation.Builder.create(2.0F).looping()
-		.addBoneAnimation("boat", new Transformation(Transformation.Targets.ROTATE, 
-			new Keyframe(0.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(0.25F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 12.5F), Transformation.Interpolations.LINEAR),
-			new Keyframe(0.3333F, AnimationHelper.createRotationalVector(2.5F, 0.0F, 15.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(0.5F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(0.75F, AnimationHelper.createRotationalVector(-2.5F, 0.0F, -12.5F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.25F, AnimationHelper.createRotationalVector(-2.5F, 0.0F, 12.5F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.5F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.6667F, AnimationHelper.createRotationalVector(2.5F, 0.0F, -15.0F), Transformation.Interpolations.LINEAR),
-			new Keyframe(1.75F, AnimationHelper.createRotationalVector(0.0F, 0.0F, -12.5F), Transformation.Interpolations.LINEAR),
-			new Keyframe(2.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
-		))
-		.build();
-
 	public static final Animation rotate_counterclockwise = Animation.Builder.create(0.5F).looping()
 		.addBoneAnimation("boat", new Transformation(Transformation.Targets.ROTATE, 
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),

@@ -106,7 +106,6 @@ public class LongBoatModel<T extends LongBoatEntity> extends SinglePartEntityMod
 	public void setAngles(LongBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
-		this.updateAnimation(entity.wobblingAnimationState, LongBoatAnimations.wobble, ageInTicks, 2f);
 		this.updateAnimation(entity.frontRowingAnimationState, LongBoatAnimations.rowing_front, ageInTicks, 2f);
 		this.updateAnimation(entity.rotatingLeftAnimationState, LongBoatAnimations.rotate_clockwise, ageInTicks, 1f);
 		this.updateAnimation(entity.rotatingRightAnimationState, LongBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
