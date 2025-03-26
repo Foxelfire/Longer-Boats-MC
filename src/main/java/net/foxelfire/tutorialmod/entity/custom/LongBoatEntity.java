@@ -90,7 +90,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public final AnimationState backRowingAnimationState = new AnimationState();
     public final AnimationState rotatingLeftAnimationState = new AnimationState();
     public final AnimationState rotatingRightAnimationState = new AnimationState();
-    public final AnimationState wobblingAnimationState = new AnimationState();
     private static final List<Float> positions = List.of(1.2f, .2f, -.8f, -1.8f); // all four passenger z positions
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(LongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -321,12 +320,8 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         return new Vector3f(0.0f, 0.3f, zPosition);
     }
 
-    public boolean getPlayer1Inputting(){
-        return this.dataTracker.get(FRONT_PLAYER_INPUTTING);
-    }
-
-    public boolean getPlayer2Inputting(){
-        return this.dataTracker.get(BACK_PLAYER_INPUTTING);
+    public boolean getPlayersInputting(){
+        return this.dataTracker.get(FRONT_PLAYER_INPUTTING) || this.dataTracker.get(BACK_PLAYER_INPUTTING);
     }
 
     public boolean getShouldWobble(){
@@ -337,9 +332,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     public Entity getSecondaryControllingPassenger(){
         if(this.getNumberOfChests() == 4){
             return this.getPassengerList().get(2);
-        }
-        if(this.getChestPresent(2)){
-            return null;
         }
         int indexIn = 2;
         for(int i = 0; i < 3; i++){
@@ -433,13 +425,14 @@ VehicleInventory, ExtendedScreenHandlerFactory {
     }
 
     public void playPlayerAnimations(Vec3d controlledMovementInput){
-        if(this.getPlayer1Inputting()){
+        // TODO: fix bug where if first player inputs forward, strafe left, or strafe right, animation will not play for second player
+        if(this.getPlayersInputting() && controlledMovementInput.getX() == 0){
             this.frontRowingAnimationState.startIfNotRunning(this.age);
         } else if(this.frontRowingAnimationState.isRunning()){
             frontRowingAnimationState.stop();
         }
         if(controlledMovementInput.getX() < 0){
-            if(!this.getPlayer1Inputting()){
+            if(this.getPlayersInputting()){
                 rotatingRightAnimationState.startIfNotRunning(this.age);
             } else {
                 rotatingRightAnimationState.stop();
@@ -447,7 +440,7 @@ VehicleInventory, ExtendedScreenHandlerFactory {
             this.setYaw(this.getYaw()+1);
             rotatingLeftAnimationState.stop();
         } else if(controlledMovementInput.getX() > 0){
-            if(!this.getPlayer1Inputting()){
+            if(this.getPlayersInputting()){
                 rotatingLeftAnimationState.startIfNotRunning(this.age);
             }
             rotatingRightAnimationState.stop();
@@ -522,9 +515,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         super.tick();
         if (!this.isRemoved()) {
             this.tickMovement();
-            if(this.getWorld().isClient()){
-                wobble();
-            }
         }
         checkBlockCollision();
         acceptOrRejectRiders();
@@ -598,14 +588,13 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
             this.sendS2CMovementValuesPacket(riderOne, riderTwo);
             this.stopServerMovement();
-        } else if(this.isLogicalSideForUpdatingMovement()){
+        } else if(riderTwo != null && riderOne != null){
             Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
-            this.travel(controlledMovementInput);
-            controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
-            this.setPlayer1Inputting(controlledMovementInput.z != 0 ? true : false);
+            if(this.isLogicalSideForUpdatingMovement()){
+                this.travel(controlledMovementInput);
+                controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
+            }
             this.playPlayerAnimations(controlledMovementInput);
-        } else {
-            TutorialMod.LOGGER.info("Null players! First Passenger: " + riderOne + "Second passenger: " + riderTwo);
         }
     }
 
@@ -615,10 +604,12 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         if(pOne != null){
             forwardSpeed+=pOne.forwardSpeed;
             sidewaysSpeed+=pOne.sidewaysSpeed;
+            setPlayer1Inputting(pOne.forwardSpeed != 0 || pOne.sidewaysSpeed != 0);
         }
         if(pTwo != null){
             forwardSpeed+=pTwo.forwardSpeed;
             sidewaysSpeed+=pTwo.sidewaysSpeed;
+            setPlayer2Inputting(pTwo.forwardSpeed != 0 || pTwo.sidewaysSpeed != 0);
         }
         return new Vec3d(sidewaysSpeed*0.5, 0, forwardSpeed);
     }
@@ -631,24 +622,6 @@ VehicleInventory, ExtendedScreenHandlerFactory {
         this.serverYaw = yaw;
         this.serverPitch = pitch;
         this.bodyTrackingIncrements = interpolationSteps;
-    }
-
-    private void wobble(){
-        if(getShouldWobble()){
-            TutorialMod.LOGGER.info("Wobble Timer: " + wobbleTimer + ",  time wobbling: " + wobblingAnimationState.getTimeRunning() + ", isWobbling: " + wobblingAnimationState.isRunning() + ", btw am i the client? " + this.getWorld().isClient());
-            wobblingAnimationState.startIfNotRunning(this.age);
-            wobbleTimer--;
-            if(wobbleTimer <= 0){
-                setShouldWobble(false);
-                return;
-            }
-        } else {
-            if(wobblingAnimationState.isRunning()){
-                TutorialMod.LOGGER.info("Hi there, i'm stopping your animation!");
-                wobblingAnimationState.stop();
-            }
-            wobbleTimer = 20;
-        }
     }
             
     @Override
