@@ -1,7 +1,7 @@
 package net.foxelfire.tutorialmod.entity.client;
 
 import net.foxelfire.tutorialmod.entity.animation.LongBoatAnimations;
-import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.LongRaftEntity;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
@@ -16,7 +16,7 @@ import net.minecraft.client.util.math.MatrixStack;
 // Exported for Minecraft version 1.17+ for Yarn
 // @author Foxelfire
 @SuppressWarnings("unused")
-public class LongRaftModel<T extends LongBoatEntity> extends SinglePartEntityModel<T> {
+public class LongRaftModel<T extends LongRaftEntity> extends SinglePartEntityModel<T> {
 	private final ModelPart boat;
 	private final ModelPart body;
 	private final ModelPart paddles;
@@ -91,7 +91,7 @@ public class LongRaftModel<T extends LongBoatEntity> extends SinglePartEntityMod
 	}
 
 	@Override
-	public void setAngles(LongBoatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setAngles(LongRaftEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
 		this.updateAnimation(entity.frontRowingAnimationState, LongBoatAnimations.rowing_front, ageInTicks, 2f);

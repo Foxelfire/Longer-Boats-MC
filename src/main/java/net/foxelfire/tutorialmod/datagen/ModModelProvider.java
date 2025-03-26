@@ -16,8 +16,15 @@ public class ModModelProvider extends FabricModelProvider{
 
     @Override
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        // generates the json files for literally every item. don't blame me, blame mojang. or the fabric API devs if you're a forge fan
-        itemModelGenerator.register(ModItems.LONG_BOAT_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_ACACIA_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_BIRCH_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_CHERRY_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_DARK_OAK_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_JUNGLE_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_MANGROVE_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_OAK_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_SPRUCE_ITEM, Models.GENERATED);
+        itemModelGenerator.register(ModItems.LONG_BOAT_BAMBOO_ITEM, Models.GENERATED);
     }
 
 

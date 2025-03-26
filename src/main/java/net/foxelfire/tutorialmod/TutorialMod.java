@@ -2,7 +2,7 @@ package net.foxelfire.tutorialmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
@@ -39,7 +39,7 @@ public class TutorialMod implements ModInitializer {
 					invContents.add(buf.readItemStack());
 				}
 				int entityID = buf.readInt();
-				LongBoatEntity entity = (LongBoatEntity)player.getWorld().getEntityById(entityID);
+				AbstractLongBoatEntity entity = (AbstractLongBoatEntity)player.getWorld().getEntityById(entityID);
 				int tabOffset = buf.readInt();
                 for(int i = 0; i < invSize; i++){
 					entity.getInventory().set(i + tabOffset*27, invContents.get(i));

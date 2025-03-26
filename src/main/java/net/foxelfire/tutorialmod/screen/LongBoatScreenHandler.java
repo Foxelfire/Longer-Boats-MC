@@ -2,7 +2,7 @@ package net.foxelfire.tutorialmod.screen;
 
 import java.util.List;
 
-import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.AbstractLongBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -15,7 +15,7 @@ import net.minecraft.util.collection.DefaultedList;
 
 public class LongBoatScreenHandler extends ScreenHandler {
 
-    public final LongBoatEntity entity;
+    public final AbstractLongBoatEntity entity;
     public final PlayerEntity player;
     public final PlayerInventory playerInventory;
     public int currentTab = 0;
@@ -36,7 +36,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
         
     public LongBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, syncId);
-        this.entity = (LongBoatEntity)entity;
+        this.entity = (AbstractLongBoatEntity)entity;
         this.player = inventory.player;
         this.playerInventory = inventory;
         saveEntityInventory(currentTab, currentTab);

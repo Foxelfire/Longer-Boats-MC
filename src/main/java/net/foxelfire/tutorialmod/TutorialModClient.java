@@ -8,7 +8,7 @@ import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.entity.client.LongBoatModel;
 import net.foxelfire.tutorialmod.entity.client.LongBoatRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
-import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.tutorialmod.screen.LongBoatScreen;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.screen.ModScreenHandlers;
@@ -35,7 +35,7 @@ public class TutorialModClient implements ClientModInitializer{
                 }
                 int entityID = buf.readInt();
                 boolean inScreen = buf.readBoolean();
-                LongBoatEntity entity = (LongBoatEntity)handler.getWorld().getEntityById(entityID);
+                AbstractLongBoatEntity entity = (AbstractLongBoatEntity)handler.getWorld().getEntityById(entityID);
                 if(entity != null){
                     entity.setInventory(invContents);
                 }

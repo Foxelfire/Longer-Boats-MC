@@ -3,20 +3,19 @@ package net.foxelfire.tutorialmod.entity.custom;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
 
-public class LongBoatEntity extends AbstractLongBoatEntity{
+public class LongRaftEntity extends AbstractLongBoatEntity{
 
-    private LongBoatVariant variant;
-    public LongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
+    public LongRaftEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Override
     public void setVariant(LongBoatVariant variant) {
-        this.variant = variant;
+
     }
 
     @Override
     public LongBoatVariant getVariant() {
-        return this.variant;
+        return LongBoatVariant.BAMBOO;
     }
 }
