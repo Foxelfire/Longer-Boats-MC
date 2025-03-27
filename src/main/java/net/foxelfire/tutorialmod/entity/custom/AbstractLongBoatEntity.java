@@ -95,7 +95,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> SHOULD_WOBBLE = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN); // no array or list data tracking? Mojang whyyy
     private static final TrackedData<Boolean> SEAT_1_CHEST = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_2_CHEST = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -189,7 +188,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        setShouldWobble(true);
         if(this.isInvulnerableTo(source)){
             return false;
         }
@@ -325,10 +323,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         return this.dataTracker.get(FRONT_PLAYER_INPUTTING) || this.dataTracker.get(BACK_PLAYER_INPUTTING);
     }
 
-    public boolean getShouldWobble(){
-        return this.dataTracker.get(SHOULD_WOBBLE);
-    }
-
     @Nullable
     public Entity getSecondaryControllingPassenger(){
         if(this.getNumberOfChests() == 4){
@@ -357,7 +351,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     protected void initDataTracker() {
         this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
         this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
-        this.dataTracker.startTracking(SHOULD_WOBBLE, false);
         this.dataTracker.startTracking(SEAT_0_CHEST, false);
         this.dataTracker.startTracking(SEAT_1_CHEST, false);
         this.dataTracker.startTracking(SEAT_2_CHEST, false);
@@ -492,11 +485,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
 
     public void setHasScreen(boolean hasScreen){
         this.dataTracker.set(HAS_SCREEN, hasScreen);
-    }
-
-    public void setShouldWobble(boolean shouldWobble){
-        this.dataTracker.set(SHOULD_WOBBLE, shouldWobble);
-        TutorialMod.LOGGER.info("Should Wobble: " + getShouldWobble());
     }
 
     private void stopAllAnimations(){
@@ -770,7 +758,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         
     }
 
-    /* The following methods are for inventory-related methods that are not in the interface and packet sending methods. */
+    /* The following are inventory-related methods that are not in the interface and packet sending methods. */
 
     public void readInventoryFromNbt(NbtCompound nbt){
         this.resetInventory();
