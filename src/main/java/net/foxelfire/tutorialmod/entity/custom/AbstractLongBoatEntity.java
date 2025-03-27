@@ -589,7 +589,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
             this.sendS2CMovementValuesPacket(riderOne, riderTwo);
             this.stopServerMovement();
-        } else if(riderTwo != null && riderOne != null){
+        } else {
             Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
             if(this.isLogicalSideForUpdatingMovement()){
                 this.travel(controlledMovementInput);

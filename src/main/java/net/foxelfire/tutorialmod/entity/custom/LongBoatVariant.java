@@ -16,7 +16,7 @@ public enum LongBoatVariant {
     ACACIA (new Identifier(TutorialMod.MOD_ID, "textures/entity/long_boat_acacia.png"), false, ModItems.LONG_BOAT_ACACIA_ITEM),
     JUNGLE (new Identifier(TutorialMod.MOD_ID, "textures/entity/long_boat_jungle.png"), false, ModItems.LONG_BOAT_JUNGLE_ITEM),
     MANGROVE (new Identifier(TutorialMod.MOD_ID, "textures/entity/long_boat_mangrove.png"), false, ModItems.LONG_BOAT_MANGROVE_ITEM),
-    BAMBOO (new Identifier(TutorialMod.MOD_ID, "textures/entity/long_boat_bamboo.png"), true, ModItems.LONG_BOAT_BAMBOO_ITEM);
+    BAMBOO (new Identifier(TutorialMod.MOD_ID, "textures/entity/long_raft_bamboo.png"), true, ModItems.LONG_BOAT_BAMBOO_ITEM);
     
     private final Identifier TEXTURE;
     private final boolean ISRAFT;

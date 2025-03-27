@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.foxelfire.tutorialmod.entity.ModEntities;
 import net.foxelfire.tutorialmod.entity.client.LongBoatModel;
 import net.foxelfire.tutorialmod.entity.client.LongBoatRenderer;
+import net.foxelfire.tutorialmod.entity.client.LongRaftModel;
+import net.foxelfire.tutorialmod.entity.client.LongRaftRenderer;
 import net.foxelfire.tutorialmod.entity.client.ModModelLayers;
 import net.foxelfire.tutorialmod.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.tutorialmod.screen.LongBoatScreen;
@@ -24,6 +26,8 @@ public class TutorialModClient implements ClientModInitializer{
     public void onInitializeClient() {
         EntityRendererRegistry.register(ModEntities.LONG_BOAT, LongBoatRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LONG_BOAT, LongBoatModel::getTexturedModelData);
+        EntityRendererRegistry.register(ModEntities.LONG_RAFT, LongRaftRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LONG_RAFT, LongRaftModel::getTexturedModelData);
         HandledScreens.register(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, LongBoatScreen::new);
         
         ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, (client, handler, buf, responseSender) -> {
@@ -52,9 +56,7 @@ public class TutorialModClient implements ClientModInitializer{
             float sidewaysSpeed = buf.readFloat();
             if(handler != null){
                 PlayerEntity otherPlayer = (PlayerEntity)handler.getWorld().getEntityById(playerID);
-                TutorialMod.LOGGER.info("Player's null? " + (otherPlayer == null));
                 if(otherPlayer != null){
-                    TutorialMod.LOGGER.info("Other Player: " + otherPlayer.getName());
                     otherPlayer.forwardSpeed = forwardSpeed;
                     otherPlayer.sidewaysSpeed = sidewaysSpeed;
                 }

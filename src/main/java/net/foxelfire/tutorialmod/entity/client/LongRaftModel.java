@@ -67,16 +67,16 @@ public class LongRaftModel<T extends LongRaftEntity> extends SinglePartEntityMod
 
 		ModelPartData chests = boat.addChild("chests", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_1_chest = chests.addChild("seat_1_chest", ModelPartBuilder.create().uv(112, 84).cuboid(-7.0F, -25.0F, -33.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
+		ModelPartData seat_0_chest = chests.addChild("seat_0_chest", ModelPartBuilder.create().uv(112, 84).cuboid(-7.0F, -25.0F, -33.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
 		.uv(162, 84).cuboid(-1.0F, -22.0F, -34.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_2_chest = chests.addChild("seat_2_chest", ModelPartBuilder.create().uv(162, 84).cuboid(-1.0F, -22.0F, -18.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
+		ModelPartData seat_1_chest = chests.addChild("seat_1_chest", ModelPartBuilder.create().uv(162, 84).cuboid(-1.0F, -22.0F, -18.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
 		.uv(112, 84).cuboid(-7.0F, -25.0F, -17.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_3_chest = chests.addChild("seat_3_chest", ModelPartBuilder.create().uv(162, 84).cuboid(-1.0F, -22.0F, -2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
+		ModelPartData seat_2_chest = chests.addChild("seat_2_chest", ModelPartBuilder.create().uv(162, 84).cuboid(-1.0F, -22.0F, -2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F))
 		.uv(112, 84).cuboid(-7.0F, -25.0F, -1.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-		ModelPartData seat_4_chest = chests.addChild("seat_4_chest", ModelPartBuilder.create().uv(112, 84).cuboid(-7.0F, -25.0F, -1.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
+		ModelPartData seat_3_chest = chests.addChild("seat_3_chest", ModelPartBuilder.create().uv(112, 84).cuboid(-7.0F, -25.0F, -1.0F, 14.0F, 14.0F, 14.0F, new Dilation(0.0F))
 		.uv(162, 84).cuboid(-1.0F, -22.0F, -2.0F, 2.0F, 4.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 16.0F));
 		return TexturedModelData.of(modelData, 196, 128);
 	}

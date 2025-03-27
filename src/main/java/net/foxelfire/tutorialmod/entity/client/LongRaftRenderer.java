@@ -1,6 +1,6 @@
 package net.foxelfire.tutorialmod.entity.client;
 
-import net.foxelfire.tutorialmod.entity.custom.LongBoatEntity;
+import net.foxelfire.tutorialmod.entity.custom.LongRaftEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -10,21 +10,22 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
-public class LongBoatRenderer extends EntityRenderer<LongBoatEntity>{
-    private LongBoatModel<LongBoatEntity> model;
-    public LongBoatRenderer(Context ctx) {
+public class LongRaftRenderer extends EntityRenderer<LongRaftEntity>{
+    private LongRaftModel<LongRaftEntity> model;
+
+    public LongRaftRenderer(Context ctx) {
         super(ctx);
-        this.model = new LongBoatModel<LongBoatEntity>(ctx.getPart(ModModelLayers.LONG_BOAT));
+        this.model = new LongRaftModel<LongRaftEntity>(ctx.getPart(ModModelLayers.LONG_RAFT));
         this.shadowRadius = 0.8f;
     }
 
     @Override
-    public Identifier getTexture(LongBoatEntity entity) {
+    public Identifier getTexture(LongRaftEntity entity) {
         return entity.getVariant().getTexture();
     }
-    // need to fix something? check out BoatEntityRenderer and maybe that whole type hierarchy
+
     @Override
-    public void render(LongBoatEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
+    public void render(LongRaftEntity entity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light){
         if(entity.getVariant() != null){
             matrixStack.push();
             VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.getLayer(this.getTexture(entity)));
@@ -37,5 +38,4 @@ public class LongBoatRenderer extends EntityRenderer<LongBoatEntity>{
             super.render(entity, yaw, tickDelta, matrixStack, vertexConsumers, light);
         }
     }
-
 }
