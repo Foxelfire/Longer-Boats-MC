@@ -38,14 +38,12 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
         int y = (height - backgroundHeight)/2 + 16;
         previous = NewTabWidget.builder(Text.literal("Previous Tab"), true, button -> {
             handler.switchTab(handler.currentTab - 1);
-            TutorialMod.LOGGER.info("Previous Tab Button was pressed!");
         })
         .dimensions(x, y, 24, 24)
         .tooltip(Tooltip.of(Text.literal("Previous Tab Button")))
         .build();
         next = NewTabWidget.builder(Text.literal("Next Tab"), false, button -> {
             handler.switchTab(handler.currentTab + 1);
-            TutorialMod.LOGGER.info("Next Tab Button was pressed!");
         })
         .dimensions((int)(x*1.25), y, 24, 24)
         .tooltip(Tooltip.of(Text.literal("Next Tab Button")))
