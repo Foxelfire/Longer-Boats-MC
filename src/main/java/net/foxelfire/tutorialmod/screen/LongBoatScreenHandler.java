@@ -15,7 +15,7 @@ import net.minecraft.util.collection.DefaultedList;
 
 public class LongBoatScreenHandler extends ScreenHandler {
 
-    public final AbstractLongBoatEntity entity;
+    public AbstractLongBoatEntity entity;
     public final PlayerEntity player;
     public final PlayerInventory playerInventory;
     public int currentTab = 0;
@@ -39,9 +39,12 @@ public class LongBoatScreenHandler extends ScreenHandler {
         this.entity = (AbstractLongBoatEntity)entity;
         this.player = inventory.player;
         this.playerInventory = inventory;
-        saveEntityInventory(currentTab, currentTab);
-        inventory.onOpen(inventory.player);
         activeHandler = this;
+        if(player.getWorld().isClient()){
+            manageEntityInventory(currentTab); // so that we don't accidentally copy our old inventory from a previous entity to a new one
+            saveEntityInventory(currentTab, currentTab);
+        }
+        inventory.onOpen(inventory.player);
     }
 
     public void switchTab(int tabIndex){
@@ -53,10 +56,10 @@ public class LongBoatScreenHandler extends ScreenHandler {
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
-            for (int l = 0; l < 9; ++l) { // these magic numbers are precalculated
+            for (int l = 0; l < 9; ++l) { // these magic numbers are precalculated, they're coordinates for slot positions
                 this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 89 + i * 18));
             }
-        } // hotbar
+        } // and the hotbar
         for(int i = 0; i < 9; ++i){ 
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 147));
         }
@@ -71,6 +74,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
   
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
+        // this was copy-pasted from a tutorial, no clue how this works
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
         if (slot != null && slot.hasStack()) {
@@ -97,8 +101,10 @@ public class LongBoatScreenHandler extends ScreenHandler {
     @Override
     public void updateSlotStacks(int revision, List<ItemStack> stacks, ItemStack cursorStack) {
         for (int i = 0; i < stacks.size(); ++i) {
-            if(i >= 63){ // this is just a band-aid solution to get this method to cursor stack assignment, until I can fix the problem of the "stacks"
-                // list passed into this thing increasing by 63 everytime the client packet listener calls this method due to some server-side stuff before packet sending.
+            if(i >= 63){ // this is just a band-aid solution to get this method to cursor stack assignment, the real problem is that the "stacks"
+                // list passed into this thing increases by 63 everytime the client packet listener calls this method due to DefaultedList removing
+                // from its ArrayList delegate (more on that later) not actually removing anything  - didn't want to waste time
+                // reverse-engineering more stuff than I technically need to so I just left this here
                 break;
             }
             this.getSlot(i).setStackNoCallbacks(stacks.get(i));
@@ -108,12 +114,20 @@ public class LongBoatScreenHandler extends ScreenHandler {
     }
 
     protected static void clearStacks(DefaultedList<ItemStack> stacks){
-        /* removing from defaulted lists is usually an unsupported operation, but the specific ones
-        i'm calling this with have an ArrayList delegate, and ArrayLists support remove(int index), so we're fine!
+        /* Fabric API docs say remove() on DefaultedLists is always an unsupported operation, but the specific ones
+        i'm calling this with have an ArrayList delegate thanks to their constructor, and ArrayLists support remove(int index), so we're fine!
         so uhhh don't call this with a DefaultedList that doesn't have an ArrayList delegate, though I'm not sure why you would want to... */
         for (int i = 0; i < stacks.size(); i++){
             stacks.remove(i);
         }
+        /* also this doesn't even remove from the DefaultedList itself - just its delegate. I don't think the two sync their sizes at all? that eventually causes
+        absurdly long length problems in updateSlotStacks' parameters when these lists eventually get passed by Vanilla over networking into there - i just stinkily patched around it with that >= 63 check.
+        The weirdest thing is, when you remove that check, there's not even an index out of bounds exception thrown. nothing in the console gives me any
+        info on what's happening, but the setCursorStack and revision stuff never actually execute. i set breakpoints there to check and everything.
+        my theory is that the loop takes so long to go through it times out whatever timer Minecraft has to make sure client tasks don't take too long and delay other things, so it's skipped over. 
+        
+        Theoretically, this means that if someone were to sit on an open screen and click between tabs hundreds of times without closing the screen, the game could crash from trying to send a packet
+        too large, because it's containing a list that has 36*200 ish items - only the first 36 of which are non-ItemStack.EMPTY. I think. You could probably patch this issue for real with Mixins... */
     }
 
 
