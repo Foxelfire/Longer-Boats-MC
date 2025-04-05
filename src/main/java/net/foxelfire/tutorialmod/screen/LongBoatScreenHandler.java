@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.collection.DefaultedList;
 
 public class LongBoatScreenHandler extends ScreenHandler {
@@ -71,6 +72,14 @@ public class LongBoatScreenHandler extends ScreenHandler {
         entity.setHasScreen(false);
         super.onClosed(player);
     }
+
+    @Override
+    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+        if(slotIndex == EMPTY_SPACE_SLOT_INDEX){
+            player.dropItem(cursorStack, false);
+        }
+        super.onSlotClick(slotIndex, button, actionType, player);
+    }
   
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
@@ -121,12 +130,12 @@ public class LongBoatScreenHandler extends ScreenHandler {
             stacks.remove(i);
         }
         /* also this doesn't even remove from the DefaultedList itself - just its delegate. I don't think the two sync their sizes at all? that eventually causes
-        absurdly long length problems in updateSlotStacks' parameters when these lists eventually get passed by Vanilla over networking into there - i just stinkily patched around it with that >= 63 check.
-        The weirdest thing is, when you remove that check, there's not even an index out of bounds exception thrown. nothing in the console gives me any
+        absurdly long length problems in updateSlotStacks' parameters when those lists eventually get passed from here by Vanilla over networking into there - i just
+        stinkily patched around it with that >= 63 check. The weirdest thing is, when you remove that check, there's not even an index out of bounds exception thrown. nothing in the console gives me any
         info on what's happening, but the setCursorStack and revision stuff never actually execute. i set breakpoints there to check and everything.
         my theory is that the loop takes so long to go through it times out whatever timer Minecraft has to make sure client tasks don't take too long and delay other things, so it's skipped over. 
         
-        Theoretically, this means that if someone were to sit on an open screen and click between tabs hundreds of times without closing the screen, the game could crash from trying to send a packet
+        Theoretically, this means that if someone were to sit on an open screen and click between tabs hundreds of times without closing the screen, the game might crash from trying to send a packet
         too large, because it's containing a list that has 36*200 ish items - only the first 36 of which are non-ItemStack.EMPTY. I think. You could probably patch this issue for real with Mixins... */
     }
 
