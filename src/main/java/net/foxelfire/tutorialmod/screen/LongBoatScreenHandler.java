@@ -2,6 +2,7 @@ package net.foxelfire.tutorialmod.screen;
 
 import java.util.List;
 
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.entity.custom.AbstractLongBoatEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,8 +27,6 @@ public class LongBoatScreenHandler extends ScreenHandler {
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
     public static LongBoatScreenHandler activeHandler;
     @SuppressWarnings("unused")
-    private ItemStack cursorStack = ItemStack.EMPTY;
-    @SuppressWarnings("unused")
     private int revision;
     
 
@@ -41,8 +40,8 @@ public class LongBoatScreenHandler extends ScreenHandler {
         this.player = inventory.player;
         this.playerInventory = inventory;
         activeHandler = this;
+        manageEntityInventory(currentTab); // so that we don't accidentally copy our old inventory from a previous entity to a new one
         if(player.getWorld().isClient()){
-            manageEntityInventory(currentTab); // so that we don't accidentally copy our old inventory from a previous entity to a new one
             saveEntityInventory(currentTab, currentTab);
         }
         inventory.onOpen(inventory.player);
@@ -75,10 +74,17 @@ public class LongBoatScreenHandler extends ScreenHandler {
 
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        if(slotIndex == EMPTY_SPACE_SLOT_INDEX){
-            player.dropItem(cursorStack, false);
+        if(!player.getWorld().isClient()){
+            super.onSlotClick(slotIndex, button, actionType, player);
         }
-        super.onSlotClick(slotIndex, button, actionType, player);
+    }
+
+    @Override
+    public boolean isValid(int slotIndex){
+        if(!(slotIndex == -1 || slotIndex == -999 || slotIndex < this.slots.size())){
+            TutorialMod.LOGGER.info("Invalid slotIndex " + slotIndex + " Size: " + this.slots.size());
+        }
+        return slotIndex == -1 || slotIndex == -999 || slotIndex < this.slots.size();
     }
   
     @Override
@@ -142,7 +148,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return INVENTORY.canPlayerUse(player);
+        return true;
     }
 
     protected void saveEntityInventory(int prevTab, int tab){
