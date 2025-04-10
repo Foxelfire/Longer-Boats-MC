@@ -30,7 +30,7 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
     protected void init(){
         super.init();
         titleX = 4;
-        titleY = -12;
+        titleY = -10;
         playerInventoryTitleX-=4;
         playerInventoryTitleY+=6;
         backgroundHeight+=32;

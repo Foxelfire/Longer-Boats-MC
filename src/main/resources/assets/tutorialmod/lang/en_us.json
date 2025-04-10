@@ -1,4 +1,6 @@
 {
     "item.tutorialmod.long_boat_item": "Long Boat",
-    "entity.tutorialmod.long_boat": "Long Boat"
+    "entity.tutorialmod.long_boat": "Long Boat",
+    "item.tutorialmod.long_raft_item": "Long Raft",
+    "entity.tutorialmod.long_raft": "Long Raft"
 }

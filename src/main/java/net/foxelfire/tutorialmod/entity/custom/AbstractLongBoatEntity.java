@@ -71,7 +71,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    private Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
+    protected Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
     /* ooh, the inventory size is a doozy. So we don't actually know the inventory size until we read our inventory
      * from NBT, because our size can change based on our amounts of chests, data which is stored through NBT. That task of reading NBT is done server-side,
      * and the server's files always run before the client's. this.size() doesn't actually work until all our chest-related tracked data is already tracked, defined, and set,
