@@ -16,7 +16,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.tutorialmod.TutorialMod;
-import net.foxelfire.tutorialmod.item.ModItems;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
@@ -139,7 +138,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     public Item asItem(){
-        return ModItems.LONG_BOAT_OAK_ITEM;
+        return this.getVariant().getItem();
     }
 
     @Override
@@ -203,7 +202,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
             this.discard();
         }
         if(lives <= 1){
-            dropItems(source);
             this.kill();
         }
         this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
@@ -213,10 +211,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         }
         lives--;
         return true;
-    }
-
-    protected void dropItems(DamageSource source) {
-        this.dropItem(this.asItem());
     }
 
     @Nullable
@@ -375,16 +369,12 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         BlockHitResult interactionLocation = (BlockHitResult)player.raycast(3, 1, true);
         if(player.getStackInHand(hand).getItem().equals(Items.CHEST)){
             if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -1.2), .67) && !this.getChestPresent(3)){
-                TutorialMod.LOGGER.info("Slot 3");
                 chestSeatAt(3, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), 1.2), .67) && !this.getChestPresent(0)){
-                TutorialMod.LOGGER.info("Slot 0");
                 chestSeatAt(0, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), .6), .67) && !this.getChestPresent(1)){
-                TutorialMod.LOGGER.info("Slot 1");
                 chestSeatAt(1, player, hand);
             } else if(interactionLocation.getPos().isInRange(this.getPos().offset(Direction.fromRotation(this.getYaw()), -.6), .67) && !this.getChestPresent(2)){
-                TutorialMod.LOGGER.info("Slot 2");
                 chestSeatAt(2, player, hand);
             }
         } else if (!this.getWorld().isClient()) {
@@ -409,7 +399,11 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         if(chests > 0 && chests < 5){
             dropStack(new ItemStack(Items.CHEST, chests));
         }
-       super.kill();
+        for (ItemStack stack : this.getInventory()) {
+            dropStack(stack);
+        }
+        dropStack(new ItemStack(this.asItem(), 1));
+        super.kill();
     }
 
     private void limitYawValue(){
