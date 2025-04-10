@@ -107,8 +107,11 @@ public class LongBoatModel<T extends LongBoatEntity> extends SinglePartEntityMod
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		boat.yaw = netHeadYaw;
 		this.updateAnimation(entity.frontRowingAnimationState, LongBoatAnimations.rowing_front, ageInTicks, 2f);
+		this.updateAnimation(entity.backRowingAnimationState, LongBoatAnimations.rowing_back, ageInTicks, 2f);
 		this.updateAnimation(entity.rotatingLeftAnimationState, LongBoatAnimations.rotate_clockwise, ageInTicks, 1f);
 		this.updateAnimation(entity.rotatingRightAnimationState, LongBoatAnimations.rotate_counterclockwise, ageInTicks, 1f);
+		this.updateAnimation(entity.rotatingBackLeftAnimationState, LongBoatAnimations.rotate_back_clockwise, ageInTicks, 1f);
+		this.updateAnimation(entity.rotatingBackRightAnimationState, LongBoatAnimations.rotate_back_counterclockwise, ageInTicks, 1f);
 		this.seat_0_chest.visible = entity.getChestPresent(0);
 		this.seat_1_chest.visible = entity.getChestPresent(1);
 		this.seat_2_chest.visible = entity.getChestPresent(2);

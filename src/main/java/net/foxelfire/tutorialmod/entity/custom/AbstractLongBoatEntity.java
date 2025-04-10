@@ -79,9 +79,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
      * This checks if our tracked data is already set, which will be true on the client since the server has already loaded this file, but false on the server itself. So basically, the server
      * gets this fake size of 27 while this entity's tracked data is being waited on, to keep it up and running until we can calculate the real size when the server calls
      * readCustomDataFromNBT(), sets the proper tracked data values for itself, calls resetInventory() referencing our newly changed this.size() return value, and fixes everything.
-     * And the client just gets this.size() directly, since the server has already properly fixed that method's logic for us, so it can be ran safely without checking for
-     * tracked data values that don't exist yet. This check is dependent on if the tracked data is already loaded rather than if this is the client, in case the two run their files in
-     * the opposite order for whatever reason, and also just to be more resilient against vanilla minecraft changes/quirks/edge cases.
+     * The client can't actually read those tracked data values that fast, so we send a packet to let it know the new inventory size.
      */
     protected int inventorySize = this.dataTracker.containsKey(SEAT_0_CHEST) ? this.size() : 27;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
@@ -91,6 +89,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     public final AnimationState backRowingAnimationState = new AnimationState();
     public final AnimationState rotatingLeftAnimationState = new AnimationState();
     public final AnimationState rotatingRightAnimationState = new AnimationState();
+    public final AnimationState rotatingBackLeftAnimationState = new AnimationState();
+    public final AnimationState rotatingBackRightAnimationState = new AnimationState();
     private static final List<Float> positions = List.of(1.2f, .2f, -.8f, -1.8f); // all four passenger z positions
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -170,11 +170,16 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
             }
             this.inventory = newInventory;
             inventoryDirty = false;
+            // tell any other players that might be on the server that our inventory has changed
+            if(!this.getWorld().isClient()){
+                this.sendS2CInventoryPacket(newInventory, false, -1);
+            }
         }
     }
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
         setChestPresent(seatIndex, true);
+        TutorialMod.LOGGER.info("Are we on the client? " + this.getWorld().isClient());
         if(player != null && hand != null){
             player.getStackInHand(hand).decrement(1);
         }
@@ -319,8 +324,12 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         return new Vector3f(0.0f, 0.3f, zPosition);
     }
 
-    public boolean getPlayersInputting(){
-        return this.dataTracker.get(FRONT_PLAYER_INPUTTING) || this.dataTracker.get(BACK_PLAYER_INPUTTING);
+    public boolean getPlayer1Inputting(){
+        return this.dataTracker.get(FRONT_PLAYER_INPUTTING);
+    }
+
+    public boolean getPlayer2Inputting(){
+        return this.dataTracker.get(BACK_PLAYER_INPUTTING);
     }
 
     @Nullable
@@ -419,29 +428,41 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     public void playPlayerAnimations(Vec3d controlledMovementInput){
-        // TODO: fix bug where if first player inputs forward, strafe left, or strafe right, animation will not play for second player
-        if(this.getPlayersInputting() && controlledMovementInput.getX() == 0){
+        if(this.getPlayer1Inputting() && controlledMovementInput.getX() == 0){
             this.frontRowingAnimationState.startIfNotRunning(this.age);
         } else if(this.frontRowingAnimationState.isRunning()){
             frontRowingAnimationState.stop();
         }
+        if(this.getPlayer2Inputting() && controlledMovementInput.getX() == 0){
+            this.backRowingAnimationState.startIfNotRunning(this.age);
+        } else if(this.backRowingAnimationState.isRunning()){
+            backRowingAnimationState.stop();
+        }
         if(controlledMovementInput.getX() < 0){
-            if(this.getPlayersInputting()){
+            if(this.getPlayer1Inputting()){
                 rotatingRightAnimationState.startIfNotRunning(this.age);
+            } else if(this.getPlayer2Inputting()){
+                rotatingBackRightAnimationState.startIfNotRunning(this.age);
             } else {
                 rotatingRightAnimationState.stop();
             }
             this.setYaw(this.getYaw()+1);
             rotatingLeftAnimationState.stop();
         } else if(controlledMovementInput.getX() > 0){
-            if(this.getPlayersInputting()){
+            if(this.getPlayer1Inputting()){
                 rotatingLeftAnimationState.startIfNotRunning(this.age);
+            } else if(this.getPlayer2Inputting()){
+                rotatingBackLeftAnimationState.startIfNotRunning(this.age);
+            } else {
+                rotatingLeftAnimationState.stop();
             }
             rotatingRightAnimationState.stop();
             this.setYaw(this.getYaw()-1);
         } else {
             rotatingLeftAnimationState.stop();
             rotatingRightAnimationState.stop();
+            rotatingBackLeftAnimationState.stop();
+            rotatingBackRightAnimationState.stop();
         }
     }
 
@@ -492,6 +513,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         setPlayer2Inputting(false);
         this.rotatingLeftAnimationState.stop();
         this.rotatingRightAnimationState.stop();
+        this.rotatingBackLeftAnimationState.stop();
+        this.rotatingBackRightAnimationState.stop();
     }
 
     public void stopServerMovement(){
@@ -575,7 +598,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     
     private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
         if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
-            this.sendS2CMovementValuesPacket(riderOne, riderTwo);
+            this.sendS2CMovementValuesPacket(riderOne, riderTwo); // TODO: change packet to send to all players / test with three players?
+            this.sendS2CMovementValuesPacket(riderTwo, riderOne);
             this.stopServerMovement();
         } else {
             Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
