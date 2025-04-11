@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 public class ModScreenHandlers {
 
     public static ScreenHandlerType<LongBoatScreenHandler> LONG_BOAT_SCREEN_HANDLER =
-    Registry.register(Registries.SCREEN_HANDLER, new Identifier(TutorialMod.MOD_ID, "cedar_boat_screen"),
+    Registry.register(Registries.SCREEN_HANDLER, new Identifier(TutorialMod.MOD_ID, "long_boat_screen"),
     new ExtendedScreenHandlerType<LongBoatScreenHandler>(LongBoatScreenHandler::new));
 
     public static void registerScreenHandlers(){

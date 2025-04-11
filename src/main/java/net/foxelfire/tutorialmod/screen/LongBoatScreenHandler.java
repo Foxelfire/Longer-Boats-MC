@@ -204,9 +204,9 @@ public class LongBoatScreenHandler extends ScreenHandler {
         clearStacks(activeHandler.previousTrackedStacks);
         activeHandler.addPlayerInventory(activeHandler.playerInventory);
         for(int i = 0; i < 27; i++){
-            int heightMultiplier = (int)(i/9);
-            int xMultiplier = i % 9;
-            Slot slot = new Slot(INVENTORY, i, 8 + xMultiplier * 18, 23 + heightMultiplier*18);
+            int heightMultiplier = (int)(i/9); // more slot coordinate calculation magic
+            int placeMultiplier = i % 9;
+            Slot slot = new Slot(INVENTORY, i, 8 + placeMultiplier*18, 23 + heightMultiplier*18);
             activeHandler.addSlot(slot);
         }
         activeHandler.addDisplayArea();
