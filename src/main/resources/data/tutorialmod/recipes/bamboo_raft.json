@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "*": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "B": {
+      "item": "minecraft:bamboo_raft"
+    }
+  },
+  "pattern": [
+    "*B*",
+    "***"
+  ],
+  "result": {
+    "item": "tutorialmod:long_raft_bamboo"
+  },
+  "show_notification": true
+}
