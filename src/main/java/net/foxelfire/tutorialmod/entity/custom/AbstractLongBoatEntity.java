@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
@@ -103,7 +102,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     public AbstractLongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
         this.intersectionChecked = true;
-        this.lives = 6;
+        this.lives = 20;
         for (int i = 0; i < 4; i++){
             seatIndexesToPositions.put(i, positions.get(i));
         }
@@ -178,7 +177,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
         setChestPresent(seatIndex, true);
-        TutorialMod.LOGGER.info("Are we on the client? " + this.getWorld().isClient());
         if(player != null && hand != null){
             player.getStackInHand(hand).decrement(1);
         }
@@ -201,15 +199,15 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         if (source.getAttacker() instanceof PlayerEntity && ((PlayerEntity)source.getAttacker()).getAbilities().creativeMode) {
             this.discard();
         }
+        this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
+        if(source.getAttacker() != null){
+            Vector3f attackVector = source.getAttacker().getMovementDirection().getUnitVector().mul(.2f);
+            this.addVelocity(attackVector.x, attackVector.y, attackVector.z);
+        }
+        lives-=amount;
         if(lives <= 1){
             this.kill();
         }
-        this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
-        if(source.getAttacker() != null){
-            Vector3f attackVector = source.getAttacker().getMovementDirection().getUnitVector().mul(.6f);
-            this.addVelocity(attackVector.x, attackVector.y, attackVector.z);
-        }
-        lives--;
         return true;
     }
 
@@ -230,7 +228,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
             case 3:
                 return this.dataTracker.get(SEAT_3_CHEST);
             default:
-                TutorialMod.LOGGER.error("Tried to check a nonexistent long boat seat index!");
                 return false;
         }
     }
