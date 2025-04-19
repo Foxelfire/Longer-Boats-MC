@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
@@ -45,6 +46,8 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -82,7 +85,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     protected int inventorySize = this.dataTracker.containsKey(SEAT_0_CHEST) ? this.size() : 27;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
-    protected int wobbleTimer = 20;
+    protected int soundTimer = 0;
     public final AnimationState frontRowingAnimationState = new AnimationState();
     public final AnimationState backRowingAnimationState = new AnimationState();
     public final AnimationState rotatingLeftAnimationState = new AnimationState();
@@ -304,6 +307,17 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         return num;
     }
 
+    public int getNumberOfControllers(){
+        int players = 0;
+        if(this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity){
+            players++;
+        }
+        if(this.getSecondaryControllingPassenger() != null && this.getSecondaryControllingPassenger() instanceof PlayerEntity){
+            players++;
+        }
+        return players;
+    }
+
     @Override
     protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         float zPosition = 0.0f;
@@ -521,6 +535,14 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         }
         checkBlockCollision();
         acceptOrRejectRiders();
+        if(frontRowingAnimationState.isRunning() || backRowingAnimationState.isRunning() && !this.getWorld().isClient()){
+            if(this.soundTimer == 20 && !this.getWorld().isClient()){
+                this.getWorld().playSound(null, this.getBlockPos(), this.isInFluid() ? SoundEvents.ENTITY_BOAT_PADDLE_WATER : SoundEvents.ENTITY_BOAT_PADDLE_LAND,
+                SoundCategory.NEUTRAL, 1f, 1f);
+                this.soundTimer = 0;
+            }
+            this.soundTimer++;
+        }
     }
 
     public void tickMovement(){ // reimplemented from LivingEntity's
@@ -587,19 +609,19 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         }
     }
     
-    private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){ // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
+    private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){
+        Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
         if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
-            this.sendS2CMovementValuesPacket(riderOne, riderTwo); // TODO: change packet to send to all players / test with three players?
-            this.sendS2CMovementValuesPacket(riderTwo, riderOne);
+            this.sendS2CMovementValuesPacket(riderTwo);
+            this.sendS2CMovementValuesPacket(riderOne);
             this.stopServerMovement();
-        } else {
-            Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
+        } else {  // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
             if(this.isLogicalSideForUpdatingMovement()){
                 this.travel(controlledMovementInput);
                 controlledMovementInput.subtract(controlledMovementInput.getX(), 0, 0); // zeros out sideways movement so we don't drift while rotating
             }
-            this.playPlayerAnimations(controlledMovementInput);
         }
+        this.playPlayerAnimations(controlledMovementInput);
     }
 
     private Vec3d travelSpeedCalc(@Nullable PlayerEntity pOne, @Nullable PlayerEntity pTwo){
@@ -820,11 +842,13 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
     }
 
-    public void sendS2CMovementValuesPacket(PlayerEntity recipient, PlayerEntity otherPlayer){
+    public void sendS2CMovementValuesPacket(PlayerEntity otherPlayer){
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(otherPlayer.getId());
         buf.writeFloat(otherPlayer.forwardSpeed);
         buf.writeFloat(otherPlayer.sidewaysSpeed);
-        ServerPlayNetworking.send((ServerPlayerEntity)recipient, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
+        for (PlayerEntity player : this.getWorld().getPlayers()) {
+            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
+        }
     }
 }
