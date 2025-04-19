@@ -29,23 +29,23 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
     @Override
     protected void init(){
         super.init();
+        TutorialMod.LOGGER.info("Hey!");
         titleX = 4;
         titleY = -10;
-        playerInventoryTitleX-=4;
-        playerInventoryTitleY+=6;
-        backgroundHeight+=32;
-        int x = (width - backgroundWidth) / 2 + 55;
-        int y = (height - backgroundHeight)/2 + 16;
+        playerInventoryTitleX = 4;
+        playerInventoryTitleY = 78;
+        int x = (width - backgroundWidth) / 2 + (int)(backgroundWidth/2.2);
+        int y = (height - backgroundHeight)/2;
         previous = NewTabWidget.builder(Text.literal("Previous Tab"), true, button -> {
             handler.switchTab(handler.currentTab - 1);
         })
-        .dimensions(x, y, 24, 24)
+        .dimensions(x - (int)(backgroundWidth / 8), y, 24, 24)
         .tooltip(Tooltip.of(Text.literal("Previous Tab Button")))
         .build();
         next = NewTabWidget.builder(Text.literal("Next Tab"), false, button -> {
             handler.switchTab(handler.currentTab + 1);
         })
-        .dimensions((int)(x*1.25), y, 24, 24)
+        .dimensions(x + (int)(backgroundWidth / 8), y, 24, 24)
         .tooltip(Tooltip.of(Text.literal("Next Tab Button")))
         .build();
         addDrawableChild(previous);
@@ -58,14 +58,16 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
         RenderSystem.setShaderTexture(0, TEXTURE); // breaking news: menus are shaders
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight)/2;
-        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight); // u and v (the 2 zeroes) are offsets
+        context.drawTexture(TEXTURE, x, y-16, 0, 0, backgroundWidth, backgroundHeight+32); // u and v (the 2 zeroes) are offsets
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta){
         renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
-        context.drawText(textRenderer, (handler.currentTab+1) + " / " + handler.entity.getNumberOfChests(), (int)(((width - backgroundWidth) / 2 + 50)*1.125), (height - backgroundHeight)/2 + 22, 0x303030, false);
+        int magicXOffset = (width - backgroundWidth) / 2 + (int)(backgroundWidth/2.4);
+        int magicYOffset = (int)((height - backgroundHeight-32)/2 + backgroundHeight/7.75);
+        context.drawText(textRenderer, (handler.currentTab+1) + " / " + handler.entity.getNumberOfChests(), magicXOffset, magicYOffset, 0x303030, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 }
