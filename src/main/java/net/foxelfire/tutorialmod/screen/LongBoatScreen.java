@@ -29,7 +29,6 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
     @Override
     protected void init(){
         super.init();
-        TutorialMod.LOGGER.info("Hey!");
         titleX = 4;
         titleY = -10;
         playerInventoryTitleX = 4;
