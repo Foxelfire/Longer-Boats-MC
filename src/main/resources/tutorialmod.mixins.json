@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "net.foxelfire.tutorialmod.mixin",
+	"package": "net.foxelfire.longer_boats.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"ExampleMixin"

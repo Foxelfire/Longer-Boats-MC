@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tutorialmod:item/long_boat_spruce"
+    "layer0": "longer_boats:item/long_boat_spruce"
   }
 }

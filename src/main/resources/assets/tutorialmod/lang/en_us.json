@@ -1,13 +1,13 @@
 {
-    "entity.tutorialmod.long_boat": "Long Boat",
-    "item.tutorialmod.long_raft_bamboo": "Long Bamboo Raft",
-    "entity.tutorialmod.long_raft": "Long Raft",
-    "item.tutorialmod.long_boat_oak": "Long Oak Boat",
-    "item.tutorialmod.long_boat_spruce": "Long Spruce Boat",
-    "item.tutorialmod.long_boat_birch": "Long Birch Boat",
-    "item.tutorialmod.long_boat_jungle": "Long Jungle Boat",
-    "item.tutorialmod.long_boat_acacia": "Long Acacia Boat",
-    "item.tutorialmod.long_boat_dark_oak": "Long Dark Oak Boat",
-    "item.tutorialmod.long_boat_cherry": "Long Cherry Boat",
-    "item.tutorialmod.long_boat_mangrove": "Long Mangrove Boat"
+    "entity.longer_boats.long_boat": "Long Boat",
+    "item.longer_boats.long_raft_bamboo": "Long Bamboo Raft",
+    "entity.longer_boats.long_raft": "Long Raft",
+    "item.longer_boats.long_boat_oak": "Long Oak Boat",
+    "item.longer_boats.long_boat_spruce": "Long Spruce Boat",
+    "item.longer_boats.long_boat_birch": "Long Birch Boat",
+    "item.longer_boats.long_boat_jungle": "Long Jungle Boat",
+    "item.longer_boats.long_boat_acacia": "Long Acacia Boat",
+    "item.longer_boats.long_boat_dark_oak": "Long Dark Oak Boat",
+    "item.longer_boats.long_boat_cherry": "Long Cherry Boat",
+    "item.longer_boats.long_boat_mangrove": "Long Mangrove Boat"
 }
