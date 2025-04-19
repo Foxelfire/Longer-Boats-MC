@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.foxelfire.tutorialmod.TutorialMod;
 import net.foxelfire.tutorialmod.screen.LongBoatScreenHandler;
 import net.foxelfire.tutorialmod.util.ModNetworkingConstants;
 import net.minecraft.block.Blocks;
