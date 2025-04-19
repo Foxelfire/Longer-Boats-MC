@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "longer_boats",
 	"version": "0.0.01-1.20.2",
-	"name": "Tutorial Mod",
-	"description": "This is Foxel's first fabric mod, and their first real Java project outside of CodeHS. They're following a YT tutorial by Kaupenjoe which is why it's called longer_boats.",
+	"name": "Longer boats!",
+	"description": "This is Foxel's first fabric mod, and their first real Java project outside of CodeHS.",
 	"authors": [
 		"Foxelfire",
 		"Kaupenjoe"
@@ -17,18 +17,15 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.foxelfire.longer_boats.longer_boats"
+			"net.foxelfire.longer_boats.LongerBoatsMod"
 		],
 		"client": [
-			"net.foxelfire.longer_boats.longer_boatsClient"
+			"net.foxelfire.longer_boats.LongerBoatsModClient"
 		],
 		"fabric-datagen": [
-			"net.foxelfire.longer_boats.longer_boatsDataGenerator"
+			"net.foxelfire.longer_boats.LongerBoatsModDataGenerator"
 		]
 	},
-	"mixins": [
-		"longer_boats.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.15.11",
 		"minecraft": "~1.20.2",
