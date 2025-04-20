@@ -338,7 +338,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
 
     @Nullable
     public Entity getSecondaryControllingPassenger(){
-        if(this.getNumberOfChests() == 4){
+        if(this.getNumberOfChests() == 0){
             return this.getPassengerList().get(2);
         }
         int indexIn = 2;
@@ -347,7 +347,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
                 indexIn--;
             }
         }
-        return this.getPassengerList().size() > indexIn ? this.getPassengerList().get(indexIn) : null;
+        return this.getPassengerList().size() > indexIn && indexIn > 0 ? this.getPassengerList().get(indexIn) : null;
     }
 
     @Override
