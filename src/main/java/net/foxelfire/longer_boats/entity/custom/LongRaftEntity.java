@@ -1,5 +1,7 @@
 package net.foxelfire.longer_boats.entity.custom;
 
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.Entity;
@@ -24,13 +26,24 @@ public class LongRaftEntity extends AbstractLongBoatEntity{
     }
 
     @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
+    protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         float zPosition = 0.0f;
         if(!this.getFirstAvailableSeat(passenger).isEmpty()){
             zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
         } else if(zPosition == 0.0f){
             passenger.stopRiding();
         }
-        return new Vector3f(0.0f, 0.7f, zPosition);
+        return new Vec3d(0.0f, 0.7f, zPosition);
+    }
+
+    @Override
+    // We're always on the server here.
+    protected void readCustomDataFromNbt(NbtCompound nbt) {
+
+    }
+
+    @Override
+    protected void writeCustomDataToNbt(NbtCompound nbt) {
+
     }
 }

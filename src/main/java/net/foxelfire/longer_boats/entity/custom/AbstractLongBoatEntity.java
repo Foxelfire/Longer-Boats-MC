@@ -8,11 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
+import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
+import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
+import net.minecraft.loot.LootTable;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
@@ -58,7 +63,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 public abstract class AbstractLongBoatEntity extends Entity implements RideableInventory,
-VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
+VehicleInventory, ExtendedScreenHandlerFactory<LongBoatScreenHandler>, VariantHolder<LongBoatVariant> {
 
     private int lives;
     @Nullable
@@ -71,16 +76,24 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     protected double serverYaw;
     protected double serverPitch;
     protected Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
-    /* ooh, the inventory size is a doozy. So we don't actually know the inventory size until we read our inventory
-     * from NBT, because our size can change based on our amounts of chests, data which is stored through NBT. That task of reading NBT is done server-side,
-     * and the server's files always run before the client's. this.size() doesn't actually work until all our chest-related tracked data is already tracked, defined, and set,
-     * because its logic dependent on how many chests in total we have, which when the server is initially loading this file, will not have been tracked and initialized(?) yet.
-     * This checks if our tracked data is already set, which will be true on the client since the server has already loaded this file, but false on the server itself. So basically, the server
-     * gets this fake size of 27 while this entity's tracked data is being waited on, to keep it up and running until we can calculate the real size when the server calls
-     * readCustomDataFromNBT(), sets the proper tracked data values for itself, calls resetInventory() referencing our newly changed this.size() return value, and fixes everything.
-     * The client can't actually read those tracked data values that fast, so we send a packet to let it know the new inventory size.
-     */
-    protected int inventorySize = this.dataTracker.containsKey(SEAT_0_CHEST) ? this.size() : 27;
+    /* We don't know the inventory size until we read our inventory from NBT,
+     * because our size can change based on our amounts of chests, which is data that needs to be stored through NBT.
+     * Therefore, this.size() won't work until all our chest-related tracked data is already tracked, defined, and set,
+     * which when the server is initially loading this file, will not have been tracked and initialized(?) yet.
+     *
+     * Until I figure out how to make Minecraft not require a defined inventory size until we can track data,
+     * this try-catch is necessary to get the server to the next step of loading when the data tracker isn't working yet on initial load.
+       We have to give it a fake inventory size of 27 so it continues for now (read: forever).*/
+    protected int inventorySize;
+    {
+        try {
+            if(dataTracker.get(SEAT_0_CHEST)){
+                inventorySize = this.size();
+            }
+        } catch (Exception e) {
+            inventorySize = 27;
+        }
+    }
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
     protected boolean inventoryDirty = false; 
     protected int soundTimer = 0;
@@ -171,7 +184,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
             inventoryDirty = false;
             // tell any other players that might be on the server that our inventory has changed
             if(!this.getWorld().isClient()){
-                this.sendS2CInventoryPacket(newInventory, false, -1);
+                this.sendInventoryToClient(newInventory, false, -1);
             }
         }
     }
@@ -240,7 +253,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
                 nonChestedSeats.add(i);
             }
         }
-        if(this.getPassengerList().indexOf(passenger) != -1){
+        if(this.getPassengerList().contains(passenger)){
             return Optional.of(nonChestedSeats.get(this.getPassengerList().indexOf(passenger)));
         }
         return Optional.empty();
@@ -317,14 +330,14 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
+    protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         float zPosition = 0.0f;
-        if(!this.getFirstAvailableSeat(passenger).isEmpty()){
+        if(this.getFirstAvailableSeat(passenger).isPresent()){
             zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
-        } else if(zPosition == 0.0f){
+        } else {
             passenger.stopRiding();
         }
-        return new Vector3f(0.0f, 0.3f, zPosition);
+        return new Vec3d(0.0f, 0.3f, zPosition);
     }
 
     public boolean getPlayer1Inputting(){
@@ -350,8 +363,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     @Override
-    protected Entity.MoveEffect getMoveEffect() {
-        return Entity.MoveEffect.EVENTS;
+    protected MoveEffect getMoveEffect() {
+        return MoveEffect.EVENTS;
     }
 
     @Override
@@ -360,14 +373,14 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     @Override
-    protected void initDataTracker() {
-        this.dataTracker.startTracking(FRONT_PLAYER_INPUTTING, false);
-        this.dataTracker.startTracking(BACK_PLAYER_INPUTTING, false);
-        this.dataTracker.startTracking(SEAT_0_CHEST, false);
-        this.dataTracker.startTracking(SEAT_1_CHEST, false);
-        this.dataTracker.startTracking(SEAT_2_CHEST, false);
-        this.dataTracker.startTracking(SEAT_3_CHEST, false);
-        this.dataTracker.startTracking(HAS_SCREEN, false);
+    protected void initDataTracker(DataTracker.Builder builder) {
+        builder.add(FRONT_PLAYER_INPUTTING, false);
+        builder.add(BACK_PLAYER_INPUTTING, false);
+        builder.add(SEAT_0_CHEST, false);
+        builder.add(SEAT_1_CHEST, false);
+        builder.add(SEAT_2_CHEST, false);
+        builder.add(SEAT_3_CHEST, false);
+        builder.add(HAS_SCREEN, false);
     }
 
     @Override
@@ -427,7 +440,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     @Override
     public void onStartedTrackingBy(ServerPlayerEntity player){
         super.onStartedTrackingBy(player);
-        this.sendS2CInventoryPacket(this.inventory, false, -1);
+        this.sendInventoryToClient(this.inventory, false, -1);
     }
 
     public void playPlayerAnimations(Vec3d controlledMovementInput){
@@ -610,8 +623,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     private void travelControlled(@Nullable PlayerEntity riderOne, @Nullable PlayerEntity riderTwo){
         Vec3d controlledMovementInput = travelSpeedCalc(riderOne, riderTwo);
         if(!this.getWorld().isClient() && riderTwo != null && riderOne != null){
-            this.sendS2CMovementValuesPacket(riderTwo);
-            this.sendS2CMovementValuesPacket(riderOne);
+            this.sendMovementToClient(riderTwo);
+            this.sendMovementToClient(riderOne);
             this.stopServerMovement();
         } else {  // reimplemented from combo of LivingEntity's + AbstractHorseEntity's getControlledMovementInput() override
             if(this.isLogicalSideForUpdatingMovement()){
@@ -647,30 +660,29 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         this.serverPitch = pitch;
         this.bodyTrackingIncrements = interpolationSteps;
     }
-            
+
     @Override
-    // We're always on the server here.
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
+    public void writeInventoryToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
         int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
         for(int i = 0; i < 4; i++){
             this.setChestPresent(i, badNBTFormattedArray[i] > 0);
         }
         if(this.getNumberOfChests() > 0){
-            this.readInventoryFromNbt(nbt);
+            VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
         }
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-        int[] badNBTFormattedArray = new int[4];
+    public void readInventoryFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
+        int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
         for(int i = 0; i < 4; i++){
-            badNBTFormattedArray[i] = (this.getChestPresent(i) == true ? 1 : 0);
+            this.setChestPresent(i, badNBTFormattedArray[i] > 0);
         }
-        nbt.putIntArray("ChestsInAllSeats", badNBTFormattedArray);
-        if(getNumberOfChests() > 0){
-            this.writeInventoryToNbt(nbt);
+        if(this.getNumberOfChests() > 0){
+            VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
         }
     }
+
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
      * overwrote from the defaults, and continuing with the ones we had to implement ourselves.
      * I have sectioned them off from our other methods for better organization. If we had any good organization to begin with.
@@ -743,14 +755,8 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     }
 
     @Override
-    @Nullable
-    public Identifier getLootTableId() {
-        return this.lootTableId;
-    }
-
-    @Override
-    public void setLootTableId(@Nullable Identifier lootTableId) {
-        this.lootTableId = lootTableId;
+    public LongBoatScreenHandler getScreenOpeningData(ServerPlayerEntity player) {
+        return null;
     }
 
     @Override
@@ -768,10 +774,6 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         return this.inventory;
     }
 
-    public void setInventory(DefaultedList<ItemStack> inventory){
-        this.inventory = inventory;
-    }
-
     @Override
     public void resetInventory() {
         this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
@@ -780,7 +782,7 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
     @Override
     public void openInventory(PlayerEntity player) {
         if(this.getNumberOfChests() > 0 && !this.getHasScreen()){
-            player.openHandledScreen((ExtendedScreenHandlerFactory)this);
+            player.openHandledScreen(this);
             if (!player.getWorld().isClient) {
                 this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
                 PiglinBrain.onGuardedBlockInteracted(player, true);
@@ -788,65 +790,44 @@ VehicleInventory, ExtendedScreenHandlerFactory, VariantHolder<LongBoatVariant> {
         }
     }
 
-    @Override
-    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-        
-    }
-
     /* The following are inventory-related methods that are not in the interface and packet sending methods. */
 
-    public void readInventoryFromNbt(NbtCompound nbt){
-        this.resetInventory();
-        /* the below line was previously in an if-else supposed to support pre-generated boats with loot tables
-           in VehicleInventory.readInventoryFromNbt. we don't need to support these (yet) so we can just send it directly to the reader. */
-        Inventories.readNbt(nbt, this.getInventory());
-    }
-
-    public void sendS2CInventoryPacket(DefaultedList<ItemStack> inventory, boolean inScreen, int nextTab){
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeByte(inventory.size());
-        for (ItemStack item : inventory) {
-            buf.writeItemStack(item);
+    public void sendInventoryToClient(DefaultedList<ItemStack> inventory, boolean inScreen, int nextTab){
+        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
+        for(int i = 0; i < this.size(); i++){
+            newInv.add(inventory.get(i));
         }
-        buf.writeInt(this.getId());
-        buf.writeBoolean(inScreen);
-        buf.writeInt(nextTab);
         for (PlayerEntity player : this.getWorld().getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, buf);
+            ServerPlayNetworking.send((ServerPlayerEntity)player, new InventorySyncS2CPayload(newInv, inScreen, this.getId(), nextTab));
         }
     }
 
-    public void sendC2SInventoryPacket(DefaultedList<ItemStack> inventory, int tab){
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeByte(inventory.size());
-        for (ItemStack item : inventory) {
-            buf.writeItemStack(item);
+    public void sendInventoryToServer(DefaultedList<ItemStack> inventory, int tab){
+        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
+        for(int i = 0; i < this.size(); i++){
+            newInv.add(inventory.get(i));
         }
-        buf.writeInt(this.getId());
-        buf.writeInt(tab);
-        buf.writeInt(-1);
-        ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
+        ClientPlayNetworking.send(new InventorySyncC2SPayload(newInv, this.getId(), 0, tab));
     }
 
-    public void sendC2SInventoryPacket(DefaultedList<ItemStack> inventory, int prevTab, int tab){
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeByte(inventory.size());
-        for (ItemStack item : inventory) {
-            buf.writeItemStack(item);
+    public void sendInventoryToServer(DefaultedList<ItemStack> inventory, int prevTab, int tab){
+        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
+        for(int i = 0; i < this.size(); i++){
+            newInv.add(inventory.get(i));
         }
-        buf.writeInt(this.getId());
-        buf.writeInt(prevTab);
-        buf.writeInt(tab);
-        ClientPlayNetworking.send(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, buf);
+        ClientPlayNetworking.send(new InventorySyncC2SPayload(newInv, this.getId(), prevTab, tab));
     }
 
-    public void sendS2CMovementValuesPacket(PlayerEntity otherPlayer){
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(otherPlayer.getId());
-        buf.writeFloat(otherPlayer.forwardSpeed);
-        buf.writeFloat(otherPlayer.sidewaysSpeed);
-        for (PlayerEntity player : this.getWorld().getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity)player, ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, buf);
-        }
+    public void sendMovementToClient(PlayerEntity otherPlayer){
+        ServerPlayNetworking.send((ServerPlayerEntity)otherPlayer, new MovementInputS2CPayload(otherPlayer.getId(), otherPlayer.forwardSpeed, otherPlayer.sidewaysSpeed));
+    }
+    /* loot table stuff we don't need*/
+
+    public RegistryKey<LootTable> getLootTable(){
+        return null;
+    }
+
+    public void setLootTable(RegistryKey<LootTable> table){
+
     }
 }

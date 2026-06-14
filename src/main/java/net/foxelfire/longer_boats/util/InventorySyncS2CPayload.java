@@ -10,11 +10,12 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 
-public record InventorySyncS2CPayload(ArrayList<ItemStack> inventory, int entityId, int nextTab) implements CustomPayload {
+public record InventorySyncS2CPayload(ArrayList<ItemStack> inventory, boolean inScreen, int entityId, int nextTab) implements CustomPayload {
     public static final Identifier PACKET_ID = Identifier.of(LongerBoatsMod.MOD_ID, "inventory_packet_s2c");
     public static final Id<InventorySyncS2CPayload> ID = new CustomPayload.Id<>(PACKET_ID);
     public static final PacketCodec<RegistryByteBuf, InventorySyncS2CPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.collection(ArrayList::new, ItemStack.OPTIONAL_PACKET_CODEC), InventorySyncS2CPayload::inventory,
+            PacketCodecs.BOOL, InventorySyncS2CPayload::inScreen,
             PacketCodecs.INTEGER, InventorySyncS2CPayload::entityId,
             PacketCodecs.INTEGER, InventorySyncS2CPayload::nextTab,
             InventorySyncS2CPayload::new

@@ -20,7 +20,7 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
     public NewTabWidget previous;
     public NewTabWidget next;
     public DefaultedList<ItemStack> tabInventory;
-    private static final Identifier TEXTURE = new Identifier(LongerBoatsMod.MOD_ID, "textures/gui/boat_tab.png");
+    private static final Identifier TEXTURE = Identifier.of(LongerBoatsMod.MOD_ID, "textures/gui/boat_tab.png");
 
     public LongBoatScreen(LongBoatScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);

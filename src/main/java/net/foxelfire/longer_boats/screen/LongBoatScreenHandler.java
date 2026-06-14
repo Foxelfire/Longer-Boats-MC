@@ -26,14 +26,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
     private final DefaultedList<ItemStack> previousTrackedStacks = DefaultedList.of();
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
     public static LongBoatScreenHandler activeHandler;
-    @SuppressWarnings("unused")
-    private int revision;
-    
 
-    public LongBoatScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf){
-        this(syncId, inventory, inventory.player.getVehicle());
-    }
-        
     public LongBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, syncId);
         this.entity = (AbstractLongBoatEntity)entity;
@@ -92,7 +85,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
         // this was copy-pasted from a tutorial, no clue how this works
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
-        if (slot != null && slot.hasStack()) {
+        if (slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
             if (invSlot < INVENTORY.size()) {
@@ -119,13 +112,12 @@ public class LongBoatScreenHandler extends ScreenHandler {
             if(i >= 63){ // this is just a band-aid solution to get this method to cursor stack assignment, the real problem is that the "stacks"
                 // list passed into this thing increases by 63 everytime the client packet listener calls this method due to DefaultedList removing
                 // from its ArrayList delegate (more on that later) not actually removing anything  - didn't want to waste time
-                // reverse-engineering more stuff than I technically need to so I just left this here
+                // reverse-engineering more stuff than I technically need to, so I just left this here
                 break;
             }
             this.getSlot(i).setStackNoCallbacks(stacks.get(i));
         }
         this.setCursorStack(cursorStack.copy());
-        this.revision = revision;
     }
 
     protected static void clearStacks(DefaultedList<ItemStack> stacks){
@@ -142,7 +134,8 @@ public class LongBoatScreenHandler extends ScreenHandler {
         my theory is that the loop takes so long to go through it times out whatever timer Minecraft has to make sure client tasks don't take too long and delay other things, so it's skipped over. 
         
         Theoretically, this means that if someone were to sit on an open screen and click between tabs hundreds of times without closing the screen, the game might crash from trying to send a packet
-        too large, because it's containing a list that has 36*200 ish items - only the first 36 of which are non-ItemStack.EMPTY. I think. You could probably patch this issue for real with Mixins... */
+        too large, because it's containing a list that has 36*200-ish items - only the first 36 of which are non-ItemStack.EMPTY. I think. You could probably patch this issue for real with Mixins...
+        but I'm not smart enough for that! */
     }
 
 
@@ -153,8 +146,8 @@ public class LongBoatScreenHandler extends ScreenHandler {
 
     protected void saveEntityInventory(int prevTab, int tab){
         if(player.getWorld().isClient()){
-            DefaultedList<ItemStack> previousStacks = INVENTORY.stacks;
-            this.entity.sendC2SInventoryPacket(previousStacks, prevTab, tab);
+            DefaultedList<ItemStack> previousStacks = INVENTORY.getHeldStacks();
+            this.entity.sendInventoryToServer(previousStacks, prevTab, tab);
         }
     }
     
@@ -193,7 +186,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
          * saveEntityInventory's second argument in this file can read an outdated entity inventory in getInventoryTabAt() on multiplayer worlds, which can cause
          * a lot of bugs, possibly including an item duplication glitch. Secondly because all of the ways to reach the currently active screen
          * handler directly from the client.execute lambda, like using the player's current screen handler, sadly don't return the instance we want, at least not
-         * in a form that we're able to cast to the correct type to call this method. I don't know why and I don't want to know why. */
+         * in a form that we're able to cast to the correct type to call its method. I don't know why and I don't want to know why. */
         if(activeHandler == null){
             return;
         }

@@ -1,10 +1,12 @@
 package net.foxelfire.longer_boats.entity.custom;
 
+import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 
 public class LongBoatEntity extends AbstractLongBoatEntity{
@@ -15,9 +17,9 @@ public class LongBoatEntity extends AbstractLongBoatEntity{
     }
 
     @Override
-    protected void initDataTracker(){
-        super.initDataTracker();
-        this.dataTracker.startTracking(VARIANT, 0);
+    protected void initDataTracker(DataTracker.Builder builder){
+        super.initDataTracker(builder);
+        builder.add(VARIANT, 0);
     }
 
     @Override
@@ -38,14 +40,12 @@ public class LongBoatEntity extends AbstractLongBoatEntity{
     @Override
     // We're always on the server here.
     protected void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
         int ordinalOfVariant = nbt.getInt("Variant");
         this.setVariant(ordinalOfVariant);
     }
 
     @Override
     protected void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
         nbt.putInt("Variant", this.dataTracker.get(VARIANT));
     }
 }

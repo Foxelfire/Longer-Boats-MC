@@ -14,10 +14,14 @@ import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.screen.LongBoatScreen;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
+import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
+import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
+
+import java.util.ArrayList;
 
 public class LongerBoatsModClient implements ClientModInitializer{
 
@@ -29,37 +33,40 @@ public class LongerBoatsModClient implements ClientModInitializer{
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LONG_RAFT, LongRaftModel::getTexturedModelData);
         HandledScreens.register(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, LongBoatScreen::new);
         
-        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_S2C_SYNCING_PACKET_ID, (client, handler, buf, responseSender) -> {
-            client.execute(() -> {
-                byte invSize = buf.readByte();
-                DefaultedList<ItemStack> invContents = DefaultedList.of();
-                for(int i = 0; i < invSize; i++){
-                    invContents.add(i, buf.readItemStack()); // scary!
-                }
-                int entityID = buf.readInt();
-                boolean inScreen = buf.readBoolean();
-                AbstractLongBoatEntity entity = (AbstractLongBoatEntity)handler.getWorld().getEntityById(entityID);
+        ClientPlayNetworking.registerGlobalReceiver(InventorySyncS2CPayload.ID, (payload, context) -> {
+            ArrayList<ItemStack> inventory = payload.inventory();
+            int entityId = payload.entityId();
+            boolean inScreen = payload.inScreen();
+            int nextTab = payload.nextTab();
+
+            context.client().execute(() -> {
+                AbstractLongBoatEntity entity = (AbstractLongBoatEntity)context.player().getWorld().getEntityById(entityId);
                 if(entity != null){
-                    entity.setInventory(invContents);
-                }
-                if(inScreen){
-                    int nextTab = buf.readInt();
-                    int tabToManage = nextTab == -1 ? 0 : nextTab;
-                    LongBoatScreenHandler.manageActiveEntityInventory(tabToManage);
+                    for(int i = 0; i < inventory.size(); i++){
+                        entity.setInventoryStack(i, inventory.get(i));
+                    }
+                    if(inScreen){
+                        int tabToManage = Math.max(nextTab, 0);
+                        LongBoatScreenHandler.manageActiveEntityInventory(tabToManage);
+                    }
                 }
             });
         });
-    ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.TOTAL_MOVEMENT_INPUTS_S2C_PACKET_ID, (client, handler, buf, responseSender) -> {
-            int playerID = buf.readInt();
-            float forwardSpeed = buf.readFloat();
-            float sidewaysSpeed = buf.readFloat();
-            if(handler != null){
-                PlayerEntity otherPlayer = (PlayerEntity)handler.getWorld().getEntityById(playerID);
-                if(otherPlayer != null){
-                    otherPlayer.forwardSpeed = forwardSpeed;
-                    otherPlayer.sidewaysSpeed = sidewaysSpeed;
+
+        ClientPlayNetworking.registerGlobalReceiver(MovementInputS2CPayload.ID, (payload, context) -> {
+            int playerId = payload.entityId();
+            float forwardSpeed = payload.forwardSpeed();
+            float sidewaysSpeed = payload.sidewaysSpeed();
+
+            context.client().execute(() -> {
+                if(context.player().getWorld().getEntityById(playerId) != null){
+                    PlayerEntity otherPlayer = (PlayerEntity)context.player().getWorld().getEntityById(playerId);
+                    if(otherPlayer != null){
+                        otherPlayer.forwardSpeed = forwardSpeed;
+                        otherPlayer.sidewaysSpeed = sidewaysSpeed;
+                    }
                 }
-            }
+            });
         });
     }
 }
