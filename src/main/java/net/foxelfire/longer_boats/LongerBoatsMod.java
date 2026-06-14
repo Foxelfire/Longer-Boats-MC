@@ -6,12 +6,14 @@ import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.item.ModItems;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
-import net.foxelfire.longer_boats.util.ModNetworkingConstants;
+import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 public class LongerBoatsMod implements ModInitializer {
 	public static final String MOD_ID = "longer_boats";
@@ -29,21 +31,18 @@ public class LongerBoatsMod implements ModInitializer {
 		FuelItems.registerFuelInstances();
 		ModScreenHandlers.registerScreenHandlers();
 
-		ServerPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.INVENTORY_C2S_SYNCING_PACKET_ID, (server, player, handler, buf, responseSender) -> {
-			server.execute(() -> {
-				byte invSize = buf.readByte();
-				DefaultedList<ItemStack> invContents = DefaultedList.of();
-				for(int i = 0; i < invSize; i++){
-					invContents.add(buf.readItemStack());
+		ServerPlayNetworking.registerGlobalReceiver(InventorySyncC2SPayload.ID, (payload, context) -> {
+            ArrayList<ItemStack> inventory = payload.inventory();
+            int entityId = payload.entityId();
+            int prevTab = payload.prevTab();
+            int tab = payload.tab();
+
+			context.server().execute(() -> {
+
+				AbstractLongBoatEntity entity = (AbstractLongBoatEntity)context.server().getWorld().getEntityById(entityId);
+                for(int i = 0; i < inventory.size(); i++){
+					entity.getInventory().set(i + prevTab*27, invContents.get(i));
 				}
-				int entityID = buf.readInt();
-				AbstractLongBoatEntity entity = (AbstractLongBoatEntity)player.getWorld().getEntityById(entityID);
-				int tabOffset = buf.readInt();
-                for(int i = 0; i < invSize; i++){
-					entity.getInventory().set(i + tabOffset*27, invContents.get(i));
-				}
-				int nextTab = buf.readInt();
-				entity.sendS2CInventoryPacket(entity.getInventory(), true, nextTab);
 				LongBoatScreenHandler.manageActiveEntityInventory(nextTab);
 			});
 		});

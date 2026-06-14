@@ -14,7 +14,6 @@ import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.screen.LongBoatScreen;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
-import net.foxelfire.longer_boats.util.ModNetworkingConstants;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
