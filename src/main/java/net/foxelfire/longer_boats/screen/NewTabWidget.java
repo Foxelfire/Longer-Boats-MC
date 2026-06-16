@@ -18,8 +18,8 @@ import net.minecraft.util.Identifier;
 @Environment(value=EnvType.CLIENT)
 public class NewTabWidget extends ClickableWidget {
 
-    private static final Identifier TEXTURE_NORMAL = new Identifier(LongerBoatsMod.MOD_ID, "textures/gui/boat_buttons.png");
-    private static final Identifier TEXTURE_HOVERED = new Identifier(LongerBoatsMod.MOD_ID, "textures/gui/boat_selected_buttons.png");
+    private static final Identifier TEXTURE_NORMAL = Identifier.of(LongerBoatsMod.MOD_ID, "textures/gui/boat_buttons.png");
+    private static final Identifier TEXTURE_HOVERED = Identifier.of(LongerBoatsMod.MOD_ID, "textures/gui/boat_selected_buttons.png");
     protected static final NarrationSupplier DEFAULT_NARRATION_SUPPLIER = textSupplier -> (MutableText)textSupplier.get();
     protected final NarrationSupplier narrationSupplier;
     protected final PressAction onPress;
@@ -37,18 +37,18 @@ public class NewTabWidget extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        this.onPress.onPress(this);
-    }
-
-    @Override
-    protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         context.drawTexture(this.isHovered() ? TEXTURE_HOVERED : TEXTURE_NORMAL, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0, this.isLeft ? 0 : 16, 16, 16, 16, 32);
         // So, despite everything else in MC's texture system that standardizes larger y values as further downward, the v param of drawTexture does NOT work this way. It's -16, not 16.
         context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        this.onPress.onPress(this);
     }
 
     @Override

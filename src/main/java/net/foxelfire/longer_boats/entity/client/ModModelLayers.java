@@ -6,8 +6,8 @@ import net.minecraft.util.Identifier;
 
 public class ModModelLayers {
         public static final EntityModelLayer LONG_BOAT =
-                new EntityModelLayer(new Identifier(LongerBoatsMod.MOD_ID, "long_boat"), "main");
+                new EntityModelLayer(Identifier.of(LongerBoatsMod.MOD_ID, "long_boat"), "main");
         public static final EntityModelLayer LONG_RAFT =
-                new EntityModelLayer(new Identifier(LongerBoatsMod.MOD_ID, "long_raft"), "main");
+                new EntityModelLayer(Identifier.of(LongerBoatsMod.MOD_ID, "long_raft"), "main");
 }
 

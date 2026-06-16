@@ -8,15 +8,15 @@ import net.minecraft.util.Identifier;
 @SuppressWarnings("unused")
 public enum LongBoatVariant {
     
-    OAK (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_oak.png"), false),
-    BIRCH (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_birch.png"), false),
-    CHERRY (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_cherry.png"), false),
-    SPRUCE (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_spruce.png"), false),
-    DARK_OAK (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_dark_oak.png"), false),
-    ACACIA (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_acacia.png"), false),
-    JUNGLE (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_jungle.png"), false),
-    MANGROVE (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_mangrove.png"), false),
-    BAMBOO (new Identifier(LongerBoatsMod.MOD_ID, "textures/entity/long_raft_bamboo.png"), true);
+    OAK (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_oak.png"), false),
+    BIRCH (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_birch.png"), false),
+    CHERRY (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_cherry.png"), false),
+    SPRUCE (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_spruce.png"), false),
+    DARK_OAK (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_dark_oak.png"), false),
+    ACACIA (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_acacia.png"), false),
+    JUNGLE (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_jungle.png"), false),
+    MANGROVE (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_boat_mangrove.png"), false),
+    BAMBOO (Identifier.of(LongerBoatsMod.MOD_ID, "textures/entity/long_raft_bamboo.png"), true);
     
     private final Identifier TEXTURE;
     private final boolean ISRAFT;

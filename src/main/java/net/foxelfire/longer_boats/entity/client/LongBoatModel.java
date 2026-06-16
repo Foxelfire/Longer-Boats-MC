@@ -118,8 +118,8 @@ public class LongBoatModel<T extends LongBoatEntity> extends SinglePartEntityMod
 		this.seat_3_chest.visible = entity.getChestPresent(3);
 	}
 	@Override
-	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-		boat.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
+		boat.render(matrices, vertexConsumer, light, overlay, color);
 	}
 
 	@Override

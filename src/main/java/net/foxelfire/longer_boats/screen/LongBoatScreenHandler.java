@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.foxelfire.longer_boats.LongerBoatsMod;
 import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
+import net.foxelfire.longer_boats.util.EntityIdPayload;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -26,6 +27,10 @@ public class LongBoatScreenHandler extends ScreenHandler {
     private final DefaultedList<ItemStack> previousTrackedStacks = DefaultedList.of();
     public DefaultedList<ItemStack> itemList = DefaultedList.of();
     public static LongBoatScreenHandler activeHandler;
+
+    public LongBoatScreenHandler(int syncId, PlayerInventory inventory, EntityIdPayload payload){
+        this(syncId, inventory, (AbstractLongBoatEntity)inventory.player.getWorld().getEntityById(payload.entityID()));
+    }
 
     public LongBoatScreenHandler(int syncId, PlayerInventory inventory, Entity entity) {
         super(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, syncId);

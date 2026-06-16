@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.foxelfire.longer_boats.util.EntityIdPayload;
 import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
 import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
@@ -63,7 +64,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 public abstract class AbstractLongBoatEntity extends Entity implements RideableInventory,
-VehicleInventory, ExtendedScreenHandlerFactory<LongBoatScreenHandler>, VariantHolder<LongBoatVariant> {
+VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<LongBoatVariant> {
 
     private int lives;
     @Nullable
@@ -175,9 +176,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<LongBoatScreenHandler>, VariantHo
             if(this.getNumberOfChests() > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
                 DefaultedList<ItemStack> savedInventory = this.getInventory();
                 for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
-                    if(savedInventory.get(i) != null){
-                        newInventory.set(i, savedInventory.get(i));
-                    }
+                    newInventory.set(i, savedInventory.get(i));
                 }
             }
             this.inventory = newInventory;
@@ -232,18 +231,13 @@ VehicleInventory, ExtendedScreenHandlerFactory<LongBoatScreenHandler>, VariantHo
     }
 
     public boolean getChestPresent(int seatIndex){
-        switch (seatIndex) {
-            case 0:
-                return this.dataTracker.get(SEAT_0_CHEST);
-            case 1:
-                return this.dataTracker.get(SEAT_1_CHEST);
-            case 2:
-                return this.dataTracker.get(SEAT_2_CHEST);
-            case 3:
-                return this.dataTracker.get(SEAT_3_CHEST);
-            default:
-                return false;
-        }
+        return switch (seatIndex) {
+            case 0 -> this.dataTracker.get(SEAT_0_CHEST);
+            case 1 -> this.dataTracker.get(SEAT_1_CHEST);
+            case 2 -> this.dataTracker.get(SEAT_2_CHEST);
+            case 3 -> this.dataTracker.get(SEAT_3_CHEST);
+            default -> false;
+        };
     }
 
     protected Optional<Integer> getFirstAvailableSeat(Entity passenger){
@@ -755,8 +749,8 @@ VehicleInventory, ExtendedScreenHandlerFactory<LongBoatScreenHandler>, VariantHo
     }
 
     @Override
-    public LongBoatScreenHandler getScreenOpeningData(ServerPlayerEntity player) {
-        return null;
+    public EntityIdPayload getScreenOpeningData(ServerPlayerEntity player) {
+        return new EntityIdPayload(this.getId());
     }
 
     @Override
