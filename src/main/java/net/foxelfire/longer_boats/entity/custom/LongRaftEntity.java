@@ -27,13 +27,8 @@ public class LongRaftEntity extends AbstractLongBoatEntity{
 
     @Override
     protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        float zPosition = 0.0f;
-        if(!this.getFirstAvailableSeat(passenger).isEmpty()){
-            zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
-        } else if(zPosition == 0.0f){
-            passenger.stopRiding();
-        }
-        return new Vec3d(0.0f, 0.7f, zPosition);
+        Vec3d basePos = super.getPassengerAttachmentPos(passenger, dimensions, scaleFactor);
+        return new Vec3d(basePos.x, 0.7f, basePos.z);
     }
 
     @Override

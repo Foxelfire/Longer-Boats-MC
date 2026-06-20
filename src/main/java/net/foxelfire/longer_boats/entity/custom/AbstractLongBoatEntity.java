@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.foxelfire.longer_boats.LongerBoatsMod;
 import net.foxelfire.longer_boats.util.EntityIdPayload;
 import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
 import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
+import net.minecraft.entity.*;
 import net.minecraft.loot.LootTable;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
@@ -23,14 +25,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.RideableInventory;
-import net.minecraft.entity.VariantHolder;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -76,7 +70,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    protected Map<Integer, Float> seatIndexesToPositions = Collections.synchronizedMap(new HashMap<>());
     /* We don't know the inventory size until we read our inventory from NBT,
      * because our size can change based on our amounts of chests, which is data that needs to be stored through NBT.
      * Therefore, this.size() won't work until all our chest-related tracked data is already tracked, defined, and set,
@@ -104,7 +97,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     public final AnimationState rotatingRightAnimationState = new AnimationState();
     public final AnimationState rotatingBackLeftAnimationState = new AnimationState();
     public final AnimationState rotatingBackRightAnimationState = new AnimationState();
-    private static final List<Float> positions = List.of(1.2f, .2f, -.8f, -1.8f); // all four passenger z positions
 
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -118,9 +110,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         super(entityType, world);
         this.intersectionChecked = true;
         this.lives = 20;
-        for (int i = 0; i < 4; i++){
-            seatIndexesToPositions.put(i, positions.get(i));
-        }
     }
 
     private void acceptOrRejectRiders() {
@@ -325,13 +314,17 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        float zPosition = 0.0f;
-        if(this.getFirstAvailableSeat(passenger).isPresent()){
-            zPosition = this.seatIndexesToPositions.get(getFirstAvailableSeat(passenger).get());
+        return getPassengerAttachmentPos(this, passenger, dimensions.attachments());
+    }
+
+    protected static Vec3d getPassengerAttachmentPos(Entity vehicle, Entity passenger, EntityAttachments attachments) {
+        int i = 0;
+        if(((AbstractLongBoatEntity)vehicle).getFirstAvailableSeat(passenger).isPresent()){
+            i = ((AbstractLongBoatEntity)vehicle).getFirstAvailableSeat(passenger).get();
         } else {
             passenger.stopRiding();
         }
-        return new Vec3d(0.0f, 0.3f, zPosition);
+        return attachments.getPointOrDefault(EntityAttachmentType.PASSENGER, i, vehicle.getYaw());
     }
 
     public boolean getPlayer1Inputting(){

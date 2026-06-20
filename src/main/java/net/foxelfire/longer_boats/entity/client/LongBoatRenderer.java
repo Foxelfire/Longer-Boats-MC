@@ -32,7 +32,7 @@ public class LongBoatRenderer extends EntityRenderer<LongBoatEntity>{
             matrixStack.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(180.0f));
             float newYaw = (float)(entity.getYaw()*(Math.PI/180.0f));
             model.setAngles(entity, 0, 0, entity.age, newYaw, entity.getPitch());
-            model.render(matrixStack, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1);
+            model.render(matrixStack, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 0xFFFFFFFF);
             matrixStack.pop();
             super.render(entity, yaw, tickDelta, matrixStack, vertexConsumers, light);
         }
