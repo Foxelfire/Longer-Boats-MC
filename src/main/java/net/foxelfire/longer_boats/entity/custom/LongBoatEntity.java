@@ -42,10 +42,12 @@ public class LongBoatEntity extends AbstractLongBoatEntity{
     protected void readCustomDataFromNbt(NbtCompound nbt) {
         int ordinalOfVariant = nbt.getInt("Variant");
         this.setVariant(ordinalOfVariant);
+        super.readCustomDataFromNbt(nbt);
     }
 
     @Override
     protected void writeCustomDataToNbt(NbtCompound nbt) {
         nbt.putInt("Variant", this.dataTracker.get(VARIANT));
+        super.writeCustomDataToNbt(nbt);
     }
 }

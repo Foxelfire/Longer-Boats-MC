@@ -30,15 +30,4 @@ public class LongRaftEntity extends AbstractLongBoatEntity{
         Vec3d basePos = super.getPassengerAttachmentPos(passenger, dimensions, scaleFactor);
         return new Vec3d(basePos.x, 0.7f, basePos.z);
     }
-
-    @Override
-    // We're always on the server here.
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-
-    }
-
-    @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-
-    }
 }

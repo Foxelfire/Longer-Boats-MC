@@ -16,6 +16,7 @@ import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.entity.*;
 import net.minecraft.loot.LootTable;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -70,25 +71,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    /* We don't know the inventory size until we read our inventory from NBT,
-     * because our size can change based on our amounts of chests, which is data that needs to be stored through NBT.
-     * Therefore, this.size() won't work until all our chest-related tracked data is already tracked, defined, and set,
-     * which when the server is initially loading this file, will not have been tracked and initialized(?) yet.
-     *
-     * Until I figure out how to make Minecraft not require a defined inventory size until we can track data,
-     * this try-catch is necessary to get the server to the next step of loading when the data tracker isn't working yet on initial load.
-       We have to give it a fake inventory size of 27 so it continues for now (read: forever).*/
-    protected int inventorySize;
-    {
-        try {
-            if(dataTracker.get(SEAT_0_CHEST)){
-                inventorySize = this.size();
-            }
-        } catch (Exception e) {
-            inventorySize = 27;
-        }
-    }
-    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
+    private DefaultedList<ItemStack> inventory;
     protected boolean inventoryDirty = false; 
     protected int soundTimer = 0;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -108,6 +91,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     
     public AbstractLongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
+        this.inventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
         this.intersectionChecked = true;
         this.lives = 20;
     }
@@ -149,26 +133,22 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return this.getPassengerList().size() < this.getMaxPassengers();
     }
 
-    protected boolean canAddPassenger() {
-        return this.getPassengerList().size() < this.getMaxPassengers();
-    }
-
     @Override
     public boolean canHit() {
         return !this.isRemoved();
     }
 
-    protected void changeInvSizeDuringGameplay(){
+    protected void growInventory(){
         if(!this.inventoryDirty){
             inventoryDirty = true;
             DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
             if(this.getNumberOfChests() > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
                 DefaultedList<ItemStack> savedInventory = this.getInventory();
-                for(int i = 0; i < savedInventory.size(); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
+                for(int i = 0; i < Math.min(savedInventory.size(), newInventory.size()); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
                     newInventory.set(i, savedInventory.get(i));
                 }
             }
-            this.inventory = newInventory;
+            this.inventory = newInventory; // if we have no inventory yet, we have bigger problems. wipe any weird data.
             inventoryDirty = false;
             // tell any other players that might be on the server that our inventory has changed
             if(!this.getWorld().isClient()){
@@ -182,7 +162,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         if(player != null && hand != null){
             player.getStackInHand(hand).decrement(1);
         }
-        changeInvSizeDuringGameplay();
+        growInventory();
     }
 
     @Override
@@ -650,24 +630,30 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public void writeInventoryToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
-        int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
-        for(int i = 0; i < 4; i++){
-            this.setChestPresent(i, badNBTFormattedArray[i] > 0);
-        }
-        if(this.getNumberOfChests() > 0){
-            VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
-        }
+        nbt.putBoolean("Chest0", getChestPresent(0));
+        nbt.putBoolean("Chest1", getChestPresent(1));
+        nbt.putBoolean("Chest2", getChestPresent(2));
+        nbt.putBoolean("Chest3", getChestPresent(3));
+        VehicleInventory.super.writeInventoryToNbt(nbt, registryLookup);
     }
 
     @Override
     public void readInventoryFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
-        int[] badNBTFormattedArray = nbt.getIntArray("ChestsInAllSeats");
         for(int i = 0; i < 4; i++){
-            this.setChestPresent(i, badNBTFormattedArray[i] > 0);
+            boolean chested = nbt.getBoolean("Chest" + i);
+            setChestPresent(i, chested);
         }
-        if(this.getNumberOfChests() > 0){
-            VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
-        }
+        VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
+    }
+
+    @Override
+    protected void writeCustomDataToNbt(NbtCompound nbt){
+        this.writeInventoryToNbt(nbt, this.getRegistryManager());
+    }
+
+    @Override
+    protected void readCustomDataFromNbt(NbtCompound nbt){
+        this.readInventoryFromNbt(nbt, this.getRegistryManager());
     }
 
     /* The following methods are the ones involving our inventory interfaces, starting with ones we intentionally
@@ -681,7 +667,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public int size() {
-        return this.getNumberOfChests()*27;
+        return this.getNumberOfChests() * 27;
     }
 
     @Override
