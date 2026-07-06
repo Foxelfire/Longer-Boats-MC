@@ -2,26 +2,18 @@ package net.foxelfire.longer_boats.entity.custom;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import net.foxelfire.longer_boats.LongerBoatsMod;
 import net.foxelfire.longer_boats.util.EntityIdPayload;
-import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
-import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.entity.*;
 import net.minecraft.loot.LootTable;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
@@ -36,12 +28,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.VehicleInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -71,7 +61,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    private DefaultedList<ItemStack> inventory;
+    protected ArrayList<DefaultedList<ItemStack>> inventory;
     protected boolean inventoryDirty = false; 
     protected int soundTimer = 0;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -81,6 +71,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     public final AnimationState rotatingBackLeftAnimationState = new AnimationState();
     public final AnimationState rotatingBackRightAnimationState = new AnimationState();
 
+    public static final int SLOTS_PER_CHEST = 27;
     private static final TrackedData<Boolean> FRONT_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> BACK_PLAYER_INPUTTING = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> SEAT_0_CHEST = DataTracker.registerData(AbstractLongBoatEntity.class, TrackedDataHandlerRegistry.BOOLEAN); // no array or list data tracking? Mojang whyyy
@@ -91,7 +82,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     
     public AbstractLongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
-        this.inventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
+        inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
         this.intersectionChecked = true;
         this.lives = 20;
     }
@@ -138,21 +129,14 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return !this.isRemoved();
     }
 
-    protected void growInventory(){
+    private void growInventory(){ // only partially refactored
         if(!this.inventoryDirty){
             inventoryDirty = true;
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-            if(this.getNumberOfChests() > 0 && this.getInventory() != null){ // checks if our current inventory has slots yet
-                DefaultedList<ItemStack> savedInventory = this.getInventory();
-                for(int i = 0; i < Math.min(savedInventory.size(), newInventory.size()); i++){ // copying current inventory so when we recreate it with the new size the values already present won't be deleted
-                    newInventory.set(i, savedInventory.get(i));
-                }
-            }
-            this.inventory = newInventory; // if we have no inventory yet, we have bigger problems. wipe any weird data.
-            inventoryDirty = false;
+            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
+            inventory.add(newInventory);
             // tell any other players that might be on the server that our inventory has changed
             if(!this.getWorld().isClient()){
-                this.sendInventoryToClient(newInventory, false, -1);
+                //this.sendInventoryToClient(newInventory, false, -1);
             }
         }
     }
@@ -226,12 +210,8 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return this.dataTracker.get(HAS_SCREEN);
     }
 
-    public DefaultedList<ItemStack> getInventoryTabAt(int index){
-        DefaultedList<ItemStack> tab = DefaultedList.ofSize(27, ItemStack.EMPTY);
-        for(int i = 0; i < 27; i++){
-            tab.set(i, this.getInventory().get(i+(27*index)));
-        }
-        return tab;
+    public DefaultedList<ItemStack> getTab(int index){
+        return inventory.get(index);
     }
 
     @Override
@@ -407,7 +387,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     @Override
     public void onStartedTrackingBy(ServerPlayerEntity player){
         super.onStartedTrackingBy(player);
-        this.sendInventoryToClient(this.inventory, false, -1);
+        //this.sendInventoryToClient(this.inventory, false, -1);
     }
 
     public void playPlayerAnimations(Vec3d controlledMovementInput){
@@ -667,12 +647,12 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public int size() {
-        return this.getNumberOfChests() * 27;
+        return this.getNumberOfChests() * SLOTS_PER_CHEST;
     }
 
     @Override
     public ItemStack getStack(int slot) {
-        if(slot > this.getNumberOfChests()*26){ // dont know where these methods gets called so made this check as an OOB failsafe
+        if(slot > this.getNumberOfChests()*(SLOTS_PER_CHEST-1)){ // dont know where these methods gets called so made this check as an OOB failsafe
             return ItemStack.EMPTY;
         }
         return this.getInventoryStack(slot);
@@ -680,7 +660,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public ItemStack removeStack(int slot, int amount) {
-        if(slot > this.getNumberOfChests()*26){
+        if(slot > this.getNumberOfChests()*(SLOTS_PER_CHEST-1)){
             return ItemStack.EMPTY;
         }
         return this.removeInventoryStack(slot, amount);
@@ -688,7 +668,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public ItemStack removeStack(int slot) {
-        if(slot > this.getNumberOfChests()*26){ 
+        if(slot > this.getNumberOfChests()*(SLOTS_PER_CHEST-1)){
             return ItemStack.EMPTY;
         }
         return this.removeInventoryStack(slot);
@@ -696,7 +676,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public void setStack(int slot, ItemStack stack) {
-        if(slot > this.getNumberOfChests()*26){
+        if(slot > this.getNumberOfChests()*(SLOTS_PER_CHEST-1)){
             return;
         }
         this.setInventoryStack(slot, stack);
@@ -742,17 +722,30 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         this.lootTableSeed = lootTableSeed;
     }
 
-    @Override
     public DefaultedList<ItemStack> getInventory() {
+        DefaultedList<ItemStack> flattenedInv = DefaultedList.ofSize(this.size()); //TODO: implement .set() and .clear() and all that garbage
+        for (DefaultedList<ItemStack> itemStacks : this.inventory) {
+            flattenedInv.addAll(itemStacks);
+        }
+        return flattenedInv;
+    }
+
+    // so we can still get the real thing
+    public List<DefaultedList<ItemStack>> getFullInventory(){
         return this.inventory;
     }
 
-    @Override
     public void resetInventory() {
-        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        if(!this.getHasScreen()){
+            ArrayList<DefaultedList<ItemStack>> inventory = new ArrayList<>();
+            for(int i = 0; i < this.size()/24; i++){
+                inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
+            }
+            this.inventory = inventory;
+        }
     }
 
-    @Override
+
     public void openInventory(PlayerEntity player) {
         if(this.getNumberOfChests() > 0 && !this.getHasScreen()){
             player.openHandledScreen(this);
@@ -763,38 +756,11 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         }
     }
 
-    /* The following are inventory-related methods that are not in the interface and packet sending methods. */
-
-    public void sendInventoryToClient(DefaultedList<ItemStack> inventory, boolean inScreen, int nextTab){
-        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
-        for(int i = 0; i < this.size(); i++){
-            newInv.add(inventory.get(i));
-        }
-        for (PlayerEntity player : this.getWorld().getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity)player, new InventorySyncS2CPayload(newInv, inScreen, this.getId(), nextTab));
-        }
-    }
-
-    public void sendInventoryToServer(DefaultedList<ItemStack> inventory, int tab){
-        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
-        for(int i = 0; i < this.size(); i++){
-            newInv.add(inventory.get(i));
-        }
-        ClientPlayNetworking.send(new InventorySyncC2SPayload(newInv, this.getId(), 0, tab));
-    }
-
-    public void sendInventoryToServer(DefaultedList<ItemStack> inventory, int prevTab, int tab){
-        ArrayList<ItemStack> newInv = new ArrayList<ItemStack>();
-        for(int i = 0; i < this.size(); i++){
-            newInv.add(inventory.get(i));
-        }
-        ClientPlayNetworking.send(new InventorySyncC2SPayload(newInv, this.getId(), prevTab, tab));
-    }
 
     public void sendMovementToClient(PlayerEntity otherPlayer){
         ServerPlayNetworking.send((ServerPlayerEntity)otherPlayer, new MovementInputS2CPayload(otherPlayer.getId(), otherPlayer.forwardSpeed, otherPlayer.sidewaysSpeed));
     }
-    /* loot table stuff we don't need*/
+
 
     public RegistryKey<LootTable> getLootTable(){
         return null;

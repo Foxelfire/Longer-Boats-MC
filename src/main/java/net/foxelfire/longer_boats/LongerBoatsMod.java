@@ -7,15 +7,14 @@ import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.item.ModItems;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
-import net.foxelfire.longer_boats.util.InventorySyncC2SPayload;
-import net.foxelfire.longer_boats.util.InventorySyncS2CPayload;
+import net.foxelfire.longer_boats.util.ChangeTabC2SPayload;
+import net.foxelfire.longer_boats.util.InventorySizeS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
-import net.minecraft.item.ItemStack;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 
 public class LongerBoatsMod implements ModInitializer {
 	public static final String MOD_ID = "longer_boats";
@@ -32,25 +31,23 @@ public class LongerBoatsMod implements ModInitializer {
 		ModItems.registerModItems();
 		FuelItems.registerFuelInstances();
 		ModScreenHandlers.registerScreenHandlers();
-        PayloadTypeRegistry.playC2S().register(InventorySyncC2SPayload.ID, InventorySyncC2SPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(InventorySyncS2CPayload.ID, InventorySyncS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ChangeTabC2SPayload.ID, ChangeTabC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MovementInputS2CPayload.ID, MovementInputS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(InventorySizeS2CPayload.ID, InventorySizeS2CPayload.CODEC);
 
-		ServerPlayNetworking.registerGlobalReceiver(InventorySyncC2SPayload.ID, (payload, context) -> {
-            ArrayList<ItemStack> inventory = payload.inventory();
-            int entityId = payload.entityId();
-            int prevTab = payload.prevTab();
-            int tab = payload.tab();
-            context.server().execute(() -> {
-				AbstractLongBoatEntity entity = (AbstractLongBoatEntity)context.player().getWorld().getEntityById(entityId);
-                if(entity != null) {
-                    for (int i = 0; i < inventory.size(); i++) {
-                        entity.getInventory().set(i + prevTab * 27, inventory.get(i));
-                    }
-                    ServerPlayNetworking.send(context.player(), new InventorySyncS2CPayload(inventory, true, entityId, tab));
-                    LongBoatScreenHandler.manageActiveEntityInventory(tab);
+        ServerPlayNetworking.registerGlobalReceiver(ChangeTabC2SPayload.ID, (payload, context) -> {
+                    PlayerEntity player = context.player();
+                    context.server().execute(() -> {
+                        Entity entity = player.getWorld().getEntityById(payload.entityId());
+                        if (!(entity instanceof AbstractLongBoatEntity boat)) {
+                            return;
+                        }
+                        if (player.currentScreenHandler instanceof LongBoatScreenHandler handler && handler.entity == boat) {
+                            handler.setCurrentTab(payload.tab());
+                            handler.sendContentUpdates();
+                        }
+                    });
                 }
-			});
-		});
+        );
 	}
 }
