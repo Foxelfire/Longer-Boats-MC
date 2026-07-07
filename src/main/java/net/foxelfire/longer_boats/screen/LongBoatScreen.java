@@ -66,7 +66,7 @@ public class LongBoatScreen extends HandledScreen<LongBoatScreenHandler>{
         super.render(context, mouseX, mouseY, delta);
         int magicXOffset = (width - backgroundWidth) / 2 + (int)(backgroundWidth/2.4);
         int magicYOffset = (int)((height - backgroundHeight-32)/2 + backgroundHeight/7.75);
-        context.drawText(textRenderer, (handler.currentTab+1) + " / " + handler.entity.getNumberOfChests(), magicXOffset, magicYOffset, 0x303030, false);
+        context.drawText(textRenderer, (handler.getCurrentTab()+1) + " / " + handler.entity.getNumberOfChests(), magicXOffset, magicYOffset, 0x303030, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 }
