@@ -43,7 +43,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
     }
 
     public void setCurrentTab(int tab){
-        if(tab > this.entity.getFullInventory().size()){
+        if(tab >= this.entity.getFullInventory().size() || tab <= -1){
             return;
         }
         currentTab = tab;
@@ -114,20 +114,6 @@ public class LongBoatScreenHandler extends ScreenHandler {
         }
 
         return newStack;
-    }
-
-    @Override
-    public void updateSlotStacks(int revision, List<ItemStack> stacks, ItemStack cursorStack) {
-        for (int i = 0; i < stacks.size(); ++i) {
-            if(i >= 63){ // this is just a band-aid solution to get this method to cursor stack assignment, the real problem is that the "stacks"
-                // list passed into this thing increases by 63 everytime the client packet listener calls this method due to DefaultedList removing
-                // from its ArrayList delegate (more on that later) not actually removing anything  - didn't want to waste time
-                // reverse-engineering more stuff than I technically need to, so I just left this here
-                break;
-            }
-            this.getSlot(i).setStackNoCallbacks(stacks.get(i));
-        }
-        this.setCursorStack(cursorStack.copy());
     }
 
     @Override

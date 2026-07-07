@@ -6,9 +6,14 @@ import java.util.List;
 import java.util.Optional;
 
 import net.foxelfire.longer_boats.util.EntityIdPayload;
+import net.foxelfire.longer_boats.util.InventorySizeS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.entity.*;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.loot.LootTable;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +66,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     protected double serverZ;
     protected double serverYaw;
     protected double serverPitch;
-    protected ArrayList<DefaultedList<ItemStack>> inventory;
+    protected ArrayList<DefaultedList<ItemStack>> inventory = new ArrayList<>();
     protected boolean inventoryDirty = false; 
     protected int soundTimer = 0;
     public final AnimationState frontRowingAnimationState = new AnimationState();
@@ -82,7 +87,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     
     public AbstractLongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
-        inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
+        addInventoryTab();
         this.intersectionChecked = true;
         this.lives = 20;
     }
@@ -129,15 +134,35 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return !this.isRemoved();
     }
 
-    private void growInventory(){ // only partially refactored
+    private void growInventory(){
+        addInventoryTab();
+    }
+
+    @Override
+    public void onTrackedDataSet(TrackedData<?> data) {
+        super.onTrackedDataSet(data);
+        syncInventorySize(getNumberOfChests());
+    }
+
+    @Override
+    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
+        super.onSpawnPacket(packet);
+    }
+
+    public void syncInventorySize(int chestCount) {
+        while (inventory.size() < chestCount) {
+            inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
+        }
+        while (inventory.size() > chestCount) {
+            inventory.remove(inventory.size() - 1);
+        }
+    }
+
+    private void addInventoryTab() {
         if(!this.inventoryDirty){
             inventoryDirty = true;
-            DefaultedList<ItemStack> newInventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
-            inventory.add(newInventory);
-            // tell any other players that might be on the server that our inventory has changed
-            if(!this.getWorld().isClient()){
-                //this.sendInventoryToClient(newInventory, false, -1);
-            }
+            inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
+            inventoryDirty = false;
         }
     }
 
@@ -387,7 +412,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     @Override
     public void onStartedTrackingBy(ServerPlayerEntity player){
         super.onStartedTrackingBy(player);
-        //this.sendInventoryToClient(this.inventory, false, -1);
     }
 
     public void playPlayerAnimations(Vec3d controlledMovementInput){
@@ -610,20 +634,41 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     @Override
     public void writeInventoryToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
-        nbt.putBoolean("Chest0", getChestPresent(0));
-        nbt.putBoolean("Chest1", getChestPresent(1));
-        nbt.putBoolean("Chest2", getChestPresent(2));
-        nbt.putBoolean("Chest3", getChestPresent(3));
-        VehicleInventory.super.writeInventoryToNbt(nbt, registryLookup);
+        for(int i = 0; i < 4; i++){
+            nbt.putBoolean("Chest" + i, getChestPresent(i));
+        }
+        NbtList nbtList = new NbtList();
+        for(int i = 0; i < this.size(); i++) {
+            ItemStack itemStack = tab(i).get(local(i));
+            if (!itemStack.isEmpty()) {
+                NbtCompound nbtCompound = new NbtCompound();
+                nbtCompound.putByte("Slot", (byte)i);
+                nbtList.add(itemStack.encode(registryLookup, nbtCompound));
+            }
+        }
+        nbt.put("Items", nbtList);
     }
 
     @Override
     public void readInventoryFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup){
+        inventory.clear();
         for(int i = 0; i < 4; i++){
             boolean chested = nbt.getBoolean("Chest" + i);
             setChestPresent(i, chested);
+            if(chested){
+                addInventoryTab();
+            }
         }
-        VehicleInventory.super.readInventoryFromNbt(nbt, registryLookup);
+        NbtList items = nbt.getList("Items", NbtElement.COMPOUND_TYPE);
+        for (int i = 0; i < items.size(); i++) {
+            NbtCompound stackTag = items.getCompound(i);
+            int absoluteSlot = stackTag.getByte("Slot") & 255;
+            int tab = absoluteSlot / SLOTS_PER_CHEST;
+            int local = absoluteSlot % SLOTS_PER_CHEST;
+            if (tab < inventory.size()) {
+                inventory.get(tab).set(local, ItemStack.fromNbt(registryLookup, stackTag).orElse(ItemStack.EMPTY));
+            }
+        }
     }
 
     @Override
@@ -723,7 +768,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     }
 
     public DefaultedList<ItemStack> getInventory() {
-        DefaultedList<ItemStack> flattenedInv = DefaultedList.ofSize(this.size()); //TODO: implement .set() and .clear() and all that garbage
+        DefaultedList<ItemStack> flattenedInv = DefaultedList.of();
         for (DefaultedList<ItemStack> itemStacks : this.inventory) {
             flattenedInv.addAll(itemStacks);
         }
@@ -735,11 +780,66 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return this.inventory;
     }
 
+    private DefaultedList<ItemStack> tab(int absoluteSlot) {
+        return inventory.get(absoluteSlot / SLOTS_PER_CHEST);
+    }
+
+    private int local(int absoluteSlot) {
+        return absoluteSlot % SLOTS_PER_CHEST;
+    }
+
+    @Override
+    public ItemStack getInventoryStack(int slot) {
+        this.generateInventoryLoot((PlayerEntity)null);
+        return tab(slot).get(local(slot));
+    }
+
+    @Override
+    public void setInventoryStack(int slot, ItemStack stack) {
+        this.generateInventoryLoot((PlayerEntity)null);
+        tab(slot).set(local(slot), stack);
+    }
+
+    @Override
+    public boolean isInventoryEmpty(){
+        for(DefaultedList<ItemStack> tab : this.inventory){
+            for(ItemStack stack : tab){
+                if(stack != ItemStack.EMPTY){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public ItemStack removeInventoryStack(int slot, int amount) {
+        this.generateInventoryLoot((PlayerEntity)null);
+        return Inventories.splitStack(inventory.get(slot / SLOTS_PER_CHEST), slot % SLOTS_PER_CHEST, amount);
+    }
+
+   @Override
+   public ItemStack removeInventoryStack(int slot) {
+        this.generateInventoryLoot((PlayerEntity)null);
+        ItemStack itemStack = this.tab(slot).get(local(slot));
+        if (itemStack.isEmpty()) {
+            return ItemStack.EMPTY;
+        } else {
+            this.tab(slot).set(slot, ItemStack.EMPTY);
+            return itemStack;
+        }
+    }
+
+    @Override
+    public void generateInventoryLoot(@Nullable PlayerEntity player) {
+        // nothing for now - loot tables are a future concern
+    }
+
     public void resetInventory() {
         if(!this.getHasScreen()){
             ArrayList<DefaultedList<ItemStack>> inventory = new ArrayList<>();
             for(int i = 0; i < this.size()/24; i++){
-                inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
+                addInventoryTab();
             }
             this.inventory = inventory;
         }
