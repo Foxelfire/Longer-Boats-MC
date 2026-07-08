@@ -41,7 +41,7 @@ public class TabSlot extends Slot {
 
     @Override
     public ItemStack takeStack(int amount){
-        ItemStack stack = getStack();
+        ItemStack stack = getStack(); // calling our own to avoid stale stacks from the entity
         ItemStack removed = stack.split(amount);
 
         if (!removed.isEmpty()) {
