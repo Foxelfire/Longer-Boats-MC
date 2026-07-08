@@ -138,11 +138,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         syncInventorySize(getNumberOfChests());
     }
 
-    @Override
-    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        super.onSpawnPacket(packet);
-    }
-
     public void syncInventorySize(int chestCount) {
         while (inventory.size() < chestCount) {
             inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
@@ -165,11 +160,14 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     }
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
-        setChestPresent(seatIndex, true);
         if(player != null && hand != null){
+            setChestPresent(seatIndex, true);
             player.getStackInHand(hand).decrement(1);
+            growInventory();
+            if(!this.getWorld().isClient()){
+                this.getWorld().playSound(this, this.getBlockPos(), SoundEvents.BLOCK_WOOD_PLACE, SoundCategory.BLOCKS, 1.0f, 0.9f);
+            }
         }
-        growInventory();
     }
 
     @Override
@@ -550,13 +548,13 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
             velocityZ = 0.0;
         }
         this.setVelocity(velocityX, velocityY, velocityZ);
-        if(this.getControllingPassenger() instanceof PlayerEntity){
+        if(this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity){
             if(this.getSecondaryControllingPassenger() instanceof PlayerEntity && this.getSecondaryControllingPassenger() != this.getControllingPassenger()){
                 travelControlled((PlayerEntity)this.getControllingPassenger(), (PlayerEntity)this.getSecondaryControllingPassenger());
             } else {
                 travelControlled((PlayerEntity)this.getFirstPassenger(), null);
             }
-        } else if(this.getSecondaryControllingPassenger() instanceof PlayerEntity){ // yeah i don't think this can ever happen, but i'll check for it
+        } else if(this.getSecondaryControllingPassenger() != null && this.getSecondaryControllingPassenger() instanceof PlayerEntity){ // yeah i don't think this can ever happen, but i'll check for it
             travelControlled(null, (PlayerEntity)this.getSecondaryControllingPassenger());
         } else {
             this.travel(this.getVelocity()); // gravity and stuff
