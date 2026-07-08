@@ -15,11 +15,13 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 
+import static net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity.SLOTS_PER_CHEST;
+
 public class LongBoatScreenHandler extends ScreenHandler {
 
     public AbstractLongBoatEntity entity;
     public final PlayerInventory playerInventory;
-    private SimpleInventory dummyInventory = new SimpleInventory(27);
+    private final SimpleInventory dummyInventory = new SimpleInventory(27);
     private int currentTab = 0;
 
     public LongBoatScreenHandler(int syncId, PlayerInventory inventory, EntityIdPayload payload){
@@ -54,9 +56,7 @@ public class LongBoatScreenHandler extends ScreenHandler {
         }
         // optimistic client update
         currentTab = tab;
-        ClientPlayNetworking.send(
-                new SwitchTabC2SPayload(entity.getId(), tab)
-        );
+        ClientPlayNetworking.send(new SwitchTabC2SPayload(entity.getId(), tab));
     }
 
     private boolean invalidTab(int tab) {
@@ -106,18 +106,22 @@ public class LongBoatScreenHandler extends ScreenHandler {
   
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        // this was copy-pasted from a tutorial, no clue how this works
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
         if (slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
-            if (invSlot < this.entity.getTab(this.getCurrentTab()).size()) {
-                if (!this.insertItem(originalStack, this.entity.getTab(this.getCurrentTab()).size(), this.slots.size(), true)) {
+
+            if (invSlot < SLOTS_PER_CHEST) {
+                // Boat -> player
+                if (!this.insertItem(originalStack, SLOTS_PER_CHEST, this.slots.size(), false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(originalStack, 0, this.entity.getTab(this.getCurrentTab()).size(), false)) {
-                return ItemStack.EMPTY;
+            } else {
+                // Player -> boat
+                if (!this.insertItem(originalStack, 0, SLOTS_PER_CHEST, false)) {
+                    return ItemStack.EMPTY;
+                }
             }
 
             if (originalStack.isEmpty()) {

@@ -1,6 +1,5 @@
 package net.foxelfire.longer_boats.entity.custom;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -155,7 +154,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
 
     private void growInventory() {
         if(!this.inventoryDirty){
-            inventoryDirty(true);
+            inventoryDirty(true); // multiplayer thread safety rail
             inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
             inventoryDirty(false);
         }
