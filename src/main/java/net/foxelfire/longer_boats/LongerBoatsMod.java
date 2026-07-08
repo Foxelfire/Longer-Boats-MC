@@ -7,8 +7,7 @@ import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.item.ModItems;
 import net.foxelfire.longer_boats.screen.LongBoatScreenHandler;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
-import net.foxelfire.longer_boats.util.ChangeTabC2SPayload;
-import net.foxelfire.longer_boats.util.InventorySizeS2CPayload;
+import net.foxelfire.longer_boats.util.SwitchTabC2SPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 
 import net.minecraft.entity.Entity;
@@ -31,11 +30,10 @@ public class LongerBoatsMod implements ModInitializer {
 		ModItems.registerModItems();
 		FuelItems.registerFuelInstances();
 		ModScreenHandlers.registerScreenHandlers();
-        PayloadTypeRegistry.playC2S().register(ChangeTabC2SPayload.ID, ChangeTabC2SPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(SwitchTabC2SPayload.ID, SwitchTabC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MovementInputS2CPayload.ID, MovementInputS2CPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(InventorySizeS2CPayload.ID, InventorySizeS2CPayload.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(ChangeTabC2SPayload.ID, (payload, context) -> {
+        ServerPlayNetworking.registerGlobalReceiver(SwitchTabC2SPayload.ID, (payload, context) -> {
                     PlayerEntity player = context.player();
                     context.server().execute(() -> {
                         Entity entity = player.getWorld().getEntityById(payload.entityId());
@@ -43,7 +41,7 @@ public class LongerBoatsMod implements ModInitializer {
                             return;
                         }
                         if (player.currentScreenHandler instanceof LongBoatScreenHandler handler && handler.entity == boat) {
-                            handler.setCurrentTab(payload.tab());
+                            handler.applyTabChange(payload.tab());
                             handler.sendContentUpdates();
                         }
                     });

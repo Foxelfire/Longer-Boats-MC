@@ -62,7 +62,7 @@ public class NewTabWidget extends ClickableWidget {
         private final PressAction onPress;
         @Nullable
         private Tooltip tooltip;
-        private boolean isLeft;
+        private final boolean isLeft;
         private int x;
         private int y;
         private int width = 150;

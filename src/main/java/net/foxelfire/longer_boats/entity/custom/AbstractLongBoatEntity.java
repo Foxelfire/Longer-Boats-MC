@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import net.foxelfire.longer_boats.util.EntityIdPayload;
-import net.foxelfire.longer_boats.util.InventorySizeS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.entity.*;
 import net.minecraft.inventory.Inventories;
@@ -87,7 +86,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
     
     public AbstractLongBoatEntity(EntityType<? extends AbstractLongBoatEntity> entityType, World world) {
         super(entityType, world);
-        addInventoryTab();
+        growInventory();
         this.intersectionChecked = true;
         this.lives = 20;
     }
@@ -134,10 +133,6 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         return !this.isRemoved();
     }
 
-    private void growInventory(){
-        addInventoryTab();
-    }
-
     @Override
     public void onTrackedDataSet(TrackedData<?> data) {
         super.onTrackedDataSet(data);
@@ -158,12 +153,16 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         }
     }
 
-    private void addInventoryTab() {
+    private void growInventory() {
         if(!this.inventoryDirty){
-            inventoryDirty = true;
+            inventoryDirty(true);
             inventory.add(DefaultedList.ofSize(SLOTS_PER_CHEST, ItemStack.EMPTY));
-            inventoryDirty = false;
+            inventoryDirty(false);
         }
+    }
+
+    public void inventoryDirty(boolean isDirty){
+        this.inventoryDirty = isDirty;
     }
 
     public void chestSeatAt(int seatIndex, PlayerEntity player, Hand hand){
@@ -656,7 +655,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
             boolean chested = nbt.getBoolean("Chest" + i);
             setChestPresent(i, chested);
             if(chested){
-                addInventoryTab();
+                growInventory();
             }
         }
         NbtList items = nbt.getList("Items", NbtElement.COMPOUND_TYPE);
@@ -839,7 +838,7 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         if(!this.getHasScreen()){
             ArrayList<DefaultedList<ItemStack>> inventory = new ArrayList<>();
             for(int i = 0; i < this.size()/24; i++){
-                addInventoryTab();
+                growInventory();
             }
             this.inventory = inventory;
         }

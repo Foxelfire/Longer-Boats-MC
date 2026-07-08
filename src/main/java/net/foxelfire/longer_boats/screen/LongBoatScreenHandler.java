@@ -1,10 +1,10 @@
 package net.foxelfire.longer_boats.screen;
 
-import java.util.List;
-
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.foxelfire.longer_boats.LongerBoatsMod;
 import net.foxelfire.longer_boats.entity.custom.AbstractLongBoatEntity;
 import net.foxelfire.longer_boats.util.EntityIdPayload;
+import net.foxelfire.longer_boats.util.SwitchTabC2SPayload;
 import net.foxelfire.longer_boats.util.TabSlot;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,13 +14,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.collection.DefaultedList;
 
 public class LongBoatScreenHandler extends ScreenHandler {
 
     public AbstractLongBoatEntity entity;
     public final PlayerInventory playerInventory;
-    private final SimpleInventory dummyInventory = new SimpleInventory(27);
+    private SimpleInventory dummyInventory = new SimpleInventory(27);
     private int currentTab = 0;
 
     public LongBoatScreenHandler(int syncId, PlayerInventory inventory, EntityIdPayload payload){
@@ -42,11 +41,26 @@ public class LongBoatScreenHandler extends ScreenHandler {
         return currentTab;
     }
 
-    public void setCurrentTab(int tab){
-        if(tab >= this.entity.getFullInventory().size() || tab <= -1){
+    public void applyTabChange(int tab){
+        if(invalidTab(tab)){
             return;
         }
         currentTab = tab;
+    }
+
+    public void requestTabChange(int tab) {
+        if (invalidTab(tab)) {
+            return;
+        }
+        // optimistic client update
+        currentTab = tab;
+        ClientPlayNetworking.send(
+                new SwitchTabC2SPayload(entity.getId(), tab)
+        );
+    }
+
+    private boolean invalidTab(int tab) {
+        return tab >= this.entity.getFullInventory().size() || tab <= -1;
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

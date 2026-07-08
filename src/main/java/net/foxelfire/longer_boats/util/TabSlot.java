@@ -28,4 +28,25 @@ public class TabSlot extends Slot {
         entity.getTab(handler.getCurrentTab()).set(slotIndex, stack);
         this.markDirty();
     }
+
+    @Override
+    public void setStackNoCallbacks(ItemStack stack){
+        entity.getTab(handler.getCurrentTab()).set(slotIndex, stack);
+    }
+
+    @Override
+    public void markDirty() {
+        entity.inventoryDirty(true);
+    }
+
+    @Override
+    public ItemStack takeStack(int amount){
+        ItemStack stack = getStack();
+        ItemStack removed = stack.split(amount);
+
+        if (!removed.isEmpty()) {
+            markDirty();
+        }
+        return removed;
+    }
 }

@@ -12,7 +12,6 @@ import net.foxelfire.longer_boats.entity.client.LongRaftRenderer;
 import net.foxelfire.longer_boats.entity.client.ModModelLayers;
 import net.foxelfire.longer_boats.screen.LongBoatScreen;
 import net.foxelfire.longer_boats.screen.ModScreenHandlers;
-import net.foxelfire.longer_boats.util.InventorySizeS2CPayload;
 import net.foxelfire.longer_boats.util.MovementInputS2CPayload;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,14 +25,6 @@ public class LongerBoatsModClient implements ClientModInitializer{
         EntityRendererRegistry.register(ModEntities.LONG_RAFT, LongRaftRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LONG_RAFT, LongRaftModel::getTexturedModelData);
         HandledScreens.register(ModScreenHandlers.LONG_BOAT_SCREEN_HANDLER, LongBoatScreen::new);
-
-        ClientPlayNetworking.registerGlobalReceiver(InventorySizeS2CPayload.ID, (payload, context) -> {
-            int entityId = payload.entityId();
-            int chestCount = payload.chestCount();
-            context.client().execute(() -> {
-
-            });
-        });
 
         ClientPlayNetworking.registerGlobalReceiver(MovementInputS2CPayload.ID, (payload, context) -> {
             int playerId = payload.entityId();
