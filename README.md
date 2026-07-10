@@ -6,7 +6,7 @@ with Vanilla Minecraft boats, namely the 0.5 second lag, the slow packet rate an
 that can cause chaos in ice-boating races as well as the inability to move boats up a block easily, with a total
 reimplementation of boat physics. It's only for the large boat for now, though a mixin to fix Vanilla boats could be done.
 
-This mod will not be ported to (Neo)/Forge or backported. The 1.20.2 version is not actively maintained anymore.
+This mod will not be backported. The 1.20.2 version is not actively maintained anymore.
 
 Heads up! - this is my first Minecraft mod as well as my first program in general that's going to be used by other people. 
 If you want to check out the code, even though most of it is copied from trimmed-down versions of code in Minecraft itself 
