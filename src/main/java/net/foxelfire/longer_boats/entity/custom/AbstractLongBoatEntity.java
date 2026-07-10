@@ -498,6 +498,8 @@ VehicleInventory, ExtendedScreenHandlerFactory<EntityIdPayload>, VariantHolder<L
         this.rotatingRightAnimationState.stop();
         this.rotatingBackLeftAnimationState.stop();
         this.rotatingBackRightAnimationState.stop();
+        this.frontRowingAnimationState.stop();
+        this.backRowingAnimationState.stop();
     }
 
     public void stopServerMovement(){

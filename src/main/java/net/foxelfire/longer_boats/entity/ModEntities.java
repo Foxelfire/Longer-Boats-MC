@@ -16,10 +16,10 @@ public class ModEntities {
     .dimensions(2.5f, 0.5f)
     .passengerAttachments(
         new Vec3d[] {
-                new Vec3d(0, 0.8, 1.2),
-                new Vec3d(0, 0.8, 0.2),
-                new Vec3d(0, 0.8, -0.8),
-                new Vec3d(0, 0.8, -1.8)
+                new Vec3d(0, 0.25, 1.2),
+                new Vec3d(0, 0.25, 0.2),
+                new Vec3d(0, 0.25, -0.8),
+                new Vec3d(0, 0.25, -1.8)
         }
     )
             .build());
