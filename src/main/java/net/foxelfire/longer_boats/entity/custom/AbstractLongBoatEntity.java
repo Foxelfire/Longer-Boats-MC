@@ -11,7 +11,6 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
